@@ -6,10 +6,12 @@ export default class Fragments {
 
   // TODO: rewrite as in-place
   merge() {
+    let n1 = this.fragments.length
+    
     let fragments = []
     this.fragments.forEach(frag => {
       let prevFrag = fragments[fragments.length - 1]
-      if (fragments.length > 0 && frag.style === prevFrag.style) {
+      if (fragments.length > 0 && Object.is(frag.annotations, prevFrag.annotations)) {
         // Merge
         prevFrag.text += frag.text
       } else {
@@ -19,6 +21,9 @@ export default class Fragments {
     })
 
     this.fragments = fragments
+
+    let n2 = this.fragments.length
+    console.log(`Merged ${n1} fragments into ${n2}`)
   }
 
   splitFragment(position) {
@@ -54,7 +59,7 @@ export default class Fragments {
       }
       offset = nextOffset
     })
-      
+
     this.merge()
   }
 }

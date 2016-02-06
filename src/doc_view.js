@@ -7,7 +7,6 @@ import FlatButton from 'material-ui/lib/flat-button'
 import IconButton from 'material-ui/lib/icon-button';
 import ActionHome from 'material-ui/lib/svg-icons/action/home';
 
-import Types from './types'
 import Fragments from './fragments'
 import DocText from './doc_text'
 import AnnotateBar from './annotate_bar'
@@ -67,12 +66,30 @@ export default class DocView extends React.Component {
     
     this.state = {
       description: "Beschlussausfertigung_A0205/10",
-      fragments: new Fragments([{ text: TEXT }])
+      fragments: new Fragments([{ text: TEXT }]),
+      annotations: []
     }
+  }
+
+  setAnnotationFragments(annotation) {
+    let { begin, end } = annotation
+    this.state.fragments.withFragments(begin, end, fragment => {
+      if (!fragment.hasOwnProperty('annotations')) fragment.annotations = {}
+      fragment.annotations[annotation.id] = annotation
+    })
+    this.setState({
+      fragments: this.state.fragments
+    })
+  }
+
+  addAnnotation(annotation) {
+    this.setState({
+      annotations: this.state.annotations.concat(annotation),
+      currentAnnotation: annotation
+    })
   }
   
   render() {
-    console.log("DocView.render", this.state.currentAnnotation)
     return (
       <div>
         <Paper
@@ -83,7 +100,10 @@ export default class DocView extends React.Component {
               iconElementLeft={<IconButton title="Zurück zur Suche"><ActionHome/></IconButton>}
               iconElementRight={<FlatButton label="PDF" title="Original-PDF herunterladen"/>}
               />
-          <DocText fragments={this.state.fragments} onSelection={slice => this.handleTextSelection(slice)}/>
+          <DocText fragments={this.state.fragments}
+              onSelection={slice => this.handleTextSelection(slice)}
+              currentAnnotation={this.state.currentAnnotation}
+              />
         </Paper>
         <AnnotateBar currentAnnotation={this.state.currentAnnotation} onType={type => this.handleSelectType(type)}/>
       </div>
@@ -92,9 +112,10 @@ export default class DocView extends React.Component {
 
   handleTextSelection(slice) {
     if (slice) {
-      console.log("set currentAnnotation:", slice)
+      // Makes it available to AnnotateBar & DocText
       this.setState({
         currentAnnotation: {
+          id: generateAnnotationId(),
           type: 'new',
           begin: slice.begin,
           end: slice.end
@@ -107,30 +128,30 @@ export default class DocView extends React.Component {
     }
   }
 
+  handleFragmentSelection(slice) {
+    // this.setState({
+    //   currentAnnotation:
+    // })
+  }
+
   handleSelectType(type) {
     let annotation = this.state.currentAnnotation
     if (!annotation) return
 
-    let { begin, end } = annotation
-    let def = findTypeDef(type)
-    this.state.fragments.withFragments(begin, end, fragment => {
-      fragment.style = { backgroundColor: def ? `rgb(${def.rgb})` : '#ccc' }
-    })
-    this.setState({
-      currentAnnotation: { type, begin, end },
-      fragments: this.state.fragments
-    })
+    if (this.state.currentAnnotation.type === 'new') {
+      // Turn a new into a permanent one
+      annotation.type = type
+      this.addAnnotation(annotation)
+    } else {
+      // Update existing annotation
+      annotation.type = type
+    }
+    // Update DocText
+    this.setAnnotationFragments(annotation)
   }
 }
 
-function findTypeDef(typeTitle) {
-  for(let category of Types) {
-    for(let type of category.types) {
-      if (type.title === typeTitle) {
-        return type
-      }
-    }
-  }
-
-  return null
+let nextAnnotationId = 1
+function generateAnnotationId() {
+  (nextAnnotationId++).toString()
 }

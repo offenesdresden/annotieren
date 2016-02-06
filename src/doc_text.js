@@ -1,6 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import Types from './types'
+
 
 export default class DocText extends React.Component {
   constructor(props) {
@@ -32,13 +34,13 @@ export default class DocText extends React.Component {
   }
   
   render() {
+    // TODO: have a fragment.id generated for key=
+    // TODO: hook onClick
     return (
       <p style={{ margin: "0.5em 2em", whiteSpace: "pre-wrap", fontFamily: "serif" }}
           >
         {this.props.fragments.map((fragment, i) =>
-          <span key={i} style={fragment.style || {}}>
-            {fragment.text}
-          </span>
+          <DocFragment key={i} {...fragment}/>
         )}
       </p>
     )
@@ -70,4 +72,37 @@ function getTextOffset(el, target, targetOffset) {
 
     return null
   }
+}
+
+class DocFragment extends React.Component {
+  render() {
+    let style = {}
+    let annotationIds = this.props.annotations ? Object.keys(this.props.annotations) : []
+    if (annotationIds.length > 0) {
+      let annotation =
+        this.props.annotations[annotationIds[annotationIds.length - 1]]
+      let def = findTypeDef(annotation.type)
+      style.backgroundColor = def ? `rgb(${def.rgb})` : '#ccc'
+
+      // TODO: frame currentAnnotation
+    }
+    return (
+      <span style={style}>
+        {this.props.text}
+      </span>
+    )
+  }
+}
+
+// TODO: move to Types module?
+function findTypeDef(typeTitle) {
+  for(let category of Types) {
+    for(let type of category.types) {
+      if (type.title === typeTitle) {
+        return type
+      }
+    }
+  }
+
+  return null
 }
