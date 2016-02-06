@@ -8,28 +8,8 @@ import Divider from 'material-ui/lib/divider'
 import ArrowDropRight from 'material-ui/lib/svg-icons/navigation-arrow-drop-right'
 import RadioButton from 'material-ui/lib/radio-button'
 
+import Types from './types'
 
-const TYPES = [
-  { title: "Personen",
-    types: [
-      { title: "Schriftführer" },
-      { title: "Anwesend" }
-    ]
-  },
-  { title: "Tagesordnungspunkt",
-    types: [
-      { title: "Schlüssel" },
-      { title: "Titel" },
-      { title: "Textinhalt" }
-    ]
-  },
-  { title: "Wortprotokoll",
-    types: [
-      { title: "Sprecher" },
-      { title: "Niederschrift" }
-    ]
-  }  
-]
 
 export default class AnnotateBar extends React.Component {
   render() {
@@ -63,10 +43,10 @@ class TypesMenu extends React.Component {
     console.log("TypesMenu.render", this.props.value)
     return (
       <div>
-        {TYPES.map((category, i) => (
+        {Types.map((category, i) => (
           <List subheader={category.title} key={i}>
             {category.types.map((type, j) => (
-              <ListItem key={j}>
+              <ListItem key={j} style={{ backgroundColor: `rgb(${type.rgb})` }}>
                 <RadioButton label={type.title}
                     name="type" value={type.title}
                     checked={this.props.value == type.title}

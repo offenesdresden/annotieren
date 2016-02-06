@@ -7,6 +7,7 @@ import FlatButton from 'material-ui/lib/flat-button'
 import IconButton from 'material-ui/lib/icon-button';
 import ActionHome from 'material-ui/lib/svg-icons/action/home';
 
+import Types from './types'
 import Fragments from './fragments'
 import DocText from './doc_text'
 import AnnotateBar from './annotate_bar'
@@ -111,12 +112,25 @@ export default class DocView extends React.Component {
     if (!annotation) return
 
     let { begin, end } = annotation
+    let def = findTypeDef(type)
     this.state.fragments.withFragments(begin, end, fragment => {
-        fragment.style = { backgroundColor: '#77f' }
-      })
+      fragment.style = { backgroundColor: def ? `rgb(${def.rgb})` : '#ccc' }
+    })
     this.setState({
       currentAnnotation: { type, begin, end },
       fragments: this.state.fragments
     })
   }
+}
+
+function findTypeDef(typeTitle) {
+  for(let category of Types) {
+    for(let type of category.types) {
+      if (type.title === typeTitle) {
+        return type
+      }
+    }
+  }
+
+  return null
 }
