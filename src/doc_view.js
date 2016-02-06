@@ -103,6 +103,7 @@ export default class DocView extends React.Component {
           <DocText fragments={this.state.fragments}
               onSelection={slice => this.handleTextSelection(slice)}
               currentAnnotation={this.state.currentAnnotation}
+              onClick={annotations => this.handleClickAnnotations(annotations)}
               />
         </Paper>
         <AnnotateBar currentAnnotation={this.state.currentAnnotation} onType={type => this.handleSelectType(type)}/>
@@ -110,6 +111,10 @@ export default class DocView extends React.Component {
     )
   }
 
+  /**
+   * DocText events handlers
+   **/
+  
   handleTextSelection(slice) {
     if (slice) {
       // Makes it available to AnnotateBar & DocText
@@ -128,12 +133,31 @@ export default class DocView extends React.Component {
     }
   }
 
-  handleFragmentSelection(slice) {
-    // this.setState({
-    //   currentAnnotation:
-    // })
+  handleClickAnnotations(annotationsDict) {
+    if (this.state.currentAnnotation && this.state.currentAnnotation.type === 'new') {
+      return
+    }
+    
+    console.log("handleClickAnnotations", annotationsDict)
+    let annotation = null
+    for(var id in annotationsDict) {
+      let annotation1 = annotationsDict[id]
+      if (annotation1 !== this.state.currentAnnotation &&
+          (!annotation ||
+           annotation.begin < annotation1.begin)) {
+        annotation = annotation1
+      }
+    }
+    console.log("currentAnnotation=", annotation)
+    this.setState({
+      currentAnnotation: annotation
+    })
   }
-
+  
+  /**
+   * AnnotateBar events handlers
+   **/
+  
   handleSelectType(type) {
     let annotation = this.state.currentAnnotation
     if (!annotation) return
@@ -151,7 +175,7 @@ export default class DocView extends React.Component {
   }
 }
 
-let nextAnnotationId = 1
+let lastAnnotationId = 0
 function generateAnnotationId() {
-  (nextAnnotationId++).toString()
+  return (lastAnnotationId++).toString()
 }

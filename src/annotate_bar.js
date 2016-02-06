@@ -13,7 +13,6 @@ import Types from './types'
 
 export default class AnnotateBar extends React.Component {
   render() {
-    console.log("AnnotateBar.render", this.props.currentAnnotation)
     let open = !!this.props.currentAnnotation
     let title = this.props.currentAnnotation &&
       this.props.currentAnnotation.type === 'new' ?
@@ -36,7 +35,6 @@ class TypesMenu extends React.Component {
   }
   
   render() {
-    console.log("TypesMenu.render", this.props.value)
     return (
       <div>
         {Types.map((category, i) => (

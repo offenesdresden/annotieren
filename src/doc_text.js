@@ -35,12 +35,11 @@ export default class DocText extends React.Component {
   
   render() {
     // TODO: have a fragment.id generated for key=
-    // TODO: hook onClick
     return (
       <p style={{ margin: "0.5em 2em", whiteSpace: "pre-wrap", fontFamily: "serif" }}
           >
         {this.props.fragments.map((fragment, i) =>
-          <DocFragment key={i} {...fragment}/>
+          <DocFragment key={i} {...fragment} onClick={this.props.onClick}/>
         )}
       </p>
     )
@@ -76,9 +75,17 @@ function getTextOffset(el, target, targetOffset) {
 
 class DocFragment extends React.Component {
   render() {
-    let style = {}
+    let props = { style: {} }
     let annotationIds = this.props.annotations ? Object.keys(this.props.annotations) : []
     if (annotationIds.length > 0) {
+      let { style } = props
+      // clickable
+      style.cursor = 'pointer'
+      props.onClick = ev => {
+        this.props.onClick(this.props.annotations)
+      }
+      
+      // backgroundColor by type
       let annotation =
         this.props.annotations[annotationIds[annotationIds.length - 1]]
       let def = findTypeDef(annotation.type)
@@ -87,7 +94,7 @@ class DocFragment extends React.Component {
       // TODO: frame currentAnnotation
     }
     return (
-      <span style={style}>
+      <span {...props}>
         {this.props.text}
       </span>
     )
