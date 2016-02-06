@@ -23,14 +23,10 @@ export default class AnnotateBar extends React.Component {
         <AppBar title={title} showMenuIconButton={false}/>
         <TypesMenu
             value={this.props.currentAnnotation && this.props.currentAnnotation.type}
-            onType={type => this.onType(type)}
+            onType={this.props.onType}
             />
       </LeftNav>
     )
-  }
-
-  onType(type) {
-    this.props.onType(type)
   }
 }
 
@@ -62,6 +58,8 @@ class TypesMenu extends React.Component {
 
   onCheck(ev) {
     let value = ev.target.value
-    this.props.onType(value)
+    if (this.props.onType) {
+      this.props.onType(value)
+    }
   }
 }
