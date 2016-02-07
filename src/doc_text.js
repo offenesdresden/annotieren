@@ -34,12 +34,25 @@ export default class DocText extends React.Component {
   }
   
   render() {
+    let isCurrent
+    let { currentAnnotation } = this.props
+    if (currentAnnotation) {
+      isCurrent = fragment =>
+        fragment.begin >= currentAnnotation.begin &&
+        fragment.end <= currentAnnotation.end
+    } else {
+      isCurrent = () => false
+    }
+    
     // TODO: have a fragment.id generated for key=
     return (
       <p style={{ margin: "0.5em 2em", whiteSpace: "pre-wrap", fontFamily: "serif" }}
           >
         {this.props.fragments.map((fragment, i) =>
-          <DocFragment key={i} {...fragment} onClick={this.props.onClick}/>
+          <DocFragment key={i} {...fragment}
+              onClick={this.props.onClick}
+              isCurrent={isCurrent(fragment)}
+              />
         )}
       </p>
     )
@@ -76,22 +89,25 @@ function getTextOffset(el, target, targetOffset) {
 class DocFragment extends React.Component {
   render() {
     let props = { style: {} }
-    let annotationIds = this.props.annotations ? Object.keys(this.props.annotations) : []
-    if (annotationIds.length > 0) {
+    let { annotation } = this.props
+    if (annotation) {
       let { style } = props
       // clickable
       style.cursor = 'pointer'
       props.onClick = ev => {
-        this.props.onClick(this.props.annotations)
+        this.props.onClick(annotation)
       }
       
       // backgroundColor by type
-      let annotation =
-        this.props.annotations[annotationIds[annotationIds.length - 1]]
       let def = findTypeDef(annotation.type)
       style.backgroundColor = def ? `rgb(${def.rgb})` : '#ccc'
 
-      // TODO: frame currentAnnotation
+      // frame currentAnnotation
+      if (this.props.isCurrent) {
+        console.log("isCurrent", this.props)
+        style.borderBottom = "1px dotted #333"
+        style.paddingBottom = "-1px"
+      }
     }
     return (
       <span {...props}>

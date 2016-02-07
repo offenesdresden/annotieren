@@ -11,7 +11,7 @@ export default class Fragments {
     let fragments = []
     this.fragments.forEach(frag => {
       let prevFrag = fragments[fragments.length - 1]
-      if (fragments.length > 0 && Object.is(frag.annotations, prevFrag.annotations)) {
+      if (fragments.length > 0 && Object.is(frag.annotation, prevFrag.annotation)) {
         // Merge
         prevFrag.text += frag.text
       } else {
@@ -38,8 +38,10 @@ export default class Fragments {
           let oldFragmentJSON = JSON.stringify(this.fragments[i])
           let before = JSON.parse(oldFragmentJSON)
           before.text = before.text.slice(0, delta)
+          before.end = before.begin + delta
           let after = JSON.parse(oldFragmentJSON)
           after.text = after.text.slice(delta)
+          after.begin = before.end
           this.fragments.splice(i, 1, before, after)
         }
         return

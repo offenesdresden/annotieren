@@ -66,7 +66,7 @@ export default class DocView extends React.Component {
     
     this.state = {
       description: "Beschlussausfertigung_A0205/10",
-      fragments: new Fragments([{ text: TEXT }]),
+      fragments: new Fragments([{ text: TEXT, begin: 0, end: TEXT.length }]),
       annotations: []
     }
   }
@@ -74,8 +74,10 @@ export default class DocView extends React.Component {
   setAnnotationFragments(annotation) {
     let { begin, end } = annotation
     this.state.fragments.withFragments(begin, end, fragment => {
-      if (!fragment.hasOwnProperty('annotations')) fragment.annotations = {}
-      fragment.annotations[annotation.id] = annotation
+      if (!fragment.annotation ||
+          fragment.annotation.begin < begin) {
+        fragment.annotation = annotation
+      }
     })
     this.setState({
       fragments: this.state.fragments
@@ -103,7 +105,7 @@ export default class DocView extends React.Component {
           <DocText fragments={this.state.fragments}
               onSelection={slice => this.handleTextSelection(slice)}
               currentAnnotation={this.state.currentAnnotation}
-              onClick={annotations => this.handleClickAnnotations(annotations)}
+              onClick={annotation => this.handleClickAnnotation(annotation)}
               />
         </Paper>
         <AnnotateBar currentAnnotation={this.state.currentAnnotation} onType={type => this.handleSelectType(type)}/>
@@ -118,6 +120,7 @@ export default class DocView extends React.Component {
   handleTextSelection(slice) {
     if (slice) {
       // Makes it available to AnnotateBar & DocText
+      // TODO: prevent updating DocText just yet by separating selection and currentAnnotation
       this.setState({
         currentAnnotation: {
           id: generateAnnotationId(),
@@ -133,21 +136,11 @@ export default class DocView extends React.Component {
     }
   }
 
-  handleClickAnnotations(annotationsDict) {
+  handleClickAnnotation(annotation) {
     if (this.state.currentAnnotation && this.state.currentAnnotation.type === 'new') {
       return
     }
     
-    console.log("handleClickAnnotations", annotationsDict)
-    let annotation = null
-    for(var id in annotationsDict) {
-      let annotation1 = annotationsDict[id]
-      if (annotation1 !== this.state.currentAnnotation &&
-          (!annotation ||
-           annotation.begin < annotation1.begin)) {
-        annotation = annotation1
-      }
-    }
     console.log("currentAnnotation=", annotation)
     this.setState({
       currentAnnotation: annotation
