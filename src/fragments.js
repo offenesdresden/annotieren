@@ -1,6 +1,9 @@
 export default class Fragments {
   constructor(fragments) {
-    this.fragments = fragments
+    this.fragments = fragments.map(fragment => {
+      fragment.id = generateFragmentId()
+      return fragment
+    })
     this.map = (...args) => this.fragments.map(...args)
   }
 
@@ -40,6 +43,7 @@ export default class Fragments {
           before.text = before.text.slice(0, delta)
           before.end = before.begin + delta
           let after = JSON.parse(oldFragmentJSON)
+          after.id = generateFragmentId()
           after.text = after.text.slice(delta)
           after.begin = before.end
           this.fragments.splice(i, 1, before, after)
@@ -64,4 +68,9 @@ export default class Fragments {
 
     this.merge()
   }
+}
+
+let lastFragmentId = 0
+function generateFragmentId() {
+  return (lastFragmentId++).toString()
 }

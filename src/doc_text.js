@@ -48,8 +48,8 @@ export default class DocText extends React.Component {
     return (
       <p style={{ margin: "0.5em 2em", whiteSpace: "pre-wrap", fontFamily: "serif" }}
           >
-        {this.props.fragments.map((fragment, i) =>
-          <DocFragment key={i} {...fragment}
+        {this.props.fragments.map(fragment =>
+          <DocFragment key={fragment.id} {...fragment}
               onClick={this.props.onClick}
               isCurrent={isCurrent(fragment)}
               />
@@ -104,7 +104,6 @@ class DocFragment extends React.Component {
 
       // frame currentAnnotation
       if (this.props.isCurrent) {
-        console.log("isCurrent", this.props)
         style.borderBottom = "1px dotted #333"
         style.paddingBottom = "-1px"
       }
