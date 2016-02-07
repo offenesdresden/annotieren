@@ -108,7 +108,10 @@ export default class DocView extends React.Component {
               onClick={annotation => this.handleClickAnnotation(annotation)}
               />
         </Paper>
-        <AnnotateBar currentAnnotation={this.state.currentAnnotation} onType={type => this.handleSelectType(type)}/>
+        <AnnotateBar currentAnnotation={this.state.currentAnnotation}
+            onType={type => this.handleSelectType(type)}
+            onDelete={() => this.handleDeleteAnnotation()}
+            />
       </div>
     )
   }
@@ -165,6 +168,26 @@ export default class DocView extends React.Component {
     }
     // Update DocText
     this.setAnnotationFragments(annotation)
+  }
+
+  handleDeleteAnnotation() {
+    let annotation = this.state.currentAnnotation
+    if (!annotation) return
+
+    console.log("delete", this.state.currentAnnotation, "from", this.state.annotations)
+    this.setState({
+      annotations: this.state.annotations.filter(annotation1 =>
+        annotation1.id !== annotation.id
+      ),
+      currentAnnotation: null
+    }, () => {
+      this.state.fragments.withFragments(annotation.begin, annotation.end, fragment => {
+        fragment.annotation = null
+      })
+      this.state.annotations.forEach(annotation =>
+        this.setAnnotationFragments(annotation)
+      )
+    })
   }
 }
 

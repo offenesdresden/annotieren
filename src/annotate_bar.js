@@ -4,9 +4,11 @@ import LeftNav from 'material-ui/lib/left-nav'
 import AppBar from 'material-ui/lib/app-bar'
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item'
-import Divider from 'material-ui/lib/divider'
 import ArrowDropRight from 'material-ui/lib/svg-icons/navigation-arrow-drop-right'
 import RadioButton from 'material-ui/lib/radio-button'
+import RaisedButton from 'material-ui/lib/raised-button'
+import DeleteIcon from 'material-ui/lib/svg-icons/action/delete'
+import colors from 'material-ui/lib/styles/colors'
 
 import Types from './types'
 
@@ -22,7 +24,7 @@ export default class AnnotateBar extends React.Component {
         <AppBar title={title} showMenuIconButton={false}/>
         <TypesMenu
             value={this.props.currentAnnotation && this.props.currentAnnotation.type}
-            onType={this.props.onType}
+            onType={this.props.onType} onDelete={this.props.onDelete}
             />
       </LeftNav>
     )
@@ -50,6 +52,15 @@ class TypesMenu extends React.Component {
             ))}
           </List>
         ))}
+
+        {(this.props.value !== 'new') ?
+          <div style={{ textAlign: "center", marginTop: "1em" }}>
+            <RaisedButton label="Löschen" icon={<DeleteIcon/>}
+                backgroundColor={colors.red700} labelColor="white"
+                onClick={ev => this.props.onDelete()}
+                />
+          </div> : ""
+        }
       </div>
     )
   }
