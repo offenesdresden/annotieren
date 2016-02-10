@@ -1,3 +1,10 @@
+# How to use
+
+* clone repository
+* npm install
+  * if error 127 occur: $ sudo apt-get install nodejs-legacy
+
+
 # TODO
 
 * Backend:
@@ -13,4 +20,4 @@
   * Neue Dokumente
   * Suche (Facets?)
 * Style
-  
+
