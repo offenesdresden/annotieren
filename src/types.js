@@ -31,5 +31,31 @@ export default [
         rgb: "223,223,255"
       }
     ]
-  }  
+  },
+  { title: "Ortsangabe",
+    types: [
+      { title: "Straßenname",
+        rgb: "223,223,223"
+      },
+      { title: "Hausnr.",
+        rgb: "191,191,191"
+      },
+      { title: "Postleitzahl",
+        rgb: "159,159,159"
+      },
+      { title: "Ort",
+        rgb: "127,127,127"
+      }
+    ]
+  },
+/*  { title: "",
+    types: [
+      { title: "",
+        rgb: ""
+      },
+      { title: "",
+        rgb: ""
+      }
+    ]
+  } */
 ]

@@ -5,83 +5,35 @@ import AppBar from 'material-ui/lib/app-bar'
 import colors from 'material-ui/lib/styles/colors'
 import FlatButton from 'material-ui/lib/flat-button'
 import IconButton from 'material-ui/lib/icon-button';
-import ActionHome from 'material-ui/lib/svg-icons/action/home';
+import ActionHome from 'material-ui/lib/svg-icons/action/home'
+import LinearProgress from 'material-ui/lib/linear-progress'
 
-import Fragments from './fragments'
 import DocText from './doc_text'
 import AnnotateBar from './annotate_bar'
 
-
-const TEXT = `Landeshauptstadt Dresden Ortschaftsrat Schönfeld-Weißig
-
-N I E D E R S C H R I F T
-
-zum öffentlichen Teil
-
-der 14. Sitzung des Ortschaftsrates Schönfeld-Weißig (Sondersitzung) (OSR SW/014/2015)
-
-am Donnerstag, 16. Juli 2015,
-
-19:30 Uhr
-
-in der Verwaltungsstelle Schönfeld-Weißig, Ratssaal, 2. Etage, Raum 208/209, Bautzner Landstraße 291, 01328 Dresden
-
-2/8 ö NS OSR SW/014/2015 16. Juli 2015
-
-Öffentlicher Teil der Sitzung: Beginn: 19:30Uhr Ende: 20:00 Uhr Anwesend: Vorsitzende Daniela Walter Mitglied Liste CDU Hans-Jürgen Behr Bernd Forker Renate Franz Bernd Jannasch Mario Quast Matthias Rath Mitglied Liste DIE LINKE Norbert Kunzmann Mitglied Liste Bündnis 90/Die Grünen Manuela Schott Reinhard Vetters Mitglied Liste FDP Manfred Eckelt Mitglied Liste Unabhängige Wählergemeinschaft Schönfelder Hochland Werner Friebel Olaf Zeisig Verwaltungsmitarbeiter Bernd Mizera Abwesend: Mitglied Liste CDU Carsten Preussler Manuela Schreiter Holger Walzog Dr. Christian Schnoor Mitglied Liste SPD Joachim Kubista
-
-3/8 ö NS OSR SW/014/2015 16. Juli 2015
-
-T A G E S O R D N U N G Öffentlich 1 Begrüßung, Feststellung der Beschlussfähigkeit
-
-2 Einwendungen zur Niederschrift der 12. Sitzung vom 24.06.2015
-
-2.1 Antrag der Bürgervereinigung Schullwitz e. V. zur Turnhalle Schul-
-
-lwitz aus der Investitionspauschale der Ortschaft Schönfeld-Weißig V-SW0046/15 beschließend
-
-2.1.1 Antrag Frau Schott den Antrag der Bürgervereinigung Schullwitz
-
-zurückzustellen A-SW0024/15 beschließend
-
-3 Sonstige Anfragen der Ortschaftsräte und Informationen
-
-4/8 ö NS OSR SW/014/2015 16. Juli 2015
-
-öffentlich 1 Begrüßung, Feststellung der Beschlussfähigkeit
-
-Die OVin eröffnet die Sitzung um 19:30 Uhr und begrüßt die Räte und Gäste; die Beschlussfähigkeit wird mit 13 Räten festgestellt. 2 Einwendungen zur Niederschrift der 12. Sitzung vom
-
-24.06.2015
-
-ORin Schott merkt an, dass eine protokollarische Ergänzung erfolgen müsse bezüglich des TOP 2 zum Thema Antrag der Bürgervereinigung Schullwitz, Seite 7. Im Protokoll müsse stehen, dass sich ORin Schreiter an der Diskussion beteiligte und erst aufgrund des Hinweises von OR Kubista den Platz neben der OVin als Gast einnahm, so wie es OR Dr. Schnoor deklarierte. Dies sei laut Geschäftsordnung relevant. Die OVin lässt dies prüfen und es wird gegebenenfalls eine Änderung im Protokoll erfolgen. 2.1 Antrag der Bürgervereinigung Schullwitz e. V. zur Turnhalle
-
-Schullwitz aus der Investitionspauschale der Ortschaft Schönfeld-Weißig
-
-      `
 
 export default class DocView extends React.Component {
   constructor(props) {
     super(props)
     
     this.state = {
+      loading: true,
       description: "Beschlussausfertigung_A0205/10",
-      fragments: new Fragments([{ text: TEXT, begin: 0, end: TEXT.length }]),
-      annotations: []
+      annotations: [],
+      pages: []
     }
   }
 
-  setAnnotationFragments(annotation) {
-    let { begin, end } = annotation
-    this.state.fragments.withFragments(begin, end, fragment => {
-      if (!fragment.annotation ||
-          fragment.annotation.begin < begin) {
-        fragment.annotation = annotation
-      }
-    })
-    this.setState({
-      fragments: this.state.fragments
-    })
+  componentDidMount() {
+    fetch(`/api/docs/${this.props.params.docId}/fragments`)
+      .then(res => res.json())
+      .then(json => {
+        // Trigger update:
+        this.setState({
+          loading: false,
+          pages: preparePageFragments(json)
+        })
+      })
   }
 
   addAnnotation(annotation) {
@@ -89,24 +41,108 @@ export default class DocView extends React.Component {
       annotations: this.state.annotations.concat(annotation),
       currentAnnotation: annotation
     })
+    this.setAnnotationFragments(annotation)
+  }
+
+  setAnnotationFragments(annotation) {
+    console.log("set", annotation, "fragments")
+    this._withFragments(annotation.begin, annotation.end, inline => {
+      console.log("inline to set:", inline)
+      if (!inline.annotations) inline.annotations = {}
+      inline.annotations[annotation.id] = annotation
+    })
+
+    // Invalidate user selection
+    document.getSelection().empty()
+  }
+
+  _withFragments(begin, end, iter) {
+    this._splitFragments(begin)
+    this._splitFragments(end)
+
+    for(let page of this.state.pages) {
+      if (begin <= page.end && page.begin <= end) {
+        console.log("with page", page)
+        for(let block of page.contents) {
+          if (begin <= block.end && block.begin <= end) {
+            console.log("with block", block)
+            for(let inline of block.contents) {
+              if (begin <= inline.begin && inline.end <= end) {
+                console.log("with inline", inline)
+                iter(inline)
+              }
+            }
+          }
+        }
+
+        // For DocText/Page.shouldComponentUpdate():
+        page.lastUpdate = Date.now()
+      }
+    }
+    this.setState({
+      pages: this.state.pages
+    })
+    
+    // TODO: this._mergeFragments
+  }
+
+  // ensures that inline fragments are split at certain offset for
+  // exact annotation marking
+  _splitFragments(offset) {
+    for(let page of this.state.pages) {
+      if (page.begin <= offset && offset <= page.end) {
+        console.log("Split page", page.begin, "<=", offset, "<=", page.end)
+        for(let block of page.contents) {
+          if (block.begin <= offset && offset <= block.end) {
+            console.log("Split block", block.begin, "<=", offset, "<=", block.end, ":", block.contents)
+            let contents = []
+            for(let inline of block.contents) {
+              if (inline.begin < offset && offset < inline.end) {
+                console.log("Split inline", inline.begin, "<=", offset, "<=", inline.end)
+                let delta = offset - inline.begin
+                console.log(`Split ${inline.begin}..${inline.end} at ${delta}`, inline)
+                
+                let inline1 = {}
+                Object.assign(inline1, inline)
+                inline1.text = inline.text.slice(0, delta)
+                inline1.end = inline1.begin + delta
+                contents.push(inline1)
+                
+                let inline2 = {}
+                Object.assign(inline2, inline)
+                inline2.text = inline.text.slice(delta)
+                inline2.begin = inline1.end
+                contents.push(inline2)
+              } else {
+                contents.push(inline)
+              }
+            }
+            block.contents = contents
+          }
+        }
+      }
+    }
   }
   
   render() {
+    console.log("DocView.render")
     return (
       <div>
-        <Paper
-            style={{maxWidth: "60em", margin: "0 auto"}}
-            >
+        <Paper zDepth={3}>
           <AppBar title={this.state.description}
               showMenuIconButton={false}
               iconElementLeft={<IconButton title="Zurück zur Suche"><ActionHome/></IconButton>}
               iconElementRight={<FlatButton label="PDF" title="Original-PDF herunterladen"/>}
               />
-          <DocText fragments={this.state.fragments}
-              onSelection={slice => this.handleTextSelection(slice)}
-              currentAnnotation={this.state.currentAnnotation}
-              onClick={annotation => this.handleClickAnnotation(annotation)}
-              />
+          {this.state.loading ?
+            <LinearProgress mode="indeterminate"/> :
+            <DocText
+                pages={this.state.pages}
+                onSelection={slice => this.handleTextSelection(slice)}
+                currentAnnotation={this.state.currentAnnotation}
+                onClick={annotation => this.handleClickAnnotation(annotation)}
+                />
+          }
         </Paper>
         <AnnotateBar currentAnnotation={this.state.currentAnnotation}
             onType={type => this.handleSelectType(type)}
@@ -124,6 +160,7 @@ export default class DocView extends React.Component {
     if (slice) {
       // Makes it available to AnnotateBar & DocText
       // TODO: prevent updating DocText just yet by separating selection and currentAnnotation
+      console.log("new annotation", slice)
       this.setState({
         currentAnnotation: {
           id: generateAnnotationId(),
@@ -133,6 +170,7 @@ export default class DocView extends React.Component {
         }
       })
     } else {
+      console.log("no annotation")
       this.setState({
         currentAnnotation: null
       })
@@ -146,7 +184,8 @@ export default class DocView extends React.Component {
     
     console.log("currentAnnotation=", annotation)
     this.setState({
-      currentAnnotation: annotation
+      currentAnnotation: annotation,
+      pages: this.state.pages
     })
   }
   
@@ -166,7 +205,6 @@ export default class DocView extends React.Component {
       // Update existing annotation
       annotation.type = type
     }
-    // Update DocText
     this.setAnnotationFragments(annotation)
   }
 
@@ -181,12 +219,14 @@ export default class DocView extends React.Component {
       ),
       currentAnnotation: null
     }, () => {
+      console.log("currentAnnotation: null")
       this.state.fragments.withFragments(annotation.begin, annotation.end, fragment => {
         fragment.annotation = null
       })
       this.state.annotations.forEach(annotation =>
         this.setAnnotationFragments(annotation)
       )
+      console.log("re-setAnnotationFragments", annotation)
     })
   }
 }
@@ -194,4 +234,41 @@ export default class DocView extends React.Component {
 let lastAnnotationId = 0
 function generateAnnotationId() {
   return (lastAnnotationId++).toString()
+}
+
+// Add begin/end text offsets
+function preparePageFragments(pages) {
+  let offset = 0
+  
+  for(let page of pages) {
+    page.begin = offset
+
+    for(let block of page.contents) {
+      block.begin = offset
+      
+      // Make string-only inline elements proper
+      block.contents = block.contents.map(inline => {
+        if (typeof inline === 'string') {
+          return {
+            contents: [inline]
+          }
+        } else {
+          return inline
+        }
+      })
+
+      for(let inline of block.contents) {
+        inline.begin = offset
+        // Concat inline text
+        inline.text = inline.contents.join("")
+        delete inline.contents
+        offset += inline.text.length
+        inline.end = offset
+      }
+      block.end = offset
+    }
+    page.end = offset
+  }
+  
+  return pages
 }

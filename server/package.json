@@ -1,0 +1,19 @@
+{
+  "name": "annotieren-server",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "compression": "^1.6.1",
+    "express": "^4.13.4",
+    "ltx": "^2.2.0",
+    "request": "^2.69.0",
+    "through2": "^2.0.1",
+    "utf8-stream": "0.0.0"
+  }
+}

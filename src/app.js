@@ -29,7 +29,7 @@ class Main extends React.Component {
           </header>
           <SearchResults query={this.state.searchQuery}/>
         </Route>
-        <Route path="/doc/:session/:doc">
+        <Route path="/doc/:docId">
           <DocView/>
         </Route>
       </div>

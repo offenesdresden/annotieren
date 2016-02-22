@@ -651,7 +651,8 @@ export default class SearchResults extends React.Component {
   }
 
   handleDocumentClick(ev, doc) {
-    Route.go(`/doc/1/${doc.file_name}`)
+    let docId = doc.file_name.replace(/\..*/, "")
+    Route.go(`/doc/${docId}`)
   }
 }
 

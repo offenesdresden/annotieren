@@ -19,6 +19,9 @@ var config = {
     filename: 'bundle.js'  //Name of output file
   },
   plugins: [
+    new webpack.ProvidePlugin({
+      fetch: 'imports?this=>global!exports?global.fetch!whatwg-fetch'
+    }),
     //Minify the bundle
     /*new webpack.optimize.UglifyJsPlugin({
       compress: {
