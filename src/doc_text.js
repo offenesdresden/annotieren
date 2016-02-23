@@ -45,6 +45,7 @@ export default class DocText extends React.Component {
     let isCurrent
     let { currentAnnotation } = this.props
     if (currentAnnotation) {
+      // TODO: this is different for page vs inline, similar to _withFragments()
       // isCurrent = fragment =>
       //   fragment.begin >= currentAnnotation.begin &&
       //   fragment.end <= currentAnnotation.end
@@ -92,14 +93,11 @@ function getTextOffset(el, target, targetOffset) {
 
 class Page extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
-    console.log("Page.shouldComponentUpdate", this.props.lastUpdate !== nextProps.lastUpdate,
-      this.props.isCurrent(this.props), nextProps.isCurrent(nextProps))
     return this.props.lastUpdate !== nextProps.lastUpdate ||
       this.props.isCurrent(this.props) || nextProps.isCurrent(nextProps)
   }
   
   render() {
-    console.log("Page.render", this.props)
     let style = mergeStyle({
       margin: "0 auto",
       whiteSpace: "pre-wrap"
@@ -126,18 +124,7 @@ class Inline extends React.Component {
     let props = {}
     let style = props.style = mergeStyle({}, this.props.style)
 
-    let { annotations } = this.props
-    let annotation
-    if (annotations) {
-      for(let id in annotations) {
-        let annotation1 = annotations[id]
-        if (!annotation ||
-            (annotation1.begin > annotation.begin) ||
-            (annotation1.begin >= annotation.begin && annotation1.end < annotation.end)) {
-          annotation = annotation1
-        }
-      }
-    }
+    let annotation = this.props.annotations && this.props.annotations[0]
     if (annotation) {
       console.log("Render with annotation:", this.props)
       // clickable

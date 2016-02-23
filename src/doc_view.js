@@ -48,12 +48,25 @@ export default class DocView extends React.Component {
     console.log("set", annotation, "fragments")
     this._withFragments(annotation.begin, annotation.end, inline => {
       console.log("inline to set:", inline)
-      if (!inline.annotations) inline.annotations = {}
+      if (!inline.annotations) inline.annotations = []
       if (annotation.type !== 'delete') {
-        inline.annotations[annotation.id] = annotation
+        if (inline.annotations.some(annotation1 =>
+          annotation.id === annotation1.id
+        )) return  // Skip if already present
+        
+        inline.annotations.push(annotation)
+        inline.annotations = inline.annotations.sort((a, b) => {
+          if (a.begin !== b.begin) {
+            return b.begin - a.begin
+          } else {
+            return b.end - a.end
+          }
+        })
       } else {
-        delete inline.annotations[annotation.id]
-        if (Object.keys(inline.annotations).length === 0) {
+        inline.annotations = inline.annotations.filter(annotation1 =>
+          annotation.id !== annotation1.id
+        )
+        if (inline.annotations.length === 0) {
           delete inline.annotations
         }
       }
@@ -74,6 +87,8 @@ export default class DocView extends React.Component {
           if (begin <= block.end && block.begin <= end) {
             console.log("with block", block)
             for(let inline of block.contents) {
+              // At inline level we can assume that _splitFragments()
+              // has made the offsets right
               if (begin <= inline.begin && inline.end <= end) {
                 console.log("with inline", inline)
                 iter(inline)
@@ -97,8 +112,8 @@ export default class DocView extends React.Component {
             }
             if (newContents.length !== block.contents.length) {
               console.log(`Merged contents from ${block.contents.length} to ${newContents.length}:`, newContents)
-              block.contents = newContents
             }
+            block.contents = newContents
           }
         }
 
@@ -137,6 +152,9 @@ export default class DocView extends React.Component {
                 Object.assign(inline2, inline)
                 inline2.text = inline.text.slice(delta)
                 inline2.begin = inline1.end
+                if (inline1.annotations) {
+                  inline2.annotations = [].concat(inline1.annotations)
+                }
                 contents.push(inline2)
               } else {
                 contents.push(inline)
@@ -184,7 +202,6 @@ export default class DocView extends React.Component {
   handleTextSelection(slice) {
     if (slice) {
       // Makes it available to AnnotateBar & DocText
-      // TODO: prevent updating DocText just yet by separating selection and currentAnnotation
       console.log("new annotation", slice)
       this.setState({
         currentAnnotation: {
@@ -194,8 +211,8 @@ export default class DocView extends React.Component {
           end: slice.end
         }
       })
-    } else {
-      console.log("no annotation")
+    } else if (this.state.currentAnnotation && this.state.currentAnnotation.type === 'new') {
+      // Drop temporary annotation for previous user selection
       this.setState({
         currentAnnotation: null
       })
