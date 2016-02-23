@@ -42,28 +42,13 @@ export default class DocText extends React.Component {
   }
   
   render() {
-    let isCurrent
-    let { currentAnnotation } = this.props
-    if (currentAnnotation) {
-      // TODO: this is different for page vs inline, similar to _withFragments()
-      // isCurrent = fragment =>
-      //   fragment.begin >= currentAnnotation.begin &&
-      //   fragment.end <= currentAnnotation.end
-      isCurrent = fragment =>
-        currentAnnotation.begin <= fragment.end &&
-        currentAnnotation.end >= fragment.begin
-    } else {
-      isCurrent = () => false
-    }
-    
-    console.log("DocText.render")
     return (
       <div>
         {this.props.pages.map((page, i) => (
           <div key={i}>
             <Page {...page}
                 onClick={this.props.onClick}
-                isCurrent={isCurrent}/>
+                currentAnnotation={this.props.currentAnnotation}/>
             <Divider/>
           </div>
         ))}
@@ -92,9 +77,16 @@ function getTextOffset(el, target, targetOffset) {
 }
 
 class Page extends React.Component {
+  _isCurrent(props) {
+    if (!props.currentAnnotation) return false
+    
+    let { begin, end } = props.currentAnnotation
+    return begin <= props.end && props.begin <= end
+  }
+  
   shouldComponentUpdate(nextProps, nextState) {
     return this.props.lastUpdate !== nextProps.lastUpdate ||
-      this.props.isCurrent(this.props) || nextProps.isCurrent(nextProps)
+      this._isCurrent(this.props) || this._isCurrent(nextProps)
   }
   
   render() {
@@ -109,8 +101,7 @@ class Page extends React.Component {
             {block.contents.map((inline, j) => (
               <Inline key={j} {...inline}
                   onClick={this.props.onClick}
-                  isCurrent={this.props.isCurrent}
-                  />
+                  currentAnnotation={this.props.currentAnnotation}/>
             ))}
           </p>
         ))}
@@ -120,6 +111,13 @@ class Page extends React.Component {
 }
 
 class Inline extends React.Component {
+  _isCurrent() {
+    if (!this.props.currentAnnotation) return false
+    
+    let { begin, end } = this.props.currentAnnotation
+    return begin <= this.props.begin && this.props.end <= end
+  }
+  
   render() {
     let props = {}
     let style = props.style = mergeStyle({}, this.props.style)
@@ -139,7 +137,7 @@ class Inline extends React.Component {
       props.title = def.title
 
       // frame currentAnnotation
-      if (this.props.isCurrent(this.props)) {
+      if (this._isCurrent()) {
         console.log("Render current:", this.props)
         style.borderBottom = "1px dotted #333"
         style.paddingBottom = "-1px"
