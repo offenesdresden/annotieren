@@ -49,7 +49,14 @@ export default class DocView extends React.Component {
     this._withFragments(annotation.begin, annotation.end, inline => {
       console.log("inline to set:", inline)
       if (!inline.annotations) inline.annotations = {}
-      inline.annotations[annotation.id] = annotation
+      if (annotation.type !== 'delete') {
+        inline.annotations[annotation.id] = annotation
+      } else {
+        delete inline.annotations[annotation.id]
+        if (Object.keys(inline.annotations).length === 0) {
+          delete inline.annotations
+        }
+      }
     })
 
     // Invalidate user selection
@@ -72,6 +79,26 @@ export default class DocView extends React.Component {
                 iter(inline)
               }
             }
+    
+            // Merge equal inline fragments
+            let newContents = []
+            for(let inline of block.contents) {
+              let lastNew = newContents.length > 0 &&
+                newContents[newContents.length - 1]
+              if (lastNew &&
+                  Object.is(lastNew.style, inline.style) &&
+                  Object.is(lastNew.annotations, inline.annotations)) {
+                console.log("Merge", lastNew, inline)
+                lastNew.text += inline.text
+                lastNew.end = inline.end
+              } else {
+                newContents.push(inline)
+              }
+            }
+            if (newContents.length !== block.contents.length) {
+              console.log(`Merged contents from ${block.contents.length} to ${newContents.length}:`, newContents)
+              block.contents = newContents
+            }
           }
         }
 
@@ -82,8 +109,6 @@ export default class DocView extends React.Component {
     this.setState({
       pages: this.state.pages
     })
-    
-    // TODO: this._mergeFragments
   }
 
   // ensures that inline fragments are split at certain offset for
@@ -218,16 +243,9 @@ export default class DocView extends React.Component {
         annotation1.id !== annotation.id
       ),
       currentAnnotation: null
-    }, () => {
-      console.log("currentAnnotation: null")
-      this.state.fragments.withFragments(annotation.begin, annotation.end, fragment => {
-        fragment.annotation = null
-      })
-      this.state.annotations.forEach(annotation =>
-        this.setAnnotationFragments(annotation)
-      )
-      console.log("re-setAnnotationFragments", annotation)
     })
+    annotation.type = 'delete'
+    this.setAnnotationFragments(annotation)
   }
 }
 
