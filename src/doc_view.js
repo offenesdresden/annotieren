@@ -15,7 +15,7 @@ import AnnotateBar from './annotate_bar'
 export default class DocView extends React.Component {
   constructor(props) {
     super(props)
-    
+
     this.state = {
       loading: true,
       description: "Beschlussausfertigung_A0205/10",
@@ -53,7 +53,7 @@ export default class DocView extends React.Component {
         if (inline.annotations.some(annotation1 =>
           annotation.id === annotation1.id
         )) return  // Skip if already present
-        
+
         inline.annotations.push(annotation)
         inline.annotations = inline.annotations.sort((a, b) => {
           if (a.begin !== b.begin) {
@@ -94,7 +94,7 @@ export default class DocView extends React.Component {
                 iter(inline)
               }
             }
-    
+
             // Merge equal inline fragments
             let newContents = []
             for(let inline of block.contents) {
@@ -141,13 +141,13 @@ export default class DocView extends React.Component {
                 console.log("Split inline", inline.begin, "<=", offset, "<=", inline.end)
                 let delta = offset - inline.begin
                 console.log(`Split ${inline.begin}..${inline.end} at ${delta}`, inline)
-                
+
                 let inline1 = {}
                 Object.assign(inline1, inline)
                 inline1.text = inline.text.slice(0, delta)
                 inline1.end = inline1.begin + delta
                 contents.push(inline1)
-                
+
                 let inline2 = {}
                 Object.assign(inline2, inline)
                 inline2.text = inline.text.slice(delta)
@@ -166,7 +166,7 @@ export default class DocView extends React.Component {
       }
     }
   }
-  
+
   render() {
     console.log("DocView.render")
     return (
@@ -198,7 +198,7 @@ export default class DocView extends React.Component {
   /**
    * DocText events handlers
    **/
-  
+
   handleTextSelection(slice) {
     if (slice) {
       // Makes it available to AnnotateBar & DocText
@@ -223,18 +223,18 @@ export default class DocView extends React.Component {
     if (this.state.currentAnnotation && this.state.currentAnnotation.type === 'new') {
       return
     }
-    
+
     console.log("currentAnnotation=", annotation)
     this.setState({
       currentAnnotation: annotation,
       pages: this.state.pages
     })
   }
-  
+
   /**
    * AnnotateBar events handlers
    **/
-  
+
   handleSelectType(type) {
     let annotation = this.state.currentAnnotation
     if (!annotation) return
@@ -274,13 +274,13 @@ function generateAnnotationId() {
 // Add begin/end text offsets
 function preparePageFragments(pages) {
   let offset = 0
-  
+
   for(let page of pages) {
     page.begin = offset
 
     for(let block of page.contents) {
       block.begin = offset
-      
+
       // Make string-only inline elements proper
       block.contents = block.contents.map(inline => {
         if (typeof inline === 'string') {
@@ -304,6 +304,6 @@ function preparePageFragments(pages) {
     }
     page.end = offset
   }
-  
+
   return pages
 }

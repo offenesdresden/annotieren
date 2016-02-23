@@ -9,7 +9,7 @@ import Types from './types'
 export default class DocText extends React.Component {
   constructor(props) {
     super(props)
-    
+
     this.handleSelection = (e) => {
       let slice
       let sel = document.getSelection()
@@ -32,7 +32,7 @@ export default class DocText extends React.Component {
       end: getTextOffset(el, range.endContainer, range.endOffset)
     }
   }
-  
+
   componentDidMount() {
     document.addEventListener('selectionchange', this.handleSelection, true)
   }
@@ -40,7 +40,7 @@ export default class DocText extends React.Component {
   componentWillUnmount() {
     document.removeEventListener('selectionchange', this.handleSelection, true)
   }
-  
+
   render() {
     return (
       <div>
@@ -79,16 +79,16 @@ function getTextOffset(el, target, targetOffset) {
 class Page extends React.Component {
   _isCurrent(props) {
     if (!props.currentAnnotation) return false
-    
+
     let { begin, end } = props.currentAnnotation
     return begin <= props.end && props.begin <= end
   }
-  
+
   shouldComponentUpdate(nextProps, nextState) {
     return this.props.lastUpdate !== nextProps.lastUpdate ||
       this._isCurrent(this.props) || this._isCurrent(nextProps)
   }
-  
+
   render() {
     let style = mergeStyle({
       margin: "0 auto",
@@ -113,11 +113,11 @@ class Page extends React.Component {
 class Inline extends React.Component {
   _isCurrent() {
     if (!this.props.currentAnnotation) return false
-    
+
     let { begin, end } = this.props.currentAnnotation
     return begin <= this.props.begin && this.props.end <= end
   }
-  
+
   render() {
     let props = {}
     let style = props.style = mergeStyle({}, this.props.style)
@@ -130,7 +130,7 @@ class Inline extends React.Component {
       props.onClick = ev => {
         this.props.onClick(annotation)
       }
-      
+
       // backgroundColor by type
       let def = findTypeDef(annotation.type)
       style.backgroundColor = def ? `rgb(${def.rgb})` : '#ccc'
@@ -153,7 +153,7 @@ class Inline extends React.Component {
 
 function mergeStyle(style, input) {
   if (!input) return style
-  
+
   for(let k in input) {
     let reactKey = k.replace(/-[a-z]/g, match => match[1].toUpperCase())
     style[reactKey] = input[k]
