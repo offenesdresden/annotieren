@@ -171,7 +171,7 @@ export default class DocView extends React.Component {
     console.log("DocView.render")
     return (
       <div>
-        <Paper zDepth={3}>
+        <Paper zDepth={1} style={{ width: "892px" }}>
           <AppBar title={this.state.description}
               showMenuIconButton={false}
               iconElementLeft={<IconButton title="Zurück zur Suche"><ActionHome/></IconButton>}
