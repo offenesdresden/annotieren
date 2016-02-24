@@ -3,6 +3,12 @@
 * clone repository
 * npm install
   * if error 127 occur: $ sudo apt-get install nodejs-legacy
+* [Populate ES index ratsinfo](https://github.com/astro/democropticon/tree/master/elasticsearch-upload) from [Ratsinfo-scraped](https://github.com/offenesdresden/ratsinfo-scraper) data
+* ```shell
+for f in `find /mnt/ratsinfo -name \*.pdf`; do
+    echo $f;pdftohtml -s -i $f $(basename $f .pdf)
+done
+```
 
 
 # TODO
