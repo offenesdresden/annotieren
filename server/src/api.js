@@ -72,36 +72,50 @@ class API {
 }
 
 function groupBySessionAndTemplate(hits) {
-  let sessions = {}
+  let sessions = []
   for(let hit of hits) {
     let session_id = hit.session_id
-    let template_id = hit.template_id
-    if (!sessions[session_id]) {
-      sessions[session_id] = {
+    let session
+    for(let session1 of sessions) {
+      if (session1.id === session_id) {
+        session = session1
+        break
+      }
+    }
+    if (!session) {
+      session = {
         id: hit.session_id,
         description: hit.session_description,
         started_at: hit.started_at,
-        parts: {}
+        parts: []
+      }
+      sessions.push(session)
+    }
+
+    let template_id = hit.template_id
+    let part
+    for(let part1 of session.parts) {
+      if (part1.template_id === template_id) {
+        part = part1
+        break
       }
     }
-    delete hit.session_id
-    delete hit.session_description
-    delete hit.started_at
-    if (!sessions[session_id].parts[template_id]) {
-      sessions[session_id].parts[template_id] = {
+    if (!part) {
+      part = {
         template_id: hit.template_id,
         description: hit.template_description,
         documents: []
       }
+      session.parts.push(part)
     }
-    delete hit.template_id
-    delete hit.template_description
-    sessions[session_id].parts[template_id].documents.push(hit)
+
+    part.documents.push({
+      file_name: hit.file_name,
+      description: hit.description
+    })
   }
-  return objectValues(sessions).map(session => {
-    session.parts = objectValues(session.parts)
-    return session
-  })
+
+  return sessions
 }
 
 
