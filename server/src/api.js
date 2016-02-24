@@ -48,8 +48,8 @@ class API {
       body: {
         query: query,
         sort: [
-          "_score",
-          "started_at"
+          { _score: "desc" },
+          { started_at: "desc" }
         ]
       }
     }).then(result =>
