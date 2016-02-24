@@ -61,7 +61,7 @@ class API {
       res.write(JSON.stringify(body))
       res.end()
     }, err => {
-      console.log("ES searchDocs for", query, ":", err)
+      console.log("ES searchDocs for", query, ":", err.stack)
       res.writeHead(500, {
         'Content-Type': 'text/plain'
       })
