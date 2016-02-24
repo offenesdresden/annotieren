@@ -25,7 +25,7 @@ class Main extends React.Component {
         <Route path="/">
           <header>
             <Search onSearch={(query) => this.search(query)} style={{float: "right"}}/>
-            <h1>Council Enrichment Crowd</h1>
+            <h1>Ratsinfo Annotieren</h1>
           </header>
           <SearchResults query={this.state.searchQuery}/>
         </Route>

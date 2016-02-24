@@ -4,8 +4,10 @@ const CONF = {
   http_port: 3000,
 
   resources: {
-    // htmlUrl: (docId) => `https://dresden.spaceboyz.net/ratsinfo-html/${docId}-html.html`
-    htmlUrl: (docId) => "https://dresden.spaceboyz.net/ratsinfo-html/00220058-html.html"
+    htmlUrl: (docId) => `https://dresden.spaceboyz.net/ratsinfo-html/${docId}-html.html`,
+    // htmlUrl: (docId) => "https://dresden.spaceboyz.net/ratsinfo-html/00220058-html.html",
+
+    elasticsearch: "https://es:Capt9slofO@dresden.spaceboyz.net/es/"
   }
 }
 

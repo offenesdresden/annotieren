@@ -37,11 +37,12 @@ export default class DocView extends React.Component {
   }
 
   addAnnotation(annotation) {
+    this.setAnnotationFragments(annotation)
+    annotation.text = this.getFragmentsText(annotation.begin, annotation.end)
     this.setState({
       annotations: this.state.annotations.concat(annotation),
       currentAnnotation: annotation
     })
-    this.setAnnotationFragments(annotation)
   }
 
   setAnnotationFragments(annotation) {
@@ -76,6 +77,13 @@ export default class DocView extends React.Component {
     document.getSelection().empty()
   }
 
+  // TODO: s/<\/p>/\n/
+  getFragmentsText(begin, end) {
+    let text = ""
+    this._withFragments(begin, end, frag => text += frag.text)
+    return text
+  }
+  
   _withFragments(begin, end, iter) {
     this._splitFragments(begin)
     this._splitFragments(end)
