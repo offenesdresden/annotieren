@@ -11,7 +11,7 @@ class API {
   constructor(conf) {
     this.conf = conf
     this.elasticsearch = new elasticsearch.Client({
-      host: conf.resources.elasticsearch,
+      host: conf.elasticsearchUrl,
       log: 'debug'
     })
   }
@@ -21,6 +21,7 @@ class API {
       'Content-Type': 'application/json'
     })
 
+    // TODO: no resources
     console.log(`Processing ${docId}: ${this.conf.resources.htmlUrl(docId)}`)
     request(this.conf.resources.htmlUrl(docId))
       .pipe(htmlProcess())
