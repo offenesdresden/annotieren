@@ -149,7 +149,7 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
         pdftohtml(pdfPath, (err, htmlPath) => {
           if (err) {
             console.log("pdftohtml error: " + err.message)
-            return cb(null, data.json)
+            return cb(null, data)
           }
 
           let t2 = Date.now()
@@ -168,6 +168,11 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
     // extract text from pdftohtml result
     if (data.htmlPath) {
       htmlToText(data.htmlPath, (err, text) => {
+        if (err) {
+          console.log("htmlToText error: " + err.message)
+          return cb(null, data)
+        }
+
         data.json.text = text
         cb(err, data)
       })
