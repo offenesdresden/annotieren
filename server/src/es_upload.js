@@ -87,8 +87,14 @@ function pdftohtml(pdfPath, cb) {
 function htmlToText(htmlPath, cb) {
   let pages = []
 
+  let proc = htmlProcess()
+  proc.on('error', err => {
+    cb(err)
+    cb = () => {}
+  })
+
   fs.createReadStream(htmlPath)
-    .pipe(htmlProcess())
+    .pipe(proc)
     .pipe(through.obj((page, enc, cb) => {
       pages.push(page.contents.map(
         block =>
