@@ -52,13 +52,8 @@ class Processor extends Transform {
   }
 
   _transform(data, encoding, cb) {
-    let err
-    try {
-      this.parser.write(data.toString('utf8'))
-    } catch (e) {
-      err = e
-    }
-    cb(err)
+    this.parser.write(data.toString('utf8'))
+    cb()
   }
 
   _flush(cb) {
