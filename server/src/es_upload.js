@@ -5,6 +5,7 @@ var child_process = require('child_process')
 var through = require('through2')
 var split = require('split')
 var elasticsearch = require('elasticsearch')
+var htmlProcess = require('./html_process')
 var CONF = require('../config.js')
 
 
@@ -65,6 +66,51 @@ function elasticSink() {
   })
 }
 
+function pdftohtml(pdfPath, cb) {
+  child_process.exec(`pdftohtml -i -s ${pdfPath}`, (err, stdout, stderr) => {
+    if (err) return cb(err)
+
+    stderr = stderr.toString()
+    if (stderr) return cb(new Error(stderr))
+
+    let basePath = pdfPath.replace(/\.pdf$/i, "")
+    let htmlPath = `${basePath}.html`
+    fs.unlink(`${basePath}s.html`, err => {
+      // Ignore this err
+      fs.rename(`${basePath}-html.html`, htmlPath, err => {
+        cb(err, htmlPath)
+      })
+    })
+  })
+}
+
+function htmlToText(htmlPath, cb) {
+  let pages = []
+
+  fs.createReadStream(htmlPath)
+    .pipe(htmlProcess())
+    .pipe(through.obj((page, enc, cb) => {
+      pages.push(page.contents.map(
+        block =>
+          block.contents.map(getFragmentText).join("")
+      ).join("\n"))
+      cb()
+    }, flushCb => {
+      flushCb()
+      cb(null, pages.join("\n\n\n"))
+    }))
+}
+
+function getFragmentText(frag) {
+  if (typeof frag === 'string') {
+    return frag
+  } else if (frag.contents) {
+    return frag.contents.map(getFragmentText).join("")
+  } else {
+    return ""
+  }
+}
+
 /*** Main pipeline ***/
 
 child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json", "-type", "f"]).stdout
@@ -74,7 +120,7 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
   }))
   .pipe(through.obj((path, enc, cb) => {
     if (!path) return cb()
-    
+
     fs.readFile(path, (err, data) => {
       cb(err, {
         path: path,
@@ -90,7 +136,47 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
     })
   }))
   .pipe(through.obj((data, enc, cb) => {
-    // TODO: pdftohtml
+    // pdftohtml for Files
+    if (/\/File$/.test(data.json.type)) {
+      let pdfPath = data.path.replace(/\.json$/, ".pdf")
+      fs.access(pdfPath, err => {
+        if (err) {
+          // Can't access .pdf, ignore
+          return cb(null, data)
+        }
+
+        let t1 = Date.now()
+        pdftohtml(pdfPath, (err, htmlPath) => {
+          if (err) {
+            console.log("pdftohtml error: " + err.message)
+            return cb(null, data.json)
+          }
+
+          let t2 = Date.now()
+          console.log(`pdftohtml [${t2 - t1}ms] ${pdfPath}`)
+
+          data.htmlPath = htmlPath
+          cb(null, data)
+        })
+      })
+    } else {
+      // Pass through non-Files
+      cb(null, data)
+    }
+  }))
+  .pipe(through.obj((data, enc, cb) => {
+    // extract text from pdftohtml result
+    if (data.htmlPath) {
+      htmlToText(data.htmlPath, (err, text) => {
+        data.json.text = text
+        cb(err, data)
+      })
+    } else {
+      cb(null, data)
+    }
+  }))
+  .pipe(through.obj((data, enc, cb) => {
+    // Actually, we only send the JSON to ES, not the paths
     cb(null, data.json)
   }))
   .pipe(batchify(64))
