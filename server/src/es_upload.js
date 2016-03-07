@@ -158,7 +158,7 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
           }
 
           let t1 = Date.now()
-          pdftohtml(pdfPath, err => {
+          pdftohtml(pdfPath, htmlPath, err => {
             if (err) {
               console.log("pdftohtml error: " + err.message)
               return cb(null, data)
