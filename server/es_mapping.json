@@ -37,7 +37,8 @@
             "properties": {
                 "name": {
                     "type": "string",
-                    "analyzer": "german_analyzer"
+                    "analyzer": "german_analyzer",
+                    "boost": 3
                 },
                 "shortName": {
                     "type": "string",
@@ -49,18 +50,19 @@
                 },
                 "start": {
                     "type": "date",
-                    "format": "strict_date_time"
+                    "format": "strict_date_time_no_millis"
                 },
                 "end": {
                     "type": "date",
-                    "format": "strict_date_time"
+                    "format": "strict_date_time_no_millis"
                 },
                 "agendaItem": {
                     "type": "nested",
                     "properties": {
                         "name": {
                             "type": "string",
-                            "analyzer": "german_analyzer"
+                            "analyzer": "german_analyzer",
+                            "boost": 4
                         }
                     }
                 }
@@ -70,7 +72,8 @@
             "properties": {
                 "name": {
                     "type": "string",
-                    "analyzer": "german_analyzer"
+                    "analyzer": "german_analyzer",
+                    "boost": 5
                 },
                 "shortName": {
                     "type": "string",
@@ -86,7 +89,7 @@
                 },
                 "publishedDate": {
                     "type": "date",
-                    "format": "strict_date_time"
+                    "format": "strict_date"
                 }
             }
         },
@@ -94,7 +97,8 @@
             "properties": {
                 "name": {
                     "type": "string",
-                    "analyzer": "german_analyzer"
+                    "analyzer": "german_analyzer",
+                    "boost": 2
                 },
                 "text": {
                     "type": "string",
@@ -103,7 +107,7 @@
                 },
                 "date": {
                     "type": "date",
-                    "format": "strict_date_time"
+                    "format": "strict_date_optional_time"
                 }
             }
         }
