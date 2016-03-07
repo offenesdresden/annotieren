@@ -66,7 +66,7 @@ function elasticSink() {
   })
 }
 
-function pdftohtml(pdfPath, cb) {
+function pdftohtml(pdfPath, htmlPath, cb) {
   child_process.exec(`pdftohtml -i -s ${pdfPath}`, (err, stdout, stderr) => {
     if (err) return cb(err)
 
@@ -74,11 +74,10 @@ function pdftohtml(pdfPath, cb) {
     if (stderr) return cb(new Error(stderr))
 
     let basePath = pdfPath.replace(/\.pdf$/i, "")
-    let htmlPath = `${basePath}.html`
     fs.unlink(`${basePath}s.html`, err => {
       // Ignore this err
       fs.rename(`${basePath}-html.html`, htmlPath, err => {
-        cb(err, htmlPath)
+        cb(err)
       })
     })
   })
@@ -144,25 +143,32 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
   .pipe(through.obj((data, enc, cb) => {
     // pdftohtml for Files
     if (/\/File$/.test(data.json.type)) {
-      let pdfPath = data.path.replace(/\.json$/, ".pdf")
-      fs.access(pdfPath, err => {
-        if (err) {
-          // Can't access .pdf, ignore
-          return cb(null, data)
+      data.htmlPath = pdfPath.replace(/\.pdf$/i, ".html")
+      fs.access(data.htmlPath, err => {
+        if (!err) {
+          // .html already exists, skip
+          return cb()
         }
 
-        let t1 = Date.now()
-        pdftohtml(pdfPath, (err, htmlPath) => {
+        let pdfPath = data.path.replace(/\.json$/, ".pdf")
+        fs.access(pdfPath, err => {
           if (err) {
-            console.log("pdftohtml error: " + err.message)
+            // Can't access .pdf, ignore
             return cb(null, data)
           }
 
-          let t2 = Date.now()
-          console.log(`pdftohtml [${t2 - t1}ms] ${pdfPath}`)
+          let t1 = Date.now()
+          pdftohtml(pdfPath, err => {
+            if (err) {
+              console.log("pdftohtml error: " + err.message)
+              return cb(null, data)
+            }
 
-          data.htmlPath = htmlPath
-          cb(null, data)
+            let t2 = Date.now()
+            console.log(`pdftohtml [${t2 - t1}ms] ${pdfPath}`)
+
+            cb(null, data)
+          })
         })
       })
     } else {
