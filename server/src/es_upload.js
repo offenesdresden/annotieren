@@ -144,10 +144,11 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
     // pdftohtml for Files
     if (/\/File$/.test(data.json.type)) {
       let pdfPath = data.path.replace(/\.json$/, ".pdf")
-      data.htmlPath = pdfPath.replace(/\.pdf$/i, ".html")
-      fs.access(data.htmlPath, err => {
+      let htmlPath = pdfPath.replace(/\.pdf$/i, ".html")
+      fs.access(htmlPath, err => {
         if (!err) {
           // .html already exists, skip
+          data.htmlPath = htmlPath
           return cb()
         }
 
@@ -158,7 +159,7 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
           }
 
           let t1 = Date.now()
-          pdftohtml(pdfPath, data.htmlPath, err => {
+          pdftohtml(pdfPath, htmlPath, err => {
             if (err) {
               console.log("pdftohtml error: " + err.message)
               return cb(null, data)
@@ -167,6 +168,7 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
             let t2 = Date.now()
             console.log(`pdftohtml [${t2 - t1}ms] ${pdfPath}`)
 
+            data.htmlPath = htmlPath
             cb(null, data)
           })
         })
