@@ -110,6 +110,24 @@
                     "format": "strict_date_optional_time"
                 }
             }
+        },
+        "Organization": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "analyzer": "german_analyzer",
+                    "boost": 3
+                }
+            }
+        },
+        "Person": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "analyzer": "german_analyzer",
+                    "boost": 3
+                }
+            }
         }
     }
 }
