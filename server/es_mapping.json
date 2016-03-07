@@ -1,0 +1,107 @@
+{
+    "settings" : {
+        "analysis": {
+            "filter": {
+                "german_stop": {
+                    "type": "stop",
+                    "stopwords": "_german_"
+                },
+                "german_stemmer": {
+                    "type": "stemmer",
+                    "name": "german"
+                },
+                "min_length": {
+                    "type": "length",
+                    "min": "2"
+                }
+            },
+            "analyzer": {
+                "german_analyzer": {
+                    "filter": [
+                        "lowercase",
+                        "asciifolding",
+                        "german_stemmer",
+                        "min_length",
+                        "german_stop"
+                    ],
+                    "tokenizer": "lowercase"
+                },
+                "path_analyzer": {
+                    "tokenizer": "path_hierarchy"
+                }
+            }
+        }
+    },
+    "mappings": {
+        "Meeting": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "analyzer": "german_analyzer"
+                },
+                "shortName": {
+                    "type": "string",
+                    "analyzer": "path_analyzer"
+                },
+                "meetingState": {
+                    "type": "string",
+                    "analyzer": "german_analyzer"
+                },
+                "start": {
+                    "type": "date",
+                    "format": "strict_date_time"
+                },
+                "end": {
+                    "type": "date",
+                    "format": "strict_date_time"
+                },
+                "agendaItem": {
+                    "type": "nested",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "analyzer": "german_analyzer"
+                        }
+                    }
+                }
+            }
+        },
+        "Paper": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "analyzer": "german_analyzer"
+                },
+                "shortName": {
+                    "type": "string",
+                    "analyzer": "path_analyzer"
+                },
+                "reference": {
+                    "type": "string",
+                    "analyzer": "path_analyzer"
+                },
+                "paperType": {
+                    "type": "string",
+                    "analyzer": "german_analyzer"
+                },
+                "publishedDate": {
+                    "type": "date",
+                    "format": "strict_date_time"
+                }
+            }
+        },
+        "File": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "analyzer": "german_analyzer"
+                },
+                "text": {
+                    "type": "string",
+                    "analyzer": "german_analyzer",
+                    "store": "false"
+                }
+            }
+        }
+    }
+}
