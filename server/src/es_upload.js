@@ -149,7 +149,7 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
         if (!err) {
           // .html already exists, skip
           data.htmlPath = htmlPath
-          return cb()
+          return cb(null, data)
         }
 
         fs.access(pdfPath, err => {
