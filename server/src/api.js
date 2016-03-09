@@ -7,12 +7,23 @@ var through = require('through2')
 var elasticsearch = require('elasticsearch')
 
 
+function oparlType(type) {
+  return `https://oparl.org/schema/1.0/${type}`
+}
+
+const SEARCH_TYPES = ['Meeting', 'Paper', 'File']
+
+
+function toHitsSources(result) {
+  return result.hits.hits.map(hit => hit._source)
+}
+
 class API {
   constructor(conf) {
     this.conf = conf
     this.elasticsearch = new elasticsearch.Client({
       host: conf.elasticsearchUrl,
-      log: 'debug'
+      log: 'info'
     })
   }
 
@@ -33,6 +44,49 @@ class API {
       })
   }
 
+  get(type, id, res) {
+    this.elasticsearch.get({
+      index: 'oparl',
+      type: type,
+      id: id
+    }).then(result => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      })
+      res.write(JSON.stringify(result._source))
+      res.end()
+    }, err => {
+      console.log("ES get:", err.stack)
+      res.writeHead(500, {
+        'Content-Type': 'text/plain'
+      })
+      res.write(err.message.toString())
+      res.end()
+    })
+  }
+
+  _search(body, res, mapper) {
+    this.elasticsearch.search({
+      index: 'oparl',
+      body: body
+    }).then(result =>
+      mapper ? mapper(result) : result
+    ).then(body => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      })
+      res.write(JSON.stringify(body))
+      res.end()
+    }, err => {
+      console.log("ES search:", err.stack)
+      res.writeHead(500, {
+        'Content-Type': 'text/plain'
+      })
+      res.write(err.message.toString())
+      res.end()
+    })
+  }
+
   searchDocs(queryString, res) {
     let query = queryString ? {
       query_string: {
@@ -43,80 +97,81 @@ class API {
     } : {
       match_all: {}
     }
-    this.elasticsearch.search({
-      index: 'ratsinfo',
-      type: 'pdf',
-      body: {
-        query: query,
-        sort: [
-          { _score: "desc" },
-          { started_at: "desc" }
-        ]
-      }
-    }).then(result =>
-      groupBySessionAndTemplate(result.hits.hits.map(hit => hit._source))
-    ).then(body => {
-      res.writeHead(200, {
-        'Content-Type': 'application/json'
-      })
-      res.write(JSON.stringify(body))
-      res.end()
-    }, err => {
-      console.log("ES searchDocs for", query, ":", err.stack)
-      res.writeHead(500, {
-        'Content-Type': 'text/plain'
-      })
-      res.write(err.message.toString())
-      res.end()
-    })
-  }
-}
-
-function groupBySessionAndTemplate(hits) {
-  let sessions = []
-  for(let hit of hits) {
-    let session_id = hit.session_id
-    let session
-    for(let session1 of sessions) {
-      if (session1.id === session_id) {
-        session = session1
-        break
-      }
-    }
-    if (!session) {
-      session = {
-        id: hit.session_id,
-        description: hit.session_description,
-        started_at: hit.started_at,
-        parts: []
-      }
-      sessions.push(session)
-    }
-
-    let template_id = hit.template_id
-    let part
-    for(let part1 of session.parts) {
-      if (part1.template_id === template_id) {
-        part = part1
-        break
-      }
-    }
-    if (!part) {
-      part = {
-        template_id: hit.template_id,
-        description: hit.template_description,
-        documents: []
-      }
-      session.parts.push(part)
-    }
-
-    part.documents.push({
-      file_name: hit.file_name,
-      description: hit.description
-    })
+    this._search({
+      query: {
+        bool: {
+          must: query,
+          filter: {
+            or: SEARCH_TYPES.map(type => {
+              return {
+                type: {
+                  value: type
+                }
+              }
+            })
+          }
+        }
+      },
+      sort: [
+        { _score: "desc" },  // ES scoring
+        { publishedDate: "desc" },  // type Paper
+        { start: "desc" }  // type Meeting
+        // { date: "desc" }  // type File
+      ]
+    }, res, toHitsSources)
   }
 
-  return sessions
+  findFileContext(id, res) {
+    this._search({
+      query: {
+        or: [{
+          match: {
+            invitation: id
+          }
+        }, {
+          match: {
+            resultsProtocol: id
+          }
+        }, {
+          match: {
+            verbatimProtocol: id
+          }
+        }, {
+          match: {
+            auxiliaryFile: id
+          }
+        }, {
+          match: {
+            resolutionFile: id
+          }
+        }, {
+          match: {
+            mainFile: id
+          }
+        }]
+      }
+    }, res, toHitsSources)
+  }
+
+  findPaperContext(id, res) {
+    // TODO: doesn't work at all
+    this._search({
+      query: {
+        nested: {
+          path: "agendaItem",
+          query: {
+            bool: {
+              must: {
+                match: {
+                  "agendaItem.consultation.parentID": id
+                }
+              }
+            }
+          }
+        }
+      }
+    }, res, toHitsSources)
+  }
 }
 
 
@@ -124,11 +179,32 @@ module.exports = function(conf) {
   let api = new API(conf)
   var app = express()
 
-  app.get('/docs/search/', (req, res) => {
+  app.get('/search/', (req, res) => {
     api.searchDocs("", res)
   })
-  app.get('/docs/search/:query*', (req, res) => {
+  app.get('/search/:query*', (req, res) => {
     api.searchDocs(req.params.query, res)
+  })
+  app.get('/oparl/file/:id', (req, res) => {
+    api.get('File', req.params.id, res)
+  })
+  app.get('/oparl/paper/:id', (req, res) => {
+    api.get('Paper', req.params.id, res)
+  })
+  app.get('/oparl/meeting/:id', (req, res) => {
+    api.get('Meeting', req.params.id, res)
+  })
+  app.get('/oparl/person/:id', (req, res) => {
+    api.get('Person', req.params.id, res)
+  })
+  app.get('/oparl/organization/:id', (req, res) => {
+    api.get('Organization', req.params.id, res)
+  })
+  app.get('/oparl/file/:id/context', (req, res) => {
+    api.findFileContext(req.params.id, res)
+  })
+  app.get('/oparl/paper/:id/context', (req, res) => {
+    api.findPaperContext(req.params.id, res)
   })
   app.get('/docs/:docid/fragments', (req, res) => {
     api.getDocFragments(req.params.docid, res)

@@ -1,129 +1,337 @@
 import React from 'react'
+import Reflux from 'reflux'
 import Route from 'react-route'
 
-import Card from 'material-ui/lib/card/card';
-import CardActions from 'material-ui/lib/card/card-actions';
-import CardHeader from 'material-ui/lib/card/card-header';
-import CardMedia from 'material-ui/lib/card/card-media';
-import CardTitle from 'material-ui/lib/card/card-title';
-import CardText from 'material-ui/lib/card/card-text';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
-import Avatar from 'material-ui/lib/avatar';
-import colors from 'material-ui/lib/styles/colors';
+import Card from 'material-ui/lib/card/card'
+import CardActions from 'material-ui/lib/card/card-actions'
+import CardHeader from 'material-ui/lib/card/card-header'
+import CardMedia from 'material-ui/lib/card/card-media'
+import CardTitle from 'material-ui/lib/card/card-title'
+import CardText from 'material-ui/lib/card/card-text'
+import List from 'material-ui/lib/lists/list'
+import ListItem from 'material-ui/lib/lists/list-item'
+import colors from 'material-ui/lib/styles/colors'
 import DescriptionIcon from 'material-ui/lib/svg-icons/action/description'
+import RaisedButton from 'material-ui/lib/raised-button'
+import Avatar from 'material-ui/lib/avatar'
+import ActionSubject from 'material-ui/lib/svg-icons/action/subject'
 
 
-export default class SearchResults extends React.Component {
-  constructor(props) {
-    super(props)
-    
-    this.state = {
-      query: "",
+import { actions as searchActions } from './search_store'
+
+
+const TYPE_MEETING = "https://oparl.org/schema/1.0/Meeting"
+const TYPE_PAPER = "https://oparl.org/schema/1.0/Paper"
+const TYPE_FILE = "https://oparl.org/schema/1.0/File"
+
+
+export default React.createClass({
+  mixins: [
+    Reflux.listenTo(searchActions.search.completed, "onSearchCompleted")
+  ],
+
+  getInitialState: function() {
+    return {
       results: []
     }
-  }
+  },
 
-  search(query) {
+  onSearchCompleted: function(results) {
     this.setState({
-      query: query,
-      loading: true
+      results: results
     })
+  },
 
-    fetch(`/api/docs/search/${encodeURIComponent(query)}`)
-      .then(res => res.json())
-      .then(json => {
-        // Trigger update:
-        this.setState({
-          loading: false,
-          results: json
-        })
-      })
-  }
-
-  componentDidMount() {
-    console.log("search from componentDidMount")
-    this.search(this.state.query)
-  }
-  
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.query !== this.state.query) {
-      console.log("search from componentWillReceiveProps")
-      this.search(nextProps.query)
-    }
-  }
-  
-  render() {
+  render: function() {
+    console.log("SearchResults.render with state:", this.state.results.map(result => result.type))
     return (
       <div>
         {this.state.results.map((result, i) =>
-          <Card key={i}>
-            <CardHeader
-                title={result.description}
-                subtitle={result.started_at}
-                style={{ backgroundColor: colors.lime500 }}
-                titleStyle={{ fontWeight: "bold", fontSize: "120%" }}
-                />
-            <CardText>
-              <List>
-                {result.parts.map((part, j) =>
-                  <ListItem key={j} disabled={true}>
-                    <List subheader={
-                      <div>
-                        {part.template_id ? (
-                          <Avatar color="white" size={32} style={{float: "left", clear: "left"}}
-                              backgroundColor={templateIdToColor(part.template_id)}
-                              title={templateIdToTitle(part.template_id)}
-                              >
-                            {part.template_id && part.template_id[0]}
-                          </Avatar>
-                        ) : ""}
-                        <p style={{ marginLeft: "40px", lineHeight: "1.4em" }}>{part.description}</p>
-                      </div>
-                    }>
-                      {part.documents.map((doc, k) =>
-                        <ListItem key={k}
-                            onClick={ev => this.handleDocumentClick(ev, doc)}
-                            >
-                          <DescriptionIcon color="#ccc"/>
-                          {doc.description}
-                        </ListItem>
-                      )}
-                    </List>
-                  </ListItem>
-                )}
-              </List>
-            </CardText>
-          </Card>
+          <SearchResult key={i} {...result}/>
         )}
       </div>
     )
-  }
+  },
 
-  handleDocumentClick(ev, doc) {
+  handleDocumentClick: function(ev, doc) {
     let docId = doc.file_name.replace(/\..*/, "")
     Route.go(`/doc/${docId}`)
   }
-}
+})
 
-function templateIdToTitle(template_id) {
-  if (/^V/.test(template_id)) {
-    return `Vorlage ${template_id}`
-  } else if (/^A/.test(template_id)) {
-    return `Antrag ${template_id}`
-  } else if (template_id) {
-    return template_id
-  } else {
-    return "Keine Vorlage"
+class SearchResult extends React.Component {
+  render() {
+    switch(this.props.type) {
+    case TYPE_MEETING:
+      return <Meeting {...this.props}/>
+      break
+    case TYPE_PAPER:
+      return <Paper {...this.props}/>
+      break
+    case TYPE_FILE:
+      return <File {...this.props}/>
+      break
+    default:
+      return <p/>
+    }
   }
 }
 
-function templateIdToColor(template_id) {
-  if (/^V/.test(template_id)) {
+class Meeting extends React.Component {
+  render() {
+    console.log("render meeting", this.props)
+    return (
+      <Card style={{ marginBottom: "1em" }}>
+        <CardHeader
+            title={this.props.name}
+            subtitle={`${this.props.shortName} ${this.props.start}`}
+            style={{ backgroundColor: colors.lime500 }}
+            />
+        <CardText>
+          {findFilesInObject(this.props).map(id =>
+            <FileItem key={id} id={id}/>
+          )}
+          <List>
+            {this.props.agendaItem ?
+              this.props.agendaItem.map((item, i) =>
+                <ListItem key={i}>
+                  <div>
+                  <Avatar size={28}>{item.number}</Avatar>
+                    {item.name}
+                  </div>
+                  {(findFilesInObject(item).length > 0) ? (
+                    <List>
+                      {findFilesInObject(item).map(id =>
+                        <FileItem key={id} id={id}/>
+                      )}
+                    </List>
+                  ) : ""}
+                </ListItem>
+              ) : ""}
+          </List>
+        </CardText>
+      </Card>
+    )
+  }
+}
+
+class Paper extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      meetings: []
+    }
+  }
+
+  render() {
+    let paper = this.props
+
+    return (
+      <Card style={{ marginBottom: "1em" }}>
+        <CardHeader
+            title={<span>
+              <Avatar title={paper.shortName} size={32}
+                  backgroundColor={paperShortNameToColor(paper.shortName)}
+                  >
+                {paper.shortName[0]}
+              </Avatar>
+              {paper.name}
+            </span>}
+            subtitle={`${paper.shortName} ${iso8601ToDate(paper.publishedDate)}`}
+            style={{ backgroundColor: colors.lime700 }}
+            />
+        <CardText>
+          {findFilesInObject(paper).map(id =>
+            <FileItem key={id} id={id}/>
+          )}
+          <List>
+            {(paper.consultation || []).map((consultation, i) =>
+              <MeetingItem key={i} id={consultation.meeting} filesOf={paper.id}/>
+            )}
+          </List>
+        </CardText>
+      </Card>
+    )
+  }
+}
+
+class File extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+    }
+  }
+
+  componentDidMount() {
+    fetch(`/api/oparl/file/${encodeURIComponent(this.props.id)}/context`)
+      .then(res => res.json())
+      .then(results => {
+        for(let result of results) {
+          if (result.type == TYPE_MEETING) {
+            this.setState({
+              meeting: result
+            })
+          } else if (result.type == TYPE_PAPER) {
+            this.setState({
+              paper: result
+            })
+          }
+        }
+      })
+  }
+
+  render() {
+    return (
+      <Card>
+        <CardHeader
+            title={<span><Avatar backgroundColor="white" size={36}><ActionSubject/></Avatar> {this.props.name}</span>}
+            style={{ backgroundColor: colors.lime300 }}
+            />
+        <CardText>
+          <List>
+            {this.state.meeting ? <MeetingItem {...this.state.meeting}/> : ""}
+            {this.state.paper ? <PaperItem {...this.state.paper}/> : ""}
+          </List>
+        </CardText>
+        <CardActions style={{ textAlign: 'right' }}>
+          <RaisedButton label="Text Annotieren" primary={true}/>
+          <RaisedButton label="Original-PDF" secondary={true}/>
+        </CardActions>
+      </Card>
+    )
+  }
+}
+
+class MeetingItem extends React.Component {
+  componentDidMount() {
+    if (!this.props.name) {
+      fetch(`/api/oparl/meeting/${encodeURIComponent(this.props.id)}`)
+        .then(res => res.json())
+        .then(result => {
+          this.setState(result)
+        })
+    }
+  }
+
+  render() {
+    let meeting = this.state || this.props
+
+    return !this.props.filesOf ?
+      <ListItem disabled={true}
+          primaryText={meeting.name}
+          secondaryText={iso8601ToDate(meeting.start)}
+          >
+      </ListItem> :
+      <ListItem disabled={true}>
+        <List subheader={meeting.name}>
+          {meeting.agendaItem ?
+            meeting.agendaItem
+            .filter(item =>
+              item.consultation &&
+              item.consultation.parentID === this.props.filesOf
+            )
+            .map(item =>
+              findFilesInObject(item).map(id =>
+                <FileItem key={id} id={id}/>
+              )
+            )
+            : ""
+          }
+        </List>
+      </ListItem>
+  }
+}
+
+class PaperItem extends React.Component {
+  componentDidMount() {
+    if (!this.props.name) {
+      fetch(`/api/oparl/paper/${encodeURIComponent(this.props.id)}`)
+        .then(res => res.json())
+        .then(result => {
+          this.setState(result)
+        })
+    }
+  }
+
+  render() {
+    let paper = this.state || this.props
+
+    return (
+      <ListItem>
+        <Avatar title={paper.shortName} size={32}
+            backgroundColor={paperShortNameToColor(paper.shortName)}
+            >
+          {paper.shortName[0]}
+        </Avatar>
+        <span style={{ paddingLeft: "0.5em" }}>
+          {paper.name}
+        </span>
+      </ListItem>
+    )
+  }
+}
+
+class FileItem extends React.Component {
+  componentDidMount() {
+    if (!this.props.name) {
+      fetch(`/api/oparl/file/${encodeURIComponent(this.props.id)}`)
+        .then(res => res.json())
+        .then(result => {
+          this.setState(result)
+        })
+    }
+  }
+
+  render() {
+    let file = this.state || this.props
+
+    return (
+      <ListItem primaryText={file.name} leftIcon={<ActionSubject/>} />
+    )
+  }
+}
+
+const FILES_KEYS = [
+  'invitation',
+  'masterFile',
+  'mainFile',
+  'derivativeFile',
+  'verbatimProtocol',
+  'resultsProtocol',
+  'resolutionFile',
+  'auxiliaryFile'
+]
+
+function findFilesInObject(obj) {
+  let results = []
+  for(let k of FILES_KEYS) {
+    let v = obj[k]
+    if (typeof v == 'string') {
+      results.push(v)
+    } else if (v) {
+      results.push(...v)
+    }
+  }
+  return results
+}
+
+function iso8601ToDate(iso8601) {
+  let m
+  if (iso8601 && (m = iso8601.match(/(\d{4})-(\d\d)-(\d\d)/))) {
+    return `${m[3]}.${m[2]}.${m[1]}`
+  } else {
+    return "?"
+  }
+}
+
+function paperShortNameToColor(id) {
+  if (/^V/.test(id)) {
     return colors.deepPurple500
-  } else if (/^A/.test(template_id)) {
+  } else if (/^A/.test(id)) {
     return colors.lightBlue500
-  } else if (template_id) {
+  } else if (id) {
     return colors.lightGreen500
   } else {
     return colors.lightGreen200
