@@ -45,7 +45,7 @@ export default React.createClass({
   render: function() {
     console.log("SearchResults.render with state:", this.state.results.map(result => result.type))
     return (
-      <div>
+      <div style={{ maxWidth: "60em", margin: "0 auto" }}>
         {this.state.results.map((result, i) =>
           <SearchResult key={i} {...result}/>
         )}
@@ -94,7 +94,7 @@ class Meeting extends React.Component {
           <List>
             {this.props.agendaItem ?
               this.props.agendaItem.map((item, i) =>
-                <ListItem key={i}>
+                <ListItem key={i} disabled={!item.consultation}>
                   <div>
                   <Avatar size={28}>{item.number}</Avatar>
                     {item.name}
@@ -184,7 +184,7 @@ class File extends React.Component {
 
   render() {
     return (
-      <Card>
+      <Card style={{ marginBottom: "1em" }}>
         <CardHeader
             title={<span><Avatar backgroundColor="white" size={36}><ActionSubject/></Avatar> {this.props.name}</span>}
             style={{ backgroundColor: colors.lime300 }}
