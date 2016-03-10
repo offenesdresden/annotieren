@@ -48,7 +48,6 @@ export default React.createClass({
   },
 
   render: function() {
-    console.log("SearchResults.render with state:", this.state.results.map(result => result.type))
     return (
       <div style={{ maxWidth: "60em", margin: "0 auto" }}>
         {this.state.results.map((result, i) =>
@@ -84,7 +83,6 @@ class SearchResult extends React.Component {
 
 class Meeting extends React.Component {
   render() {
-    console.log("render meeting", this.props)
     return (
       <Card style={{ marginBottom: "1em" }}>
         <CardHeader
