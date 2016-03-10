@@ -14,7 +14,7 @@ import colors from 'material-ui/lib/styles/colors'
 import DescriptionIcon from 'material-ui/lib/svg-icons/action/description'
 import RaisedButton from 'material-ui/lib/raised-button'
 import Avatar from 'material-ui/lib/avatar'
-import ActionSubject from 'material-ui/lib/svg-icons/action/subject'
+import ActionDescription from 'material-ui/lib/svg-icons/action/description'
 
 
 import { actions as searchActions } from './search_store'
@@ -94,9 +94,12 @@ class Meeting extends React.Component {
           <List>
             {this.props.agendaItem ?
               this.props.agendaItem.map((item, i) =>
-                <ListItem key={i} disabled={!item.consultation}>
+                <ListItem
+                    key={i}
+                    disabled={!item.consultation}
+                    leftIcon={<Avatar size={24}>{item.number}</Avatar>}
+                    >
                   <div>
-                  <Avatar size={28}>{item.number}</Avatar>
                     {item.name}
                   </div>
                   {(findFilesInObject(item).length > 0) ? (
@@ -130,14 +133,12 @@ class Paper extends React.Component {
     return (
       <Card style={{ marginBottom: "1em" }}>
         <CardHeader
-            title={<span>
-              <Avatar title={paper.shortName} size={32}
-                  backgroundColor={paperShortNameToColor(paper.shortName)}
-                  >
+            avatar={<Avatar title={paper.shortName} size={32}
+                        backgroundColor={paperShortNameToColor(paper.shortName)}
+                   >
                 {paper.shortName[0]}
-              </Avatar>
-              {paper.name}
-            </span>}
+              </Avatar>}
+            title={paper.name}
             subtitle={`${paper.shortName} ${iso8601ToDate(paper.publishedDate)}`}
             style={{ backgroundColor: colors.lime700 }}
             />
@@ -186,7 +187,7 @@ class File extends React.Component {
     return (
       <Card style={{ marginBottom: "1em" }}>
         <CardHeader
-            title={<span><Avatar backgroundColor="white" size={36}><ActionSubject/></Avatar> {this.props.name}</span>}
+            title={<span><Avatar backgroundColor="white" size={36}><ActionDescription/></Avatar> {this.props.name}</span>}
             style={{ backgroundColor: colors.lime300 }}
             />
         <CardText>
@@ -258,18 +259,17 @@ class PaperItem extends React.Component {
   render() {
     let paper = this.state || this.props
 
-    return (
-      <ListItem>
-        <Avatar title={paper.shortName} size={32}
-            backgroundColor={paperShortNameToColor(paper.shortName)}
-            >
-          {paper.shortName[0]}
-        </Avatar>
-        <span style={{ paddingLeft: "0.5em" }}>
-          {paper.name}
-        </span>
-      </ListItem>
-    )
+    return <ListItem
+        leftIcon={
+          <Avatar title={paper.shortName} size={32}
+              backgroundColor={paperShortNameToColor(paper.shortName)}
+              >
+            {paper.shortName[0]}
+          </Avatar>
+        }
+        primaryText={paper.name}
+        secondaryText={iso8601ToDate(paper.publishedDate)}
+        />
   }
 }
 
@@ -288,7 +288,7 @@ class FileItem extends React.Component {
     let file = this.state || this.props
 
     return (
-      <ListItem primaryText={file.name} leftIcon={<ActionSubject/>} />
+      <ListItem primaryText={file.name} leftIcon={<ActionDescription/>} />
     )
   }
 }
