@@ -232,20 +232,25 @@ class MeetingItem extends React.Component {
       </ListItem> :
       <ListItem disabled={true}>
         <List subheader={meeting.name}>
-          {meeting.agendaItem ?
-            meeting.agendaItem
-            .filter(item =>
-              item.consultation &&
-              item.consultation.parentID === this.props.filesOf
-            )
-            .map(item =>
-              findFilesInObject(item).map(id =>
-                <FileItem key={id} id={id}/>
-              )
-            )
-            : ""
-          }
+          {findFilesInObject(meeting).map(id =>
+            <FileItem key={id} id={id}/>
+          )}
         </List>
+        {meeting.agendaItem ?
+          meeting.agendaItem
+          .filter(item =>
+            item.consultation &&
+            item.consultation.parentID === this.props.filesOf
+          )
+          .map((item, i) =>
+            <List key={i} subheader={item.name}>
+              {findFilesInObject(item).map(id =>
+                <FileItem key={id} id={id}/>
+              )}
+            </List>
+          )
+          : ""
+        }
       </ListItem>
   }
 }
