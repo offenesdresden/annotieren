@@ -57,10 +57,17 @@ class API {
       res.end()
     }, err => {
       console.log("ES get:", err.stack)
-      res.writeHead(500, {
-        'Content-Type': 'text/plain'
-      })
-      res.write(err.message.toString())
+      if (err.message == "Not Found") {
+        res.writeHead(404, {
+          'Content-Type': 'application/json'
+        })
+        res.write(JSON.stringify({ error: err.message }))
+      } else {
+        res.writeHead(500, {
+          'Content-Type': 'text/plain'
+        })
+        res.write(err.message.toString())
+      }
       res.end()
     })
   }
