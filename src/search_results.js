@@ -36,6 +36,11 @@ export default React.createClass({
     }
   },
 
+  componentDidMount: function() {
+    // Start an empty search on startup
+    searchActions.search("")
+  },
+
   onSearchCompleted: function(results) {
     this.setState({
       results: results
