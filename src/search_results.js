@@ -102,8 +102,10 @@ class Meeting extends React.Component {
                 <ListItem
                     key={i}
                     disabled={!item.consultation}
-                    leftIcon={<Avatar size={24}>{item.number}</Avatar>}
-                    >
+                    leftIcon={(item.number && item.number.length == 1) ?
+                      <Avatar size={24}>{item.number}</Avatar> :
+                      <span>{item.number}</span>
+                    }>
                   <div>
                     {item.name}
                   </div>
@@ -144,6 +146,14 @@ class Paper extends React.Component {
                 {paper.shortName[0]}
               </Avatar>}
             title={paper.name}
+            titleStyle={{
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              // Vorlagen names tend to get really long, though
+              // they're included in the @title in full
+              maxWidth: '56em'
+            }}
             subtitle={`${paper.shortName} ${iso8601ToDate(paper.publishedDate)}`}
             style={{ backgroundColor: colors.lime700 }}
             />
@@ -271,7 +281,7 @@ class PaperItem extends React.Component {
 
     return <ListItem
         leftIcon={
-          <Avatar title={paper.shortName} size={32}
+          <Avatar title={paper.shortName} size={32} color="white"
               backgroundColor={paperShortNameToColor(paper.shortName)}
               >
             {paper.shortName[0]}
