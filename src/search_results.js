@@ -160,8 +160,10 @@ class Paper extends React.Component {
             <FileItem key={id} id={id}/>
           )}
           <List>
-            {(paper.consultation || []).map((consultation, i) =>
-              <MeetingItem key={i} id={consultation.meeting} filesOf={paper.id}/>
+            {(paper.consultation || [])
+              .filter(consultation => !!consultation.meeting)
+              .map((consultation, i) =>
+                <MeetingItem key={i} id={consultation.meeting} filesOf={paper.id}/>
             )}
           </List>
         </CardText>
