@@ -13,6 +13,7 @@ import ListItem from 'material-ui/lib/lists/list-item'
 import colors from 'material-ui/lib/styles/colors'
 import DescriptionIcon from 'material-ui/lib/svg-icons/action/description'
 import RaisedButton from 'material-ui/lib/raised-button'
+import FlatButton from 'material-ui/lib/flat-button'
 import Avatar from 'material-ui/lib/avatar'
 import ActionDescription from 'material-ui/lib/svg-icons/action/description'
 
@@ -167,6 +168,9 @@ class Paper extends React.Component {
             )}
           </List>
         </CardText>
+        <CardActions style={{ textAlign: 'right' }}>
+          <RaisedButton label="Vorlage lesen" primary={true}/>
+        </CardActions>
       </Card>
     )
   }
@@ -308,7 +312,14 @@ class FileItem extends React.Component {
     let file = this.state || this.props
 
     return (
-      <ListItem primaryText={file.name} leftIcon={<ActionDescription/>} />
+      <ListItem disabled={true}
+          primaryText={file.name}
+          leftIcon={<ActionDescription/>}
+          rightIconButton={<span>
+            <FlatButton label="Annotieren" primary={true}/>
+            <FlatButton label="PDF" secondary={true}/>
+          </span>}
+          />
     )
   }
 }
