@@ -25,7 +25,7 @@ export default class DocView extends React.Component {
   }
 
   componentDidMount() {
-    fetch(`/api/docs/${this.props.params.docId}/fragments`)
+    fetch(`/api/file/${this.props.params.id}/fragments`)
       .then(res => res.json())
       .then(json => {
         // Trigger update:

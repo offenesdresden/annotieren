@@ -213,8 +213,8 @@ module.exports = function(conf) {
   app.get('/oparl/paper/:id/context', (req, res) => {
     api.findPaperContext(req.params.id, res)
   })
-  app.get('/docs/:docid/fragments', (req, res) => {
-    api.getDocFragments(req.params.docid, res)
+  app.get('/file/:id/fragments', (req, res) => {
+    api.getDocFragments(req.params.id, res)
   })
 
   return app
