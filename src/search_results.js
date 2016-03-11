@@ -101,7 +101,8 @@ class Meeting extends React.Component {
                 <ListItem
                     key={i}
                     disabled={!item.consultation}
-                    leftIcon={(item.number && item.number.length == 1) ?
+                    innerDivStyle={{ paddingRight: "0" }}
+                    leftIcon={(item.number && item.number.length <= 2) ?
                       <Avatar size={24}>{item.number}</Avatar> :
                       <span>{item.number}</span>
                     }>
@@ -244,27 +245,28 @@ class MeetingItem extends React.Component {
           secondaryText={iso8601ToDate(meeting.start)}
           >
       </ListItem> :
-      <ListItem disabled={true}>
+      <ListItem disabled={true} innerDivStyle={{ paddingRight: "0" }}>
         <List subheader={meeting.name}>
           {findFilesInObject(meeting).map(id =>
             <FileItem key={id} id={id}/>
           )}
+          {meeting.agendaItem ?
+            <ListItem innerDivStyle={{ paddingRight: "0" }}>
+              {meeting.agendaItem
+                .filter(item =>
+                  item.consultation &&
+                  item.consultation.parentID === this.props.filesOf
+                )
+                .map((item, i) =>
+                  <List key={i} subheader={item.name}>
+                    {findFilesInObject(item).map(id =>
+                      <FileItem key={id} id={id}/>
+                    )}
+                  </List>
+                )}
+            </ListItem> : ""
+          }
         </List>
-        {meeting.agendaItem ?
-          meeting.agendaItem
-          .filter(item =>
-            item.consultation &&
-            item.consultation.parentID === this.props.filesOf
-          )
-          .map((item, i) =>
-            <List key={i} subheader={item.name}>
-              {findFilesInObject(item).map(id =>
-                <FileItem key={id} id={id}/>
-              )}
-            </List>
-          )
-          : ""
-        }
       </ListItem>
   }
 }
@@ -313,6 +315,7 @@ class FileItem extends React.Component {
 
     return (
       <ListItem disabled={true}
+          innerDivStyle={{ paddingRight: "0" }}
           primaryText={file.name}
           leftIcon={<ActionDescription/>}
           rightIconButton={<span>
