@@ -1,7 +1,7 @@
 'use strict'
 
+var fs = require('fs')
 var express = require('express')
-let request = require('request')
 var htmlProcess = require('./html_process')
 var through = require('through2')
 var elasticsearch = require('elasticsearch')
@@ -33,8 +33,9 @@ class API {
     })
 
     // TODO: no resources
-    console.log(`Processing ${docId}: ${this.conf.resources.htmlUrl(docId)}`)
-    request(this.conf.resources.htmlUrl(docId))
+    let htmlPath = this.conf.getHtmlPath(docId)
+    console.log(`Processing ${docId}: ${htmlPath}`)
+    fs.createReadStream(htmlPath)
       .pipe(htmlProcess())
       .pipe(toJsonArray())
       .pipe(res)
