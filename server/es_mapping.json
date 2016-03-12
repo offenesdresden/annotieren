@@ -103,7 +103,7 @@
                 "text": {
                     "type": "string",
                     "analyzer": "german_analyzer",
-                    "store": "false"
+                    "store": false
                 },
                 "date": {
                     "type": "date",
