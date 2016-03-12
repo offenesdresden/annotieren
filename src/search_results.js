@@ -57,11 +57,6 @@ export default React.createClass({
       </div>
     )
   },
-
-  handleDocumentClick: function(ev, doc) {
-    let docId = doc.file_name.replace(/\..*/, "")
-    Route.go(`/doc/${docId}`)
-  }
 })
 
 class SearchResult extends React.Component {
@@ -314,16 +309,19 @@ class FileItem extends React.Component {
     let file = this.state || this.props
 
     return (
-      <ListItem disabled={true}
+      <ListItem
           innerDivStyle={{ paddingRight: "0" }}
           primaryText={file.name}
           leftIcon={<ActionDescription/>}
-          rightIconButton={<span>
-            <FlatButton label="Annotieren" primary={true}/>
-            <FlatButton label="PDF" secondary={true}/>
-          </span>}
+          onClick={ev => Route.go(`/file/${this.props.id}`)}
           />
     )
+  }
+
+  handleClickAnnotate(ev) {
+    ev.preventDefault()
+
+    Route.go(`/file/${this.props.id}`)
   }
 }
 
