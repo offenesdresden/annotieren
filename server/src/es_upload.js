@@ -83,6 +83,56 @@ function pdftohtml(pdfPath, htmlPath, cb) {
   })
 }
 
+function pdftotext(pdfPath, cb) {
+  child_process.exec(`pdftotext -enc UTF-8 -layout ${pdfPath}`, (err, stdout, stderr) => {
+    if (err) return cb(err)
+
+    stderr = stderr.toString()
+    if (stderr) return cb(new Error(stderr))
+
+    let txtPath = pdfPath.replace(/\.pdf$/i, ".txt")
+    cb(null, txtPath)
+  })
+}
+
+function htmlEscape(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+}
+
+function writeHtml(text, htmlPath, cb) {
+  let html = fs.createWriteStream(htmlPath)
+  html.write(`<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body { font-family: serif; }
+      .page { padding: 2em 4em; }
+      p { margin: 0; white-space: pre; }
+    </style>
+  </head>
+  <body>
+`)
+
+  // Remove superfluous page breaks:
+  text = text.replace(/\f\s*$/, "")
+
+  for(var pageText of text.split(/\f/g)) {
+    html.write(`<div class="page">`)
+    for(var lineText of pageText.split(/\n/g)) {
+      html.write(`<p>${htmlEscape(lineText)}</p>\n`)
+    }
+    html.write(`</div>\n`)
+  }
+
+  html.write(`  </body>
+</html>
+`)
+  cb()
+}
+
 function htmlToText(htmlPath, cb) {
   let pages = []
 
@@ -193,6 +243,36 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
     } else {
       cb(null, data)
     }
+  }))
+  .pipe(through.obj((data, enc, cb) => {
+      if (/\/File$/.test(data.json.type) &&
+          (!data.json.text ||
+           (data.json.text && !/\S/.test(data.json.text)))) {
+        // No characters in text? Fixup with pdftotext:
+
+        let pdfPath = data.path.replace(/\.json$/, ".pdf")
+        let t1 = Date.now()
+        pdftotext(pdfPath, (err, txtPath) => {
+          if (err) return cb(err)
+
+          let t2 = Date.now()
+          console.log(`pdftotext [${t2 - t1}ms] ${pdfPath}`)
+
+          fs.readFile(txtPath, {
+            encoding: 'utf8'
+          }, (err, text) => {
+            if (err) return cb(err)
+
+            // Keep for indexing
+            data.json.text = text.replace(/\f/g, "\n")
+            // Generate processHtml-compatible HTML
+            let htmlPath = data.path.replace(/\.json$/, ".html")
+            writeHtml(text, htmlPath, err => cb(err, data))
+          })
+        })
+      } else {
+        cb(null, data)
+      }
   }))
   .pipe(through.obj((data, enc, cb) => {
     // Actually, we only send the JSON to ES, not the paths
