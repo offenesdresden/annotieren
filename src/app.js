@@ -24,10 +24,10 @@ class Main extends React.Component {
       <div>
         <Route path="/">
           <header>
-            <Search onSearch={(query) => this.search(query)} style={{float: "right"}}/>
+            <Search style={{float: "right"}}/>
             <h1>Ratsinfo Annotieren</h1>
           </header>
-          <SearchResults query={this.state.searchQuery}/>
+          <SearchResults/>
         </Route>
         <Route path="/file/:id">
           <DocView/>
