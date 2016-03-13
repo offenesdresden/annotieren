@@ -16,6 +16,7 @@ import RaisedButton from 'material-ui/lib/raised-button'
 import FlatButton from 'material-ui/lib/flat-button'
 import Avatar from 'material-ui/lib/avatar'
 import ActionDescription from 'material-ui/lib/svg-icons/action/description'
+import CircularProgress from 'material-ui/lib/circular-progress'
 
 
 import { actions as searchActions } from './search_store'
@@ -28,7 +29,9 @@ const TYPE_FILE = "https://oparl.org/schema/1.0/File"
 
 export default React.createClass({
   mixins: [
-    Reflux.listenTo(searchActions.search.completed, "onSearchCompleted")
+    Reflux.listenTo(searchActions.search, "onSearch"),
+    Reflux.listenTo(searchActions.search.completed, "onSearchCompleted"),
+    Reflux.listenTo(searchActions.search.failed, "onSearchFailed")
   ],
 
   getInitialState: function() {
@@ -42,8 +45,21 @@ export default React.createClass({
     searchActions.search("")
   },
 
+  onSearch: function() {
+    this.setState({
+      loading: true
+    })
+  },
+
+  onSearchFailed: function() {
+    this.setState({
+      loading: false
+    })
+  },
+
   onSearchCompleted: function(results) {
     this.setState({
+      loading: false,
       results: results
     })
   },
@@ -51,9 +67,11 @@ export default React.createClass({
   render: function() {
     return (
       <div style={{ maxWidth: "60em", margin: "0 auto" }}>
-        {this.state.results.map((result, i) =>
-          <SearchResult key={i} {...result}/>
-        )}
+        {this.loading ?
+          <CircularProgress size={2}/> :
+          this.state.results.map((result, i) =>
+            <SearchResult key={i} {...result}/>
+          )}
       </div>
     )
   },

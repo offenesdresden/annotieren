@@ -1,4 +1,5 @@
 import React from 'react'
+import Route from 'react-route'
 
 import Paper from 'material-ui/lib/paper'
 import AppBar from 'material-ui/lib/app-bar'
@@ -6,7 +7,7 @@ import colors from 'material-ui/lib/styles/colors'
 import FlatButton from 'material-ui/lib/flat-button'
 import IconButton from 'material-ui/lib/icon-button';
 import ActionHome from 'material-ui/lib/svg-icons/action/home'
-import LinearProgress from 'material-ui/lib/linear-progress'
+import CircularProgress from 'material-ui/lib/circular-progress'
 
 import DocText from './doc_text'
 import AnnotateBar from './annotate_bar'
@@ -18,22 +19,46 @@ export default class DocView extends React.Component {
 
     this.state = {
       loading: true,
-      description: "Beschlussausfertigung_A0205/10",
+      file: {},
       annotations: [],
       pages: []
     }
   }
 
-  componentDidMount() {
-    fetch(`/api/file/${this.props.params.id}/fragments`)
+  _fetchFile() {
+    return fetch(`/api/oparl/file/${this.props.params.id}`)
       .then(res => res.json())
       .then(json => {
         // Trigger update:
         this.setState({
-          loading: false,
+          file: json
+        })
+        return json
+      })
+  }
+
+  _fetchFragments() {
+    return fetch(`/api/file/${this.props.params.id}/fragments`)
+      .then(res => res.json())
+      .then(json => {
+        // Trigger update:
+        this.setState({
           pages: preparePageFragments(json)
         })
+        return json
       })
+  }
+
+  componentDidMount() {
+    this.setState({
+      loading: true
+    }, () => {
+      this._fetchFile()
+        .then(() => this._fetchFragments())
+        .then(() => this.setState({
+          loading: false
+        }))
+    })
   }
 
   addAnnotation(annotation) {
@@ -83,7 +108,7 @@ export default class DocView extends React.Component {
     this._withFragments(begin, end, frag => text += frag.text)
     return text
   }
-  
+
   _withFragments(begin, end, iter) {
     this._splitFragments(begin)
     this._splitFragments(end)
@@ -176,17 +201,26 @@ export default class DocView extends React.Component {
   }
 
   render() {
-    console.log("DocView.render")
+    console.log("DocView.render, loading:", this.loading)
     return (
       <div>
-        <Paper zDepth={1} style={{ width: "892px" }}>
-          <AppBar title={this.state.description}
-              showMenuIconButton={false}
-              iconElementLeft={<IconButton title="Zurück zur Suche"><ActionHome/></IconButton>}
-              iconElementRight={<FlatButton label="PDF" title="Original-PDF herunterladen"/>}
-              />
+        <Paper zDepth={1}
+            style={{ width: "892px", margin: "0 auto", textAlign: 'center' }}>
+          <AppBar title={this.loading ? "Laden…" : this.state.file.name}
+              iconElementLeft={
+                <IconButton title="Zurück zur Suche"
+                    onClick={ev => Route.go("/")}>
+                  <ActionHome/>
+                </IconButton>
+              }
+              iconElementRight={
+                <FlatButton label="PDF"
+                    title="Original-PDF herunterladen"
+                    linkButton={true} href={this.state.file.downloadUrl}
+                    />
+              }/>
           {this.state.loading ?
-            <LinearProgress mode="indeterminate"/> :
+            <CircularProgress size={2}/> :
             <DocText
                 pages={this.state.pages}
                 onSelection={slice => this.handleTextSelection(slice)}
