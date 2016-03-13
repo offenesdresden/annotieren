@@ -32,10 +32,13 @@ class API {
       'Content-Type': 'application/json'
     })
 
-    // TODO: no resources
     let htmlPath = this.conf.getHtmlPath(docId)
     console.log(`Processing ${docId}: ${htmlPath}`)
     fs.createReadStream(htmlPath)
+      .on('error', e => {
+        console.log("File error:", e.stack || e)
+        res.end()
+      })
       .pipe(htmlProcess())
       .pipe(toJsonArray())
       .pipe(res)
