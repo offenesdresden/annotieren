@@ -67,7 +67,7 @@ export default React.createClass({
   render: function() {
     return (
       <div style={{ maxWidth: "60em", margin: "0 auto" }}>
-        {this.loading ?
+        {this.state.loading ?
           <CircularProgress size={2}/> :
           this.state.results.map((result, i) =>
             <SearchResult key={i} {...result}/>

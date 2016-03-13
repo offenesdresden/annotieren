@@ -5,7 +5,7 @@ import Paper from 'material-ui/lib/paper'
 import AppBar from 'material-ui/lib/app-bar'
 import colors from 'material-ui/lib/styles/colors'
 import FlatButton from 'material-ui/lib/flat-button'
-import IconButton from 'material-ui/lib/icon-button';
+import IconButton from 'material-ui/lib/icon-button'
 import ActionHome from 'material-ui/lib/svg-icons/action/home'
 import CircularProgress from 'material-ui/lib/circular-progress'
 
@@ -201,12 +201,12 @@ export default class DocView extends React.Component {
   }
 
   render() {
-    console.log("DocView.render, loading:", this.loading)
+    console.log("DocView.render, loading:", this.state.loading)
     return (
       <div>
         <Paper zDepth={1}
             style={{ width: "892px", margin: "0 auto", textAlign: 'center' }}>
-          <AppBar title={this.loading ? "Laden…" : this.state.file.name}
+          <AppBar title={this.state.loading ? "Laden…" : this.state.file.name}
               iconElementLeft={
                 <IconButton title="Zurück zur Suche"
                     onClick={ev => Route.go("/")}>
