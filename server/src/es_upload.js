@@ -253,7 +253,10 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
         let pdfPath = data.path.replace(/\.json$/, ".pdf")
         let t1 = Date.now()
         pdftotext(pdfPath, (err, txtPath) => {
-          if (err) return cb(err)
+          if (err) {
+            console.log("pdftotext error: " + err.message)
+            return cb(null, data)
+          }
 
           let t2 = Date.now()
           console.log(`pdftotext [${t2 - t1}ms] ${pdfPath}`)
