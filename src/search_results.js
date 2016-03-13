@@ -230,8 +230,13 @@ class File extends React.Component {
           </List>
         </CardText>
         <CardActions style={{ textAlign: 'right' }}>
-          <RaisedButton label="Text Annotieren" primary={true}/>
-          <RaisedButton label="Original-PDF" secondary={true}/>
+          <RaisedButton label="Text Annotieren" primary={true}
+              style={{ verticalAlign: 'top' }}
+              onClick={ev => Route.go(`/file/${this.props.id}`)}
+              />
+          <RaisedButton label="Original-PDF" secondary={true}
+              linkButton={true} href={this.props.downloadUrl}
+              />
         </CardActions>
       </Card>
     )
