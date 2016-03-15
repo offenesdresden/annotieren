@@ -193,6 +193,14 @@ class API {
     })
   }
 
+  deleteAnnotation(fileId, annotationId, cb) {
+    this.elasticsearch.delete({
+      index: 'annotations',
+      type: 'text',
+      id: annotationId
+    }, err => cb(err))
+  }
+
   getDocAnnotations(opts, res) {
     let elasticsearch = this.elasticsearch
     let i = 0
@@ -339,7 +347,24 @@ module.exports = function(conf) {
         return
       }
 
-      console.log(`File ${req.params.id}: updated annotation ${annotation.id}`)
+      console.log(`File ${req.params.id}: updated annotation ${req.params.annotationId}`)
+      res.writeHead(204, "No Content")
+      res.end()
+    })
+  })
+  app.delete('/file/:id/annotations/:annotationId', (req, res) => {
+    api.deleteAnnotation(req.params.id, req.params.annotationId, err => {
+      if (err) {
+        console.error(err.stack || err.message)
+        res.writeHead(500, {
+          'Content-Type': 'application/json'
+        })
+        res.write(JSON.stringify({ error: "deleteAnnotation" }))
+        res.end()
+        return
+      }
+
+      console.log(`File ${req.params.id}: deleted annotation ${req.params.annotationId}`)
       res.writeHead(204, "No Content")
       res.end()
     })

@@ -256,7 +256,8 @@ export default class DocView extends React.Component {
   }
 
   render() {
-    // console.log("DocView.render, loading:", this.state.loading)
+    console.log("DocView.render, loading:", this.state.loading,
+      "currentAnnotation:", this.state.currentAnnotation && this.state.currentAnnotation.id)
     return (
       <div>
         <Paper zDepth={1}
@@ -365,6 +366,8 @@ export default class DocView extends React.Component {
     })
     annotation.type = 'delete'
     this.setAnnotationFragments(annotation)
+
+    this.deleteAnnotation(annotation)
   }
 }
 
