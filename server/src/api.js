@@ -192,6 +192,61 @@ class API {
       cb(err, res && res._id)
     })
   }
+
+  getDocAnnotations(opts, res) {
+    let elasticsearch = this.elasticsearch
+    let i = 0
+    elasticsearch.search({
+      index: 'annotations',
+      scroll: '30s',
+      body: {
+        query: {
+          match: {
+            file: opts.file
+          }
+        }
+      },
+      // Optimization:
+      sort: ['_doc']
+    }, function getMore(err, result) {
+      if (err) {
+        console.log("ES search:", err.stack)
+        res.writeHead(500, {
+          'Content-Type': 'text/plain'
+        })
+        res.write(err.message.toString())
+        res.end()
+        return
+      }
+
+      if (!res.headersSent) {
+        res.writeHead(200, {
+          'Content-Type': 'application/json'
+        })
+        res.write("[")
+      }
+
+      for(var hit of result.hits.hits) {
+        if (i > 0) res.write(",")
+        let annotation = hit._source
+        annotation.id = hit._id
+        res.write(JSON.stringify(annotation))
+        res.write("\n")
+
+        i++
+      }
+
+      if (i < result.hits.total) {
+        elasticsearch.scroll({
+          scrollId: result._scroll_id,
+          scroll: '30s'
+        }, getMore)
+      } else {
+        res.write("]")
+        res.end()
+      }
+    })
+  }
 }
 
 
@@ -231,15 +286,19 @@ module.exports = function(conf) {
   app.get('/file/:id/fragments', (req, res) => {
     api.getDocFragments(req.params.id, res)
   })
+  app.get('/file/:id/annotations', (req, res) => {
+    api.getDocAnnotations({
+      file: req.params.id
+    }, res)
+  })
   app.post('/file/:id/annotations', (req, res) => {
     let annotation = req.body
     annotation.file = req.params.id
     req.body.created = new Date().toISOString()
-    // Yield control over id to ElasticSearch
     delete annotation.id
     delete annotation._id
 
-    
+
     api.indexAnnotation({ body: annotation }, (err, annotationId) => {
       if (err) {
         console.error(err.stack || err.message)
@@ -262,12 +321,12 @@ module.exports = function(conf) {
   })
   app.put('/file/:id/annotations/:annotationId', (req, res) => {
     let annotation = req.body
-    annotation.id = req.params.annotationId
+    delete annotation.id
     annotation.file = req.params.id
     req.body.updated = new Date().toISOString()
 
     api.indexAnnotation({
-      id: annotation.id,
+      id: req.params.annotationId,
       body: annotation
     }, err => {
       if (err) {

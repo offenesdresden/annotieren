@@ -33,7 +33,6 @@ export default class DocView extends React.Component {
         this.setState({
           file: json
         })
-        return json
       })
   }
 
@@ -45,7 +44,19 @@ export default class DocView extends React.Component {
         this.setState({
           pages: preparePageFragments(json)
         })
-        return json
+      })
+  }
+
+  _fetchAnnotations() {
+    return fetch(`/api/file/${this.props.params.id}/annotations`)
+      .then(res => res.json())
+      .then(annotations => {
+        for(var annotation of annotations) {
+          this.setAnnotationFragments(annotation)
+        }
+        this.setState({
+          annotations: this.state.annotations.concat(...annotations)
+        })
       })
   }
 
@@ -55,6 +66,7 @@ export default class DocView extends React.Component {
     }, () => {
       this._fetchFile()
         .then(() => this._fetchFragments())
+        .then(() => this._fetchAnnotations())
         .then(() => this.setState({
           loading: false
         }))
