@@ -5,6 +5,7 @@ var express = require('express')
 var htmlProcess = require('./html_process')
 var through = require('through2')
 var elasticsearch = require('elasticsearch')
+var bodyParser = require('body-parser')
 
 
 function oparlType(type) {
@@ -183,12 +184,22 @@ class API {
       }
     }, res, toHitsSources)
   }
+
+  indexAnnotation(req, cb) {
+    req.index = 'annotations'
+    req.type = 'text'
+    this.elasticsearch.index(req, (err, res) => {
+      cb(err, res && res._id)
+    })
+  }
 }
 
 
 module.exports = function(conf) {
   let api = new API(conf)
   var app = express()
+
+  app.use(bodyParser.json())
 
   app.get('/search/', (req, res) => {
     api.searchDocs("", res)
@@ -219,6 +230,69 @@ module.exports = function(conf) {
   })
   app.get('/file/:id/fragments', (req, res) => {
     api.getDocFragments(req.params.id, res)
+  })
+  app.post('/file/:id/annotations', (req, res) => {
+    let annotation = req.body
+    annotation.file = req.params.id
+    req.body.created = new Date().toISOString()
+    // Yield control over id to ElasticSearch
+    delete annotation.id
+    delete annotation._id
+
+    
+    api.indexAnnotation({ body: annotation }, (err, annotationId) => {
+      if (err) {
+        console.error(err.stack || err.message)
+        res.writeHead(500, {
+          'Content-Type': 'application/json'
+        })
+        res.write(JSON.stringify({ error: "addAnnotation" }))
+        res.end()
+        return
+      }
+
+      console.log(`File ${req.params.id}: created annotation ${annotationId}`)
+      res.writeHead(201, "Created", {
+        'Content-Type': 'application/json',
+        Location: `/file/${req.params.id}/annotations/${annotationId}`
+      })
+      res.write(JSON.stringify({ id: annotationId }))
+      res.end()
+    })
+  })
+  app.put('/file/:id/annotations/:annotationId', (req, res) => {
+    let annotation = req.body
+    annotation.id = req.params.annotationId
+    annotation.file = req.params.id
+    req.body.updated = new Date().toISOString()
+
+    api.indexAnnotation({
+      id: annotation.id,
+      body: annotation
+    }, err => {
+      if (err) {
+        console.error(err.stack || err.message)
+        res.writeHead(500, {
+          'Content-Type': 'application/json'
+        })
+        res.write(JSON.stringify({ error: "updateAnnotation" }))
+        res.end()
+        return
+      }
+
+      console.log(`File ${req.params.id}: updated annotation ${annotation.id}`)
+      res.writeHead(204, "No Content")
+      res.end()
+    })
+  })
+
+  // Catch all: 404
+  app.use((req, res) => {
+    res.writeHead(404, {
+      'Content-Type': 'application/json'
+    })
+    res.write(JSON.stringify({ error: "Not found" }))
+    res.end()
   })
 
   return app

@@ -68,12 +68,55 @@ export default class DocView extends React.Component {
       annotations: this.state.annotations.concat(annotation),
       currentAnnotation: annotation
     })
+    console.log("added annotation", annotation)
+
+    fetch(`/api/file/${this.props.params.id}/annotations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(annotation)
+    })
+      .then(res => {
+        if (res.status < 200 || res.status >= 300) {
+          throw new Error(`HTTP status ${res.status} ${res.statusText}`)
+        }
+
+        return res
+      })
+      .then(res => res.json())
+      .then(json => {
+        console.log("addAnnotation response:", json)
+        // Update id, having successfully created annotation on the server:
+        annotation.id = json.id
+      })
+      .catch(e => {
+        console.error("addAnnotation", e.stack)
+      })
+  }
+
+  updateAnnotation(annotation) {
+    console.log("updateAnnotation", annotation)
+
+    fetch(`/api/file/${this.props.params.id}/annotations/${annotation.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(annotation)
+    })
+      .then(res => {
+        if (res.status < 200 || res.status >= 300) {
+          throw new Error(`HTTP status ${res.status} ${res.statusText}`)
+        }
+
+        return res
+      })
+      .catch(e => {
+        console.error("updateAnnotation", e.stack)
+      })
   }
 
   setAnnotationFragments(annotation) {
     console.log("set", annotation, "fragments")
     this._withFragments(annotation.begin, annotation.end, inline => {
-      console.log("inline to set:", inline)
+      // console.log("inline to set:", inline)
       if (!inline.annotations) inline.annotations = []
       if (annotation.type !== 'delete') {
         if (inline.annotations.some(annotation1 =>
@@ -115,15 +158,15 @@ export default class DocView extends React.Component {
 
     for(let page of this.state.pages) {
       if (begin <= page.end && page.begin <= end) {
-        console.log("with page", page)
+        // console.log("with page", page)
         for(let block of page.contents) {
           if (begin <= block.end && block.begin <= end) {
-            console.log("with block", block)
+            // console.log("with block", block)
             for(let inline of block.contents) {
               // At inline level we can assume that _splitFragments()
               // has made the offsets right
               if (begin <= inline.begin && inline.end <= end) {
-                console.log("with inline", inline)
+                // console.log("with inline", inline)
                 iter(inline)
               }
             }
@@ -136,7 +179,7 @@ export default class DocView extends React.Component {
               if (lastNew &&
                   Object.is(lastNew.style, inline.style) &&
                   Object.is(lastNew.annotations, inline.annotations)) {
-                console.log("Merge", lastNew, inline)
+                // console.log("Merge", lastNew, inline)
                 lastNew.text += inline.text
                 lastNew.end = inline.end
               } else {
@@ -164,16 +207,16 @@ export default class DocView extends React.Component {
   _splitFragments(offset) {
     for(let page of this.state.pages) {
       if (page.begin <= offset && offset <= page.end) {
-        console.log("Split page", page.begin, "<=", offset, "<=", page.end)
+        // console.log("Split page", page.begin, "<=", offset, "<=", page.end)
         for(let block of page.contents) {
           if (block.begin <= offset && offset <= block.end) {
-            console.log("Split block", block.begin, "<=", offset, "<=", block.end, ":", block.contents)
+            // console.log("Split block", block.begin, "<=", offset, "<=", block.end, ":", block.contents)
             let contents = []
             for(let inline of block.contents) {
               if (inline.begin < offset && offset < inline.end) {
-                console.log("Split inline", inline.begin, "<=", offset, "<=", inline.end)
+                // console.log("Split inline", inline.begin, "<=", offset, "<=", inline.end)
                 let delta = offset - inline.begin
-                console.log(`Split ${inline.begin}..${inline.end} at ${delta}`, inline)
+                // console.log(`Split ${inline.begin}..${inline.end} at ${delta}`, inline)
 
                 let inline1 = {}
                 Object.assign(inline1, inline)
@@ -201,7 +244,7 @@ export default class DocView extends React.Component {
   }
 
   render() {
-    console.log("DocView.render, loading:", this.state.loading)
+    // console.log("DocView.render, loading:", this.state.loading)
     return (
       <div>
         <Paper zDepth={1}
@@ -246,9 +289,11 @@ export default class DocView extends React.Component {
   handleTextSelection(slice) {
     if (slice) {
       // Makes it available to AnnotateBar & DocText
-      console.log("new annotation", slice)
+      // console.log("new annotation", slice)
       this.setState({
         currentAnnotation: {
+          // temporary Id, will be overwritten later with one
+          // generated by the server
           id: generateAnnotationId(),
           type: 'new',
           begin: slice.begin,
@@ -268,7 +313,7 @@ export default class DocView extends React.Component {
       return
     }
 
-    console.log("currentAnnotation=", annotation)
+    // console.log("currentAnnotation=", annotation)
     this.setState({
       currentAnnotation: annotation,
       pages: this.state.pages
@@ -290,6 +335,7 @@ export default class DocView extends React.Component {
     } else {
       // Update existing annotation
       annotation.type = type
+      this.updateAnnotation(annotation)
     }
     this.setAnnotationFragments(annotation)
   }
@@ -298,7 +344,7 @@ export default class DocView extends React.Component {
     let annotation = this.state.currentAnnotation
     if (!annotation) return
 
-    console.log("delete", this.state.currentAnnotation, "from", this.state.annotations)
+    // console.log("delete", this.state.currentAnnotation, "from", this.state.annotations)
     this.setState({
       annotations: this.state.annotations.filter(annotation1 =>
         annotation1.id !== annotation.id

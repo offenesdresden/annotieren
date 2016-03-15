@@ -125,7 +125,7 @@ class Inline extends React.Component {
     let { annotations } = this.props
     let annotation = annotations && annotations[0]
     if (annotation) {
-      console.log("Render with annotation:", this.props)
+      // console.log("Render with annotation:", this.props)
       // clickable
       style.cursor = 'pointer'
       props.onClick = ev => {
@@ -138,7 +138,7 @@ class Inline extends React.Component {
 
       // frame currentAnnotation
       if (this._isCurrent()) {
-        console.log("Render current:", this.props)
+        // console.log("Render current:", this.props)
         style.borderBottom = "1px dotted #333"
         style.paddingBottom = "-1px"
       }
