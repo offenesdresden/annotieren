@@ -205,7 +205,7 @@ export default class DocView extends React.Component {
     return (
       <div>
         <Paper zDepth={1}
-            style={{ width: "892px", margin: "0 auto", textAlign: 'center' }}>
+            style={{ width: "892px", margin: "0 auto" }}>
           <AppBar title={this.state.loading ? "Laden…" : this.state.file.name}
               iconElementLeft={
                 <IconButton title="Zurück zur Suche"
@@ -220,7 +220,9 @@ export default class DocView extends React.Component {
                     />
               }/>
           {this.state.loading ?
-            <CircularProgress size={2}/> :
+            <div style={{ textAlign: 'center' }}>
+              <CircularProgress size={2}/>
+            </div> :
             <DocText
                 pages={this.state.pages}
                 onSelection={slice => this.handleTextSelection(slice)}
