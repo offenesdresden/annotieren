@@ -8,6 +8,7 @@ import FlatButton from 'material-ui/lib/flat-button'
 import IconButton from 'material-ui/lib/icon-button'
 import ActionHome from 'material-ui/lib/svg-icons/action/home'
 import CircularProgress from 'material-ui/lib/circular-progress'
+import Snackbar from 'material-ui/lib/snackbar'
 
 import DocText from './doc_text'
 import AnnotateBar from './annotate_bar'
@@ -21,7 +22,8 @@ export default class DocView extends React.Component {
       loading: true,
       file: {},
       annotations: [],
-      pages: []
+      pages: [],
+      statusMessage: null
     }
   }
 
@@ -70,6 +72,12 @@ export default class DocView extends React.Component {
         .then(() => this.setState({
           loading: false
         }))
+        .catch(e => {
+          this.showStatus(e.message)
+          this.setState({
+            loading: false
+          })
+        })
     })
   }
 
@@ -97,11 +105,13 @@ export default class DocView extends React.Component {
       .then(res => res.json())
       .then(json => {
         console.log("addAnnotation response:", json)
+        this.showStatus("Neue Annotation wurde erstellt.")
         // Update id, having successfully created annotation on the server:
         annotation.id = json.id
       })
       .catch(e => {
         console.error("addAnnotation", e.stack)
+        this.showStatus(e.message)
       })
   }
 
@@ -122,6 +132,26 @@ export default class DocView extends React.Component {
       })
       .catch(e => {
         console.error("updateAnnotation", e.stack)
+        this.showStatus(e.message)
+      })
+  }
+
+  deleteAnnotation(annotation) {
+    console.log("deleteAnnotation", annotation)
+
+    fetch(`/api/file/${this.props.params.id}/annotations/${annotation.id}`, {
+      method: 'DELETE'
+    })
+      .then(res => {
+        if (res.status < 200 || res.status >= 300) {
+          throw new Error(`HTTP status ${res.status} ${res.statusText}`)
+        }
+
+        this.showStatus("Annotation wurde gelöscht.")
+      })
+      .catch(e => {
+        console.error("deleteAnnotation", e.stack)
+        this.showStatus(e.message)
       })
   }
 
@@ -287,12 +317,33 @@ export default class DocView extends React.Component {
                 />
           }
         </Paper>
+
         <AnnotateBar currentAnnotation={this.state.currentAnnotation}
             onType={type => this.handleSelectType(type)}
             onDelete={() => this.handleDeleteAnnotation()}
             />
+
+        <Snackbar open={!!this.state.statusMessage}
+            message={this.state.statusMessage + ""}
+            onRequestClose={() => this.setState({ statusMessage: null })}
+            />
       </div>
     )
+  }
+
+  showStatus(message) {
+    this.setState({
+      statusMessage: message
+    })
+
+    setTimeout(() => {
+      if (this.state.statusMessage === message) {
+        // If no other showed up, clear Snackbar
+        this.setState({
+          statusMessage: null
+        })
+      }
+    }, 3000)
   }
 
   /**
