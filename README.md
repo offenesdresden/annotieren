@@ -13,12 +13,12 @@
 # TODO
 
 * Frontend:
-  * search_results: throbber
-  * perhaps migrate to https://tleunen.github.io/react-mdl/ ?
   * Consistent themeing
+  * paper view
 * Backend:
+  * journaling
   * auth
-  * filter doc by annotations
+  * annotations aggregations by file for pretty badges
 * Navigation:
   * Meistannotierte
   * Selten annotierte
