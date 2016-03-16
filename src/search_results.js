@@ -195,6 +195,8 @@ class File extends React.Component {
     super(props)
 
     this.state = {
+      meetings: [],
+      papers: []
     }
   }
 
@@ -202,17 +204,19 @@ class File extends React.Component {
     fetch(`/api/oparl/file/${encodeURIComponent(this.props.id)}/context`)
       .then(res => res.json())
       .then(results => {
+        let meetings = []
+        let papers = []
         for(let result of results) {
           if (result.type == TYPE_MEETING) {
-            this.setState({
-              meeting: result
-            })
+            meetings.push(result)
           } else if (result.type == TYPE_PAPER) {
-            this.setState({
-              paper: result
-            })
+            papers.push(result)
           }
         }
+        this.setState({
+          meetings: meetings,
+          papers: papers
+        })
       })
   }
 
@@ -225,8 +229,12 @@ class File extends React.Component {
             />
         <CardText>
           <List>
-            {this.state.meeting ? <MeetingItem {...this.state.meeting}/> : ""}
-            {this.state.paper ? <PaperItem {...this.state.paper}/> : ""}
+            {this.state.meetings.map(meeting =>
+              <MeetingItem {...meeting}/>
+            )}
+            {this.state.papers.map(paper =>
+              <PaperItem {...paper}/>
+            )}
           </List>
         </CardText>
         <CardActions style={{ textAlign: 'right' }}>
