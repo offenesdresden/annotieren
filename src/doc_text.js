@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 
 import Divider from 'material-ui/lib/divider'
 
-import Types from './types'
+import { getTypeById } from './types'
 
 
 export default class DocText extends React.Component {
@@ -133,7 +133,7 @@ class Inline extends React.Component {
       }
 
       // backgroundColor by type
-      let def = findTypeDef(annotation.type)
+      let def = getTypeById(annotation.type)
       style.backgroundColor = def ? `rgb(${def.rgb})` : '#ccc'
 
       // frame currentAnnotation
@@ -144,7 +144,7 @@ class Inline extends React.Component {
       }
     }
     if (annotations) {
-      props.title = annotations.map(annotation => findTypeDef(annotation.type).title)
+      props.title = annotations.map(annotation => getTypeById(annotation.type).title)
         .join("/")
     }
     return (
@@ -164,17 +164,4 @@ function mergeStyle(style, input) {
   }
 
   return style
-}
-
-// TODO: move to Types module?
-function findTypeDef(typeTitle) {
-  for(let category of Types) {
-    for(let type of category.types) {
-      if (type.title === typeTitle) {
-        return type
-      }
-    }
-  }
-
-  return null
 }

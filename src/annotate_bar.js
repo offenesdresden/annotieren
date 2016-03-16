@@ -44,8 +44,8 @@ class TypesMenu extends React.Component {
             {category.types.map((type, j) => (
               <ListItem key={j} style={{ backgroundColor: `rgb(${type.rgb})` }}>
                 <RadioButton label={type.title}
-                    name="type" value={type.title}
-                    checked={this.props.value == type.title}
+                    name="type" value={type.id}
+                    checked={this.props.value == type.id}
                     onCheck={ev => this.onCheck(ev)}
                     />
               </ListItem>
