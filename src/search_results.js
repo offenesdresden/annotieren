@@ -20,6 +20,7 @@ import CircularProgress from 'material-ui/lib/circular-progress'
 
 
 import { actions as searchActions } from './search_store'
+import PaperAvatar from './paper_avatar'
 
 
 const TYPE_MEETING = "https://oparl.org/schema/1.0/Meeting"
@@ -153,11 +154,7 @@ class Paper extends React.Component {
     return (
       <Card style={{ marginBottom: "1em" }}>
         <CardHeader
-            avatar={<Avatar title={paper.shortName} size={32}
-                        backgroundColor={paperShortNameToColor(paper.shortName)}
-                   >
-                {paper.shortName[0]}
-              </Avatar>}
+            avatar={<PaperAvatar paper={paper}/>}
             title={paper.name}
             titleStyle={{
               whiteSpace: 'nowrap',
@@ -312,13 +309,7 @@ class PaperItem extends React.Component {
     let paper = this.state || this.props
 
     return <ListItem
-        leftIcon={
-          <Avatar title={paper.shortName} size={32} color="white"
-              backgroundColor={paperShortNameToColor(paper.shortName)}
-              >
-            {paper.shortName[0]}
-          </Avatar>
-        }
+        leftIcon={<PaperAvatar paper={paper}/>}
         primaryText={paper.name}
         secondaryText={iso8601ToDate(paper.publishedDate)}
         />
@@ -386,17 +377,5 @@ function iso8601ToDate(iso8601) {
     return `${m[3]}.${m[2]}.${m[1]}`
   } else {
     return "?"
-  }
-}
-
-function paperShortNameToColor(id) {
-  if (/^V/.test(id)) {
-    return colors.deepPurple500
-  } else if (/^A/.test(id)) {
-    return colors.lightBlue500
-  } else if (id) {
-    return colors.lightGreen500
-  } else {
-    return colors.lightGreen200
   }
 }
