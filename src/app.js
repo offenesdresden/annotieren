@@ -7,6 +7,7 @@ injectTapEventPlugin()
 import Search from './search'
 import SearchResults from './search_results'
 import DocView from './doc_view'
+import PaperView from './paper_view'
 
 
 class Main extends React.Component {
@@ -33,6 +34,9 @@ class Main extends React.Component {
         </Route>
         <Route path="/file/:id">
           <DocView/>
+        </Route>
+        <Route path="/paper/:id">
+          <PaperView/>
         </Route>
       </div>
     )

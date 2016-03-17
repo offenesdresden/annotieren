@@ -305,6 +305,7 @@ export default class DocView extends React.Component {
                     linkButton={true} href={this.state.file.downloadUrl}
                     />
               }/>
+
           {this.state.loading ?
             <div style={{ textAlign: 'center' }}>
               <CircularProgress size={2}/>

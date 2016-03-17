@@ -114,7 +114,8 @@ class Meeting extends React.Component {
               this.props.agendaItem.map((item, i) =>
                 <ListItem
                     key={i}
-                    disabled={!item.consultation}
+                    disabled={!(item.consultation && item.consultation.parentID)}
+                    onClick={() => Route.go(`/paper/${item.consultation.parentID}`)}
                     innerDivStyle={{ paddingRight: "0" }}
                     leftIcon={(item.number && item.number.length <= 2) ?
                       <Avatar size={24}>{item.number}</Avatar> :
@@ -180,7 +181,9 @@ class Paper extends React.Component {
           </List>
         </CardText>
         <CardActions style={{ textAlign: 'right' }}>
-          <RaisedButton label="Vorlage lesen" primary={true}/>
+          <RaisedButton label="Vorlage lesen" primary={true}
+              onClick={() => Route.go(`/paper/${encodeURIComponent(paper.id)}`)}
+              />
         </CardActions>
       </Card>
     )
@@ -237,7 +240,7 @@ class File extends React.Component {
         <CardActions style={{ textAlign: 'right' }}>
           <RaisedButton label="Text Annotieren" primary={true}
               style={{ verticalAlign: 'top' }}
-              onClick={ev => Route.go(`/file/${this.props.id}`)}
+              onClick={ev => Route.go(`/file/${encodeURIComponent(this.props.id)}`)}
               />
           <RaisedButton label="Original-PDF" secondary={true}
               linkButton={true} href={this.props.downloadUrl}
@@ -320,6 +323,7 @@ class PaperItem extends React.Component {
         leftIcon={<PaperAvatar paper={paper}/>}
         primaryText={paper.name}
         secondaryText={iso8601ToDate(paper.publishedDate)}
+        onClick={() => Route.go(`/paper/${encodeURIComponent(paper.id)}`)}
         />
   }
 }
@@ -343,7 +347,7 @@ class FileItem extends React.Component {
           innerDivStyle={{ paddingRight: "0" }}
           primaryText={file.name}
           leftIcon={<ActionDescription/>}
-          onClick={ev => Route.go(`/file/${this.props.id}`)}
+          onClick={ev => Route.go(`/file/${encodeURIComponent(this.props.id)}`)}
           />
     )
   }
