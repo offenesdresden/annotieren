@@ -8,6 +8,8 @@ import Avatar from 'material-ui/lib/avatar'
 import Card from 'material-ui/lib/card/card'
 import CardHeader from 'material-ui/lib/card/card-header'
 import CardText from 'material-ui/lib/card/card-text'
+import CardActions from 'material-ui/lib/card/card-actions'
+import RaisedButton from 'material-ui/lib/raised-button'
 
 import PaperAvatar from './paper_avatar'
 
@@ -36,7 +38,7 @@ export default class PaperView extends React.Component {
       if (Array.isArray(file)) {
         file.forEach(f => pushFileCards(f, role))
       } else if (typeof file == 'string') {
-        fileCards.push(<FileCard key={file} file={{ id: file }} role={role}/>)
+        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper}/>)
       }
     }
     pushFileCards(paper.mainFile, "Hauptdatei")
@@ -93,18 +95,122 @@ class FileCard extends React.Component {
     let file = this.state.file || this.props.file
 
     return (
-      <Card style={{ marginTop: "1em" }}
+      <Card style={{ margin: "1em auto", maxWidth: "60em" }}
           >
         <CardHeader
           title={file.name}
+          titleStyle={{ textAlign: 'center', fontWeight: 'bold' }}
           subtitle={this.props.role}
+          subtitleStyle={{ textAlign: 'center' }}
           actAsExpander={true}
           showExpandableButton={true}
           />
         <CardText expandable={true}>
-          <p>TODO: annotations</p>
+          <FileDetails file={file} paper={this.props.paper}/>
         </CardText>
+        <CardActions expandable={true} style={{ textAlign: 'right' }}>
+          <RaisedButton label="Text Annotieren" primary={true}
+              style={{ verticalAlign: 'top' }}
+              onClick={ev => Route.go(`/file/${encodeURIComponent(file.id)}`)}
+              />
+          <RaisedButton label="Original-PDF" secondary={true}
+              linkButton={true} href={file.downloadUrl}
+              />
+        </CardActions>
       </Card>
+    )
+  }
+}
+
+// TODO: no paper filter for files that belong to this paper/agendaItem only
+class FileDetails extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      annotations: []
+    }
+  }
+
+  componentDidMount() {
+    return fetch(`/api/file/${this.props.file.id}/annotations`)
+      .then(res => res.json())
+      .then(annotations =>
+        this.setState({
+          annotations: this._processAnnotations(annotations)
+        })
+      )
+  }
+
+  _processAnnotations(annotations) {
+    console.log("_processAnnotations", annotations.sort((a, b) =>
+      (a.begin !== b.begin) ?
+      (a.begin - b.begin) :
+      (a.end - b.end)
+    ))
+    let inPaperChapter = false
+    return annotations.sort((a, b) =>
+      (a.begin !== b.begin) ?
+      (a.begin - b.begin) :
+      (a.end - b.end)
+    ).reduce((results, annotation) => {
+      if (/^chapter\./.test(annotation.type)) {
+        if (annotation.type === 'chapter.reference') {
+          inPaperChapter = annotation.text === this.props.paper.reference
+        }
+      } else if (inPaperChapter) {
+        results.push(annotation)
+      }
+      return results
+    }, [])
+  }
+
+  render() {
+    let file = this.state.file || this.props.file
+    let annotations = this.state.annotations
+
+    return (
+      <article>
+        {annotations.map(annotation => {
+          if (annotation.type === 'record.speaker') {
+            return (
+              <p style={{ fontWeight: 'bold', backgroundColor: 'black', color: 'white' }} title="Sprecher">
+                {annotation.text}
+              </p>
+            )
+          } else if (annotation.type === 'record.transcript') {
+            return (
+              <p title="Niederschrift" style={{ fontStyle: 'italic' }}>
+                {annotation.text}
+              </p>
+            )
+          } else if (annotation.type === 'proposition') {
+            return (
+              <div>
+                <h2 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
+                  Beschlussvorschlag
+                </h2>
+                <p>
+                  {annotation.text}
+                </p>
+              </div>
+            )
+          } else if (annotation.type === 'proposition.reason') {
+            return (
+              <div>
+                <h2 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
+                  Begründung
+                </h2>
+                <p>
+                  {annotation.text}
+                </p>
+              </div>
+            )
+          } else {
+            return ""
+          }
+        })}
+      </article>
     )
   }
 }
