@@ -3,10 +3,7 @@ const TYPES = [
     types: [
       { id: 'chapter.reference',
         title: "Aktenzeichen",
-        rgb: "255,255,127",
-        fields: [{
-          name: 'paper',
-        }]
+        rgb: "255,255,127"
       },
       { id: 'chapter.title',
         title: "Titel",
@@ -15,6 +12,18 @@ const TYPES = [
       { id: 'chapter.resolution',
         title: "Beschluss",
         rgb: "255,255,191"
+      }
+    ]
+  },
+  { title: "Antrag",
+    types: [
+      { id: 'proposition',
+        title: "Beschlussvorschlag",
+        rgb: "191,255,191"
+      },
+      { id: 'proposition.reason',
+        title: "Begründung",
+        rgb: "223,255,223"
       }
     ]
   },
