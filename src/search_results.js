@@ -339,12 +339,6 @@ class FileItem extends React.Component {
           />
     )
   }
-
-  handleClickAnnotate(ev) {
-    ev.preventDefault()
-
-    Route.go(`/file/${this.props.id}`)
-  }
 }
 
 const FILES_KEYS = [
