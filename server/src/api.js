@@ -201,6 +201,7 @@ class API {
     }, err => cb(err))
   }
 
+  // TODO: use toJsonArray()
   getDocAnnotations(opts, res) {
     let elasticsearch = this.elasticsearch
     let i = 0

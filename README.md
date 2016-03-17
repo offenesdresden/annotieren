@@ -13,11 +13,12 @@
 # TODO
 
 * Frontend:
-  * Consistent themeing
   * paper view
+  * Consistent themeing
+  * Provide raw exports
 * Backend:
   * journaling
-  * auth
+  * auth, sessions with https://github.com/mozilla/node-client-sessions
   * annotations aggregations by file for pretty badges
 * Navigation:
   * Meistannotierte
