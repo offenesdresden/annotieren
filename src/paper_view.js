@@ -68,6 +68,87 @@ export default class PaperView extends React.Component {
             />
 
         {fileCards}
+
+        {(paper.consultation || [])
+         .filter(consultation => !!consultation.meeting)
+         .map((consultation, i) =>
+           <Meeting key={i} id={consultation.meeting} filesOf={paper.id}/>
+        )}
+      </div>
+    )
+  }
+}
+
+class Meeting extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      meeting: {}
+    }
+  }
+
+  componentDidMount() {
+    fetch(`/api/oparl/meeting/${encodeURIComponent(this.props.id)}`)
+      .then(res => res.json())
+      .then(meeting => {
+        this.setState({ meeting: meeting })
+      })
+  }
+
+  render() {
+    let meeting = this.state.meeting
+    let fileCards = []
+    function pushFileCards(file, role) {
+      if (Array.isArray(file)) {
+        file.forEach(f => pushFileCards(f, role))
+      } else if (typeof file == 'string') {
+        fileCards.push(<FileCard key={file} file={{ id: file }} role={role}/>)
+      }
+    }
+    pushFileCards(meeting.invitation, "Einladung")
+    pushFileCards(meeting.auxiliaryFile)
+    pushFileCards(meeting.verbatimProtocol, "Wortprotokoll")
+    pushFileCards(meeting.resultsProtocol, "Ergebnisprotokoll")
+
+    let agendaItems = (meeting.agendaItem || [])
+        .filter(item =>
+          item.consultation &&
+          item.consultation.parentID === this.props.filesOf
+        ).map((item, i) =>
+            <AgendaItem key={i} item={item}/>
+        )
+
+    return (
+      <div>
+        <h2>{meeting.name}</h2>
+        <p>{iso8601ToDate(meeting.date)}</p>
+
+        {fileCards}
+      </div>
+    )
+  }
+}
+
+class AgendaItem extends React.Component {
+  render() {
+    let item = this.props.item
+    let fileCards = []
+    function pushFileCards(file, role) {
+      if (Array.isArray(file)) {
+        file.forEach(f => pushFileCards(f, role))
+      } else if (typeof file == 'string') {
+        fileCards.push(<FileCard key={file} file={{ id: file }} role={role}/>)
+      }
+    }
+    pushFileCards(item.resolutionFile, "Beschlussfassung")
+    pushFileCards(item.auxiliaryFile)
+
+    return (
+      <div>
+        <h3>{item.name}</h3>
+
+        {fileCards}
       </div>
     )
   }
@@ -148,14 +229,14 @@ class FileDetails extends React.Component {
       (a.begin - b.begin) :
       (a.end - b.end)
     ))
-    let inPaperChapter = false
+    let inPaperChapter = !this.props.paper
     return annotations.sort((a, b) =>
       (a.begin !== b.begin) ?
       (a.begin - b.begin) :
       (a.end - b.end)
     ).reduce((results, annotation) => {
       if (/^chapter\./.test(annotation.type)) {
-        if (annotation.type === 'chapter.reference') {
+        if (this.props.paper && annotation.type === 'chapter.reference') {
           inPaperChapter = annotation.text === this.props.paper.reference
         }
       } else if (inPaperChapter) {
@@ -187,9 +268,9 @@ class FileDetails extends React.Component {
           } else if (annotation.type === 'proposition') {
             return (
               <div>
-                <h2 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
+                <h4 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
                   Beschlussvorschlag
-                </h2>
+                </h4>
                 <p>
                   {annotation.text}
                 </p>
@@ -198,9 +279,9 @@ class FileDetails extends React.Component {
           } else if (annotation.type === 'proposition.reason') {
             return (
               <div>
-                <h2 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
+                <h4 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
                   Begründung
-                </h2>
+                </h4>
                 <p>
                   {annotation.text}
                 </p>
