@@ -3,15 +3,18 @@ const TYPES = [
     types: [
       { id: 'chapter.reference',
         title: "Aktenzeichen",
-        rgb: "255,255,127"
+        rgb: "255,255,127",
+        fields: [{
+          name: 'paper',
+        }]
       },
       { id: 'chapter.title',
         title: "Titel",
         rgb: "255,255,159"
       },
-      { id: 'chapter.text',
-        title: "Textinhalt",
-        rgb: "255,255,223"
+      { id: 'chapter.resolution',
+        title: "Beschluss",
+        rgb: "255,255,191"
       }
     ]
   },
@@ -31,11 +34,11 @@ const TYPES = [
     types: [
       { id: 'location',
         title: "Ort",
-        rgb: "127,127,127"
+        rgb: "191,127,127"
       },
       { id: 'file',
         title: "Dateiverweis",
-        rgb: "191,191,191"
+        rgb: "223,191,191"
       }
     ]
   },
