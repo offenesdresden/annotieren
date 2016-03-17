@@ -175,7 +175,7 @@ class Paper extends React.Component {
             {(paper.consultation || [])
               .filter(consultation => !!consultation.meeting)
               .map((consultation, i) =>
-                <MeetingItem key={i} id={consultation.meeting} filesOf={paper.id}/>
+                <PaperMeetingItem key={i} id={consultation.meeting} filesOf={paper.id}/>
             )}
           </List>
         </CardText>
@@ -262,12 +262,19 @@ class MeetingItem extends React.Component {
   render() {
     let meeting = this.state || this.props
 
-    return !this.props.filesOf ?
+    return
       <ListItem disabled={true}
           primaryText={meeting.name}
           secondaryText={iso8601ToDate(meeting.start)}
-          >
-      </ListItem> :
+          />
+  }
+}
+
+class PaperMeetingItem extends MeetingItem {
+  render() {
+    let meeting = this.state || this.props
+
+    return (
       <ListItem disabled={true} innerDivStyle={{ paddingRight: "0" }}>
         <List subheader={meeting.name}>
           {findFilesInObject(meeting).map(id =>
@@ -291,6 +298,7 @@ class MeetingItem extends React.Component {
           }
         </List>
       </ListItem>
+    )
   }
 }
 
