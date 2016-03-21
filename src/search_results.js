@@ -230,10 +230,10 @@ class File extends React.Component {
         <CardText>
           <List>
             {this.state.meetings.map(meeting =>
-              <MeetingItem {...meeting}/>
+              <MeetingItem key={meeting.id} {...meeting}/>
             )}
             {this.state.papers.map(paper =>
-              <PaperItem {...paper}/>
+              <PaperItem key={paper.id} {...paper}/>
             )}
           </List>
         </CardText>
@@ -265,11 +265,12 @@ class MeetingItem extends React.Component {
   render() {
     let meeting = this.state || this.props
 
-    return
+    return (
       <ListItem disabled={true}
           primaryText={meeting.name}
           secondaryText={iso8601ToDate(meeting.start)}
           />
+    )
   }
 }
 
