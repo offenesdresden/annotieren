@@ -121,10 +121,11 @@ class Meeting extends React.Component {
 
     return (
       <div>
-        <h2>{meeting.name}</h2>
-        <p>{iso8601ToDate(meeting.date)}</p>
+        <h2 style={{ textAlign: 'center', margin: "3em 0 0", color: "#333" }}>{meeting.name}</h2>
+        <p style={{ textAlign: 'center', margin: "0 0 1em", fontSize: "85%", color: "#888" }}>{iso8601ToDate(meeting.start)}</p>
 
         {fileCards}
+        {agendaItems}
       </div>
     )
   }
@@ -186,7 +187,7 @@ class FileCard extends React.Component {
           actAsExpander={true}
           showExpandableButton={true}
           />
-        <CardText expandable={true}>
+        <CardText expandable={true} style={{ backgroundColor: "#f7f7f7" }}>
           <FileDetails file={file} paper={this.props.paper}/>
         </CardText>
         <CardActions expandable={true} style={{ textAlign: 'right' }}>
@@ -252,7 +253,9 @@ class FileDetails extends React.Component {
 
     return (
       <article>
-        {annotations.map(annotation => {
+        {annotations.length === 0 ?
+         <h4 style={{ color: '#888', textAlign: 'center' }}>Noch keine Annotationen</h4> :
+         annotations.map(annotation => {
           if (annotation.type === 'record.speaker') {
             return (
               <p style={{ fontWeight: 'bold', backgroundColor: 'black', color: 'white' }} title="Sprecher">
