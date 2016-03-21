@@ -185,6 +185,62 @@ class API {
     }, res, toHitsSources)
   }
 
+  suggestMetadata(type, text, res) {
+    // Capitalize
+    type = type.replace(/^(.)/, s => s.toUpperCase())
+
+    let searchSuggestions = attempt => {
+      let multiMatchQuery = {
+        query: text,
+        fields: ['name^2', 'shortName^3', 'id']
+      }
+      switch(attempt) {
+      case 1:
+        multiMatchQuery.type = 'phrase_prefix'
+        break;
+      case 2:
+        multiMatchQuery.type = 'best_fields'
+        multiMatchQuery.operator = 'OR'
+        break;
+      default:
+        throw "Invalid attempt!"
+      }
+
+      return this.elasticsearch.search({
+        index: 'oparl',
+        type: type,
+        body: {
+          query: {
+            multi_match: multiMatchQuery
+          }
+        }
+      }).then(toHitsSources)
+    }
+
+    searchSuggestions(1)
+      .then(hits => {
+        if (hits.length > 0) {
+          return hits
+        } else {
+          return searchSuggestions(2)
+        }
+      })
+      .then(hits => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json'
+        })
+        res.write(JSON.stringify(hits))
+        res.end()
+      }, err => {
+        console.log("ES search:", err.stack)
+        res.writeHead(500, {
+          'Content-Type': 'text/plain'
+        })
+        res.write(err.message.toString())
+        res.end()
+      })
+  }
+
   indexAnnotation(req, cb) {
     req.index = 'annotations'
     req.type = 'text'
@@ -291,6 +347,9 @@ module.exports = function(conf) {
   })
   app.get('/oparl/paper/:id/context', (req, res) => {
     api.findPaperContext(req.params.id, res)
+  })
+  app.post('/suggest/:type', (req, res) => {
+    api.suggestMetadata(req.params.type, req.body.text, res)
   })
   app.get('/file/:id/fragments', (req, res) => {
     api.getDocFragments(req.params.id, res)

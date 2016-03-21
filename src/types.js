@@ -3,7 +3,8 @@ const TYPES = [
     types: [
       { id: 'paper.reference',
         title: "Aktenzeichen",
-        rgb: "95,255,95"
+        rgb: "95,255,95",
+        metadata: ['paper']
       },
       { id: 'paper.name',
         title: "Titel",
@@ -27,7 +28,8 @@ const TYPES = [
     types: [
       { id: 'record.speaker',
         title: "Sprecher",
-        rgb: "191,191,255"
+        rgb: "191,191,255",
+        metadata: ['person']
       },
       { id: 'record.protocol',
         title: "Niederschrift",
@@ -43,27 +45,33 @@ const TYPES = [
     types: [
       { id: 'ref.person',
         title: "Person",
-        rgb: "255,127,127"
+        rgb: "255,127,127",
+        metadata: ['person']
       },
       { id: 'ref.organization',
         title: "Gremium",
-        rgb: "255,143,143"
+        rgb: "255,143,143",
+        metadata: ['organization']
       },
       { id: 'ref.meeting',
         title: "Sitzung",
-        rgb: "255,159,159"
+        rgb: "255,159,159",
+        metadata: ['meeting']
       },
       { id: 'ref.paper',
         title: "Vorlage/Anfrage",
-        rgb: "255,175,175"
+        rgb: "255,175,175",
+        metadata: ['paper']
       },
       { id: 'ref.file',
         title: "Datei",
-        rgb: "255,191,191"
+        rgb: "255,191,191",
+        metadata: ['file']
       },
       { id: 'ref.location',
         title: "Ort",
-        rgb: "255,207,207"
+        rgb: "255,207,207",
+        metadata: ['location']
       }
     ]
   },
