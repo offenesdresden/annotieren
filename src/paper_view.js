@@ -51,7 +51,9 @@ export default class PaperView extends React.Component {
               <div>
                 <PaperAvatar paper={paper} size={32}/>
 
-                {paper.name}
+                <span style={{ whiteSpace: 'pre-wrap' }}>
+                  {paper.name}
+                </span>
               </div>
             }
             iconElementLeft={
@@ -121,7 +123,7 @@ class Meeting extends React.Component {
 
     return (
       <div>
-        <h2 style={{ textAlign: 'center', margin: "3em 0 0", color: "#333" }}>{meeting.name}</h2>
+        <h2 style={{ textAlign: 'center', margin: "3em 0 0", color: "#444" }}>{meeting.name}</h2>
         <p style={{ textAlign: 'center', margin: "0 0 1em", fontSize: "85%", color: "#888" }}>{iso8601ToDate(meeting.start)}</p>
 
         {fileCards}
@@ -147,7 +149,7 @@ class AgendaItem extends React.Component {
 
     return (
       <div>
-        <h3>{item.name}</h3>
+        <h3 style={{ textAlign: 'center', color: "#666" }}>{item.name}</h3>
 
         {fileCards}
       </div>
@@ -262,13 +264,13 @@ class FileDetails extends React.Component {
                 {annotation.text}
               </p>
             )
-          } else if (annotation.type === 'record.transcript') {
+          } else if (annotation.type === 'record.protocol') {
             return (
               <p title="Niederschrift" style={{ fontStyle: 'italic' }}>
                 {annotation.text}
               </p>
             )
-          } else if (annotation.type === 'proposition') {
+          } else if (annotation.type === 'paper.proposition') {
             return (
               <div>
                 <h4 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
@@ -279,11 +281,22 @@ class FileDetails extends React.Component {
                 </p>
               </div>
             )
-          } else if (annotation.type === 'proposition.reason') {
+          } else if (annotation.type === 'paper.reason') {
             return (
               <div>
                 <h4 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
                   Begründung
+                </h4>
+                <p>
+                  {annotation.text}
+                </p>
+              </div>
+            )
+          } else if (annotation.type === 'paper.resolution') {
+            return (
+              <div>
+                <h4 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
+                  Beschluss
                 </h4>
                 <p>
                   {annotation.text}
