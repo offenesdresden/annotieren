@@ -8,15 +8,19 @@
   * Use `src/es_upload.js` to
     * populate ES index *oparl* from [Ratsinfo-scraped](https://github.com/offenesdresden/ratsinfo-scraper) data
     * apply pdftohtml
-
+  * `npm start` - then visit http://localhost:3000/
 
 # TODO
 
 * Frontend:
-  * paper view
+  * Fix: display of stacked annotations with equal begin offset
+  * Cycle thru stack o' annotations by repeated clicking
+  * paper view: more info, more pretty
   * Consistent themeing
   * Provide raw exports
+  * Favicon
 * Backend:
+  * Cache headers for production
   * journaling
   * auth, sessions with https://github.com/mozilla/node-client-sessions
   * annotations aggregations by file for pretty badges
