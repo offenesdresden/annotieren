@@ -1,28 +1,24 @@
 const TYPES = [
-  { title: "Kapitel",
+  { title: "Vorlage/Anfrage",
     types: [
-      { id: 'chapter.reference',
+      { id: 'paper.reference',
         title: "Aktenzeichen",
-        rgb: "255,255,127"
+        rgb: "95,255,95"
       },
-      { id: 'chapter.title',
+      { id: 'paper.name',
         title: "Titel",
-        rgb: "255,255,159"
+        rgb: "127,255,127"
       },
-      { id: 'chapter.resolution',
-        title: "Beschluss",
-        rgb: "255,255,191"
-      }
-    ]
-  },
-  { title: "Antrag",
-    types: [
-      { id: 'proposition',
+      { id: 'paper.proposition',
         title: "Beschlussvorschlag",
+        rgb: "159,255,159"
+      },
+      { id: 'paper.reason',
+        title: "Begründung",
         rgb: "191,255,191"
       },
-      { id: 'proposition.reason',
-        title: "Begründung",
+      { id: 'paper.resolution',
+        title: "Beschluss",
         rgb: "223,255,223"
       }
     ]
@@ -33,21 +29,41 @@ const TYPES = [
         title: "Sprecher",
         rgb: "191,191,255"
       },
-      { id: 'record.transcript',
+      { id: 'record.protocol',
         title: "Niederschrift",
+        rgb: "207,207,255"
+      },
+      { id: 'record.transcript',
+        title: "Wortlaut",
         rgb: "223,223,255"
       }
     ]
   },
-  { title: "Datenpunkte",
+  { title: "Verweis",
     types: [
-      { id: 'location',
-        title: "Ort",
-        rgb: "191,127,127"
+      { id: 'ref.person',
+        title: "Person",
+        rgb: "255,127,127"
       },
-      { id: 'file',
-        title: "Dateiverweis",
-        rgb: "223,191,191"
+      { id: 'ref.organization',
+        title: "Gremium",
+        rgb: "255,143,143"
+      },
+      { id: 'ref.meeting',
+        title: "Sitzung",
+        rgb: "255,159,159"
+      },
+      { id: 'ref.paper',
+        title: "Vorlage/Anfrage",
+        rgb: "255,175,175"
+      },
+      { id: 'ref.file',
+        title: "Datei",
+        rgb: "255,191,191"
+      },
+      { id: 'ref.location',
+        title: "Ort",
+        rgb: "255,207,207"
       }
     ]
   },
