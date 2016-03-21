@@ -3,7 +3,8 @@ const TYPES = [
     types: [
       { id: 'paper.reference',
         title: "Aktenzeichen",
-        rgb: "95,255,95",
+        hint: "Daran werden Dateiabschnitte zu Vorlagen/Anfragen erkannt.",
+        rgb: "127,239,127",
         metadata: ['paper']
       },
       { id: 'paper.name',
@@ -28,15 +29,18 @@ const TYPES = [
     types: [
       { id: 'record.speaker',
         title: "Sprecher",
+        hint: "Wer hat es gesagt?",
         rgb: "191,191,255",
         metadata: ['person']
       },
       { id: 'record.protocol',
         title: "Niederschrift",
+        hint: "Zusammengefasster Inhalt",
         rgb: "207,207,255"
       },
       { id: 'record.transcript',
         title: "Wortlaut",
+        hint: "Wortwörtliches Transkript",
         rgb: "223,223,255"
       }
     ]
