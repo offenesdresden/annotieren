@@ -254,8 +254,9 @@ export default React.createClass({
         </Paper>
 
         <AnnotateBar currentAnnotation={this.state.currentAnnotation}
-            onType={type => this.handleSelectType(type)}
-            onDelete={() => this.handleDeleteAnnotation()}
+            onType={this.handleSelectType}
+            onDelete={this.handleDeleteAnnotation}
+            onMetadata={this.handleMetadata}
             />
 
         <Snackbar open={!!this.state.statusMessage}
@@ -329,8 +330,17 @@ export default React.createClass({
 
     let isNew = this.state.currentAnnotation.type === 'new'
 
-    // Update the type:
-    annotation.type = type
+    if (type !== annotation.type) {
+      // Update the type
+      annotation.type = type
+      // Type updated, remove all metadata
+      delete annotation.person
+      delete annotation.organization
+      delete annotation.meeting
+      delete annotation.paper
+      delete annotation.file
+      delete annotation.location
+    }
 
     if (isNew) {
       annotation.text = this.getFragmentsText(annotation.begin, annotation.end)
@@ -366,6 +376,18 @@ export default React.createClass({
 
   onUpdateAnnotationFailed(e) {
     this.showStatus(e.message)
+  },
+
+  handleMetadata(key, value) {
+    let annotation = this.state.currentAnnotation
+    if (!annotation) {
+      console.error("Updating no annotation, this should not happen!")
+      return
+    }
+
+    // Add the metadata:
+    annotation[key] = value
+    annotateActions.updateAnnotation(this.props.params.id, annotation)
   },
 
   handleDeleteAnnotation() {

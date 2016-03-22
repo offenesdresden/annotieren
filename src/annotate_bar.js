@@ -24,9 +24,9 @@ export default class AnnotateBar extends React.Component {
       <LeftNav open={open} openRight={true} width={240}>
         <AppBar title={title} showMenuIconButton={false}/>
         <TypesMenu
-            value={this.props.currentAnnotation && this.props.currentAnnotation.type}
-            text={this.props.currentAnnotation && this.props.currentAnnotation.text}
+            currentAnnotation={this.props.currentAnnotation}
             onType={this.props.onType} onDelete={this.props.onDelete}
+            onMetadata={this.props.onMetadata}
             />
       </LeftNav>
     )
@@ -35,6 +35,8 @@ export default class AnnotateBar extends React.Component {
 
 class TypesMenu extends React.Component {
   render() {
+    let annotation = this.props.currentAnnotation
+
     return (
       <div>
         {Types.map((category, i) => (
@@ -43,14 +45,15 @@ class TypesMenu extends React.Component {
               <ListItem key={j} style={{ backgroundColor: `rgb(${type.rgb})` }}>
                 <RadioButton label={type.title} title={type.hint}
                     name="type" value={type.id}
-                    checked={this.props.value == type.id}
+                    checked={annotation && annotation.type == type.id}
                     onCheck={ev => this.onCheck(ev)}
                     />
-                {(type.metadata && this.props.value == type.id) ?
-                 type.metadata.map((metadata, i) =>
+                {(type.metadata && annotation && annotation.type == type.id) ?
+                 type.metadata.map((keyName, i) =>
                    <TypeMetadata key={i}
-                       metadata={metadata}
-                       text={this.props.text}
+                       keyName={keyName} value={annotation && annotation[keyName]}
+                       text={annotation && annotation.text}
+                       onUpdate={value => this.props.onMetadata(keyName, value)}
                        />
                  ) : ""
                 }
@@ -59,7 +62,7 @@ class TypesMenu extends React.Component {
           </List>
         ))}
 
-        {(this.props.value !== 'new') ?
+        {(annotation && annotation.type !== 'new') ?
           <div style={{ textAlign: "center", marginTop: "1em" }}>
             <RaisedButton label="Löschen" icon={<DeleteIcon/>}
                 backgroundColor={colors.red700} labelColor="white"
@@ -104,7 +107,7 @@ class TypeMetadata extends React.Component {
   // * suggest from other annotations ("Die Oberbürgermeisterin" maps to the same person)
   _fetchSuggestions(text) {
     // Query with current input or, if empty, annotation text
-    fetch(`/api/suggest/${this.props.metadata}`, {
+    fetch(`/api/suggest/${this.props.keyName}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: text })
@@ -133,27 +136,44 @@ class TypeMetadata extends React.Component {
   }
 
   componentDidMount() {
+    if (this.props.value) {
+      // Copy metadata value if already existing
+      this.setState({
+        id: this.props.value.id,
+        label: this.props.value.label
+      })
+    }
+
+    // Initialize suggestions from annotation text
     this._fetchSuggestions(this.props.text)
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    if (this.props.value !== nextProps.value || this.props.text !== nextProps.text) {
+      // Reset & reinit
+      this.setState({
+        id: null,
+        label: null
+      }, () => this.componentDidMount())
+    }
   }
 
   handleUpdateInput(label) {
     let id = this.state.byLabel[label]
 
-    this.setState({
-      id: id,
-      label: label
-    }, () => {
+    this.setState({ id, label }, () => {
       if (!id) {
+        // Update suggestions from text input
         this._fetchSuggestions(label)
       }
-      // TODO: trigger write
+      this.props.onUpdate({ id, label })
     })
   }
 
   render() {
     return (
       <div>
-        <AutoComplete hintText={METADATA_LABELS[this.props.metadata]}
+        <AutoComplete hintText={METADATA_LABELS[this.props.keyName]}
             searchText={this.state.label}
             dataSource={this.state.labels}
             onUpdateInput={label => this.handleUpdateInput(label)}
