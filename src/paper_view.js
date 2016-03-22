@@ -4,7 +4,6 @@ import Route from 'react-route'
 import AppBar from 'material-ui/lib/app-bar'
 import IconButton from 'material-ui/lib/icon-button'
 import ActionHome from 'material-ui/lib/svg-icons/action/home'
-import Avatar from 'material-ui/lib/avatar'
 import Card from 'material-ui/lib/card/card'
 import CardHeader from 'material-ui/lib/card/card-header'
 import CardText from 'material-ui/lib/card/card-text'
@@ -13,6 +12,9 @@ import RaisedButton from 'material-ui/lib/raised-button'
 import CircularProgress from 'material-ui/lib/circular-progress'
 
 import PaperAvatar from './paper_avatar'
+import { getTypeById } from './types'
+import { getPersonParty } from './parties'
+
 
 export default class PaperView extends React.Component {
   constructor(props) {
@@ -75,7 +77,7 @@ export default class PaperView extends React.Component {
         {(paper.consultation || [])
          .filter(consultation => !!consultation.meeting)
          .map((consultation, i) =>
-           <Meeting key={i} id={consultation.meeting} filesOf={paper.id}/>
+           <Meeting key={i} id={consultation.meeting} filesOf={paper.id} paper={paper}/>
         )}
       </div>
     )
@@ -101,12 +103,13 @@ class Meeting extends React.Component {
 
   render() {
     let meeting = this.state.meeting
+    let paper = this.props.paper
     let fileCards = []
     function pushFileCards(file, role) {
       if (Array.isArray(file)) {
         file.forEach(f => pushFileCards(f, role))
       } else if (typeof file == 'string') {
-        fileCards.push(<FileCard key={file} file={{ id: file }} role={role}/>)
+        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper}/>)
       }
     }
     pushFileCards(meeting.invitation, "Einladung")
@@ -119,7 +122,7 @@ class Meeting extends React.Component {
           item.consultation &&
           item.consultation.parentID === this.props.filesOf
         ).map((item, i) =>
-            <AgendaItem key={i} item={item}/>
+          <AgendaItem key={i} item={item} paper={this.props.paper}/>
         )
 
     return (
@@ -137,12 +140,13 @@ class Meeting extends React.Component {
 class AgendaItem extends React.Component {
   render() {
     let item = this.props.item
+    let paper = this.props.paper
     let fileCards = []
     function pushFileCards(file, role) {
       if (Array.isArray(file)) {
         file.forEach(f => pushFileCards(f, role))
       } else if (typeof file == 'string') {
-        fileCards.push(<FileCard key={file} file={{ id: file }} role={role}/>)
+        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper}/>)
       }
     }
     pushFileCards(item.resolutionFile, "Beschlussfassung")
@@ -213,7 +217,7 @@ class FileDetails extends React.Component {
     super(props)
 
     this.state = {
-      annotations: []
+      parts: []
     }
   }
 
@@ -225,10 +229,11 @@ class FileDetails extends React.Component {
     return fetch(`/api/file/${this.props.file.id}/annotations`)
       .then(res => res.json())
       .then(annotations =>
-        this.setState({
-          annotations: this._processAnnotations(annotations),
-          loading: false
-        })
+        this._processAnnotations(annotations, () =>
+          this.setState({
+            loading: false
+          })
+        )
       )
       .catch(e => {
         this.setState({
@@ -238,32 +243,88 @@ class FileDetails extends React.Component {
       })
   }
 
-  _processAnnotations(annotations) {
+  _processAnnotations(annotations, cb) {
     console.log("_processAnnotations", annotations.sort((a, b) =>
       (a.begin !== b.begin) ?
       (a.begin - b.begin) :
       (a.end - b.end)
     ))
     let inPaperChapter = !this.props.paper
-    return annotations.sort((a, b) =>
+    // First, sort by offset
+    annotations = annotations.sort((a, b) =>
       (a.begin !== b.begin) ?
       (a.begin - b.begin) :
       (a.end - b.end)
     ).reduce((results, annotation) => {
-      if (/^chapter\./.test(annotation.type)) {
-        if (this.props.paper && annotation.type === 'chapter.reference') {
-          inPaperChapter = annotation.text === this.props.paper.reference
-        }
+      console.log("reduce", annotation.type)
+      // Then, restrict to this paper up until next one
+      if (this.props.paper && annotation.type === 'paper.reference') {
+        console.log("inPaperChapter =", (annotation.text === this.props.paper.reference), "||",
+          (annotation.paper && (annotation.paper.id === this.props.paper.id)))
+        inPaperChapter =
+          (annotation.text === this.props.paper.reference) ||
+          (annotation.paper && (annotation.paper.id === this.props.paper.id))
       } else if (inPaperChapter) {
         results.push(annotation)
       }
       return results
     }, [])
+
+    // Last, merge speakers into records
+    let parts = []
+    function appendPart(annotation) {
+      let prevPart = parts.length > 0 ? parts[parts.length - 1] : null
+      if (prevPart && prevPart.type === annotation.type && !annotation.speaker) {
+        // Merge if not introducing new metadata
+        prevPart.text += "\n" + annotation.text
+        prevPart.end = annotation.end
+      } else {
+        // Append
+        parts.push(annotation)
+      }
+    }
+
+    let prevSpeaker = null
+    for(var annotation of annotations) {
+      console.log("a", annotation.type)
+      switch(annotation.type) {
+
+      case 'paper.proposition':
+      case 'paper.reason':
+      case 'paper.resolution':
+        appendPart(annotation)
+        break
+
+      case 'record.protocol':
+      case 'record.transcript':
+        if (prevSpeaker) {
+          annotation.speaker = prevSpeaker
+          prevSpeaker = null
+        }
+        appendPart(annotation)
+        break
+
+      case 'record.speaker':
+        prevSpeaker = null
+
+        let prevPart = (parts.length > 0) ? parts[parts.length - 1] : null
+        if (prevPart && annotation.begin < prevPart.end) {
+          // Attach to overlapping prevPart
+          prevPart.speaker = annotation
+        } else {
+          // Keep around for next part
+          prevSpeaker = annotation
+        }
+        break
+
+      }
+    }
+    console.log("parts", parts)
+    this.setState({ parts }, cb)
   }
 
   render() {
-    let file = this.state.file || this.props.file
-    let annotations = this.state.annotations
+    let parts = this.state.parts
 
     if (this.state.loading) {
       return (
@@ -277,7 +338,7 @@ class FileDetails extends React.Component {
           {this.state.error}
         </h4>
       )
-    } else if (annotations.length === 0) {
+    } else if (parts.length === 0) {
       return (
         <h4 style={{ color: '#888', textAlign: 'center' }}>
           Noch keine relevanten Annotationen
@@ -286,59 +347,78 @@ class FileDetails extends React.Component {
     } else {
       return (
         <article>
-          {annotations.map(annotation => {
-            if (annotation.type === 'record.speaker') {
-              return (
-                <p style={{ fontWeight: 'bold', backgroundColor: 'black', color: 'white' }} title="Sprecher">
-                  {annotation.text}
-                </p>
-              )
-            } else if (annotation.type === 'record.protocol') {
-              return (
-                <p title="Niederschrift" style={{ fontStyle: 'italic' }}>
-                  {annotation.text}
-                </p>
-              )
-            } else if (annotation.type === 'paper.proposition') {
-              return (
-                <div>
-                  <h4 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
-                    Beschlussvorschlag
-                  </h4>
-                  <p>
-                    {annotation.text}
-                  </p>
-                </div>
-              )
-            } else if (annotation.type === 'paper.reason') {
-              return (
-                <div>
-                  <h4 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
-                    Begründung
-                  </h4>
-                  <p>
-                    {annotation.text}
-                  </p>
-                </div>
-              )
-            } else if (annotation.type === 'paper.resolution') {
-              return (
-                <div>
-                  <h4 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
-                    Beschluss
-                  </h4>
-                  <p>
-                    {annotation.text}
-                  </p>
-                </div>
-              )
-            } else {
-              return ""
-            }
-          })}
+          {parts.map(part => <AnnotationPart key={part.id} {...part}/>)}
         </article>
       )
     }
+  }
+}
+
+class AnnotationPart extends React.Component {
+  render() {
+    let type = getTypeById(this.props.type)
+    let title = type ? type.title : ""
+    console.log("part", this.props)
+
+    return (
+      <div id={this.props.id}
+          style={{
+            borderLeft: `4px solid rgb(${type ? type.rgb : "255,255,255"})`,
+            paddingLeft: "8px"
+          }}>
+        <h4 style={{ color: '#999', textAlign: 'center', margin: "0", padding: "1em 0" }}>
+          {title}
+        </h4>
+        <p style={{ whiteSpace: 'pre-wrap', margin: "0", padding: "0.5em 0 1.5em" }}>
+          {this.props.speaker ?
+            <AnnotationSpeaker {...this.props.speaker}/> :
+            ""}
+          {this.props.text}
+        </p>
+      </div>
+    )
+  }
+}
+
+class AnnotationSpeaker extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  componentDidMount() {
+    if (this.props.person && this.props.person.id) {
+      fetch(`/api/oparl/person/${this.props.person.id}`)
+        .then(res => res.json())
+        .then(person => {
+          let party = getPersonParty(person)
+          this.setState({ person, party })
+        })
+    }
+  }
+
+  render() {
+    let person = this.state.person
+    let party = this.state.party
+    let backgroundColor = party ? `rgb(${party.rgb})` : "#666"
+
+    return !person ? (
+      <span style={{ fontWeight: 'bold', color: 'white', backgroundColor, marginRight: '0.5em' }}>
+        {this.props.person && this.props.person.label || this.props.text}
+      </span>
+    ) : (
+      <span style={{ color: 'white', backgroundColor, marginRight: '0.5em' }}>
+        {person.photo ?
+         <img src={person.photo} style={{ width: "64px", float: 'left', margin: "0 0.5em 0.5em 0" }}/> :
+         ""}
+        <span style={{ fontWeight: 'bold' }}>
+          {person.name}
+        </span>
+        {party ?
+         <span>, {party.name}</span> :
+         ""}
+      </span>
+    )
   }
 }
 
