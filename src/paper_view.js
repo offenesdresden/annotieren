@@ -284,6 +284,7 @@ class FileDetails extends React.Component {
       }
     }
 
+    let vote
     let prevSpeaker = null
     for(var annotation of annotations) {
       console.log("a", annotation.type)
@@ -317,10 +318,19 @@ class FileDetails extends React.Component {
         }
         break
 
+      case 'vote.yes':
+      case 'vote.no':
+      case 'vote.neutral':
+      case 'vote.biased':
+      case 'vote.result':
+        if (!vote) vote = {}
+        let keyParts = annotation.type.split(/\./)
+        vote[keyParts[1]] = annotation.text
+        break
       }
     }
-    console.log("parts", parts)
-    this.setState({ parts }, cb)
+
+    this.setState({ parts, vote }, cb)
   }
 
   render() {
@@ -348,6 +358,10 @@ class FileDetails extends React.Component {
       return (
         <article>
           {parts.map(part => <AnnotationPart key={part.id} {...part}/>)}
+
+          {this.state.vote ?
+           <Vote {...this.state.vote}/> :
+           ""}
         </article>
       )
     }
@@ -418,6 +432,50 @@ class AnnotationSpeaker extends React.Component {
          <span>, {party.name}</span> :
          ""}
       </span>
+    )
+  }
+}
+
+const VOTE_COLORS = {
+  yes: "#7c7",
+  no: "#c77",
+  neutral: "#77c",
+  biased: "#00f"
+}
+
+// TODO: namentliche abstimmung?
+class Vote extends React.Component {
+  render() {
+    let fractions = []
+    let total = 0
+    for(var fraction of ['yes', 'neutral', 'biased', 'no']) {
+      if (this.props.hasOwnProperty(fraction)) {
+        let value = parseInt(this.props[fraction])
+        if (value > 0) {
+          fractions.push({ fraction, amount: value })
+          total += value
+        }
+      }
+    }
+    console.log("fractions", fractions, "total", total, "props", this.props)
+
+    return (
+      <div style={{ textAlign: 'center' }}>
+        <h4 style={{ color: '#999', margin: "0", padding: "1em 0" }}>Abstimmung</h4>
+        <p style={{ display: 'inline-block' }}>
+          {fractions.map(f => (
+            <span key={f.fraction} title={f.fraction} style={{
+                width: `${Math.ceil(320 * f.amount / total)}px`,
+                height: "16px",
+                display: 'inline-block',
+                backgroundColor: VOTE_COLORS[f.fraction]
+                }}>
+              {f.value}
+            </span>
+          ))}
+        </p>
+        <p>{this.props.result}</p>
+      </div>
     )
   }
 }
