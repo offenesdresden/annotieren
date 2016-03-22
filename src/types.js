@@ -45,6 +45,35 @@ const TYPES = [
       }
     ]
   },
+  { title: "Abstimmung",
+    types: [
+      { id: 'vote.yes',
+        title: "Ja-Stimmen",
+        hint: "Stimmenanzahl oder Personenname",
+        rgb: "255,79,255"
+      },
+      { id: 'vote.no',
+        title: "Nein-Stimmen",
+        hint: "Stimmenanzahl oder Personenname",
+        rgb: "255,111,255"
+      },
+      { id: 'vote.neutral',
+        title: "Enthaltungen",
+        hint: "Stimmenanzahl oder Personenname",
+        rgb: "255,143,255"
+      },
+      { id: 'vote.biased',
+        title: "Befangen",
+        hint: "Stimmenanzahl oder Personenname",
+        rgb: "255,175,255"
+      },
+      { id: 'vote.result',
+        title: "Ergebnis",
+        hint: "\"Zustimmung mit Änderung\"",
+        rgb: "255,207,255"
+      }
+    ]
+  },
   { title: "Verweis",
     types: [
       { id: 'ref.person',
