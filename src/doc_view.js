@@ -89,57 +89,6 @@ export default React.createClass({
     })
   },
 
-  addAnnotation(annotation) {
-    this.setAnnotationFragments(annotation)
-    annotation.text = this.getFragmentsText(annotation.begin, annotation.end)
-    this.setState({
-      annotations: this.state.annotations.concat(annotation),
-      currentAnnotation: annotation
-    })
-
-    annotateActions.createAnnotation(this.props.params.id, annotation)
-  },
-
-  onCreateAnnotationCompleted(id) {
-    let annotation = this.state.currentAnnotation
-    if (!annotation) {
-      this.showStatus("Keine neue Annotation wurde erstellt o_0")
-      return
-    }
-
-    this.showStatus("Neue Annotation wurde erstellt.")
-    // Update id, having successfully created annotation on the server:
-    annotation.id = id
-  },
-
-  onCreateAnnotationFailed(e) {
-    this.showStatus(`Konnte keine neue Annotation erstellen: ${e.message}`)
-  },
-
-  updateAnnotation(annotation) {
-    console.log("updateAnnotation", annotation)
-
-    annotateActions.updateAnnotation(this.props.params.id, annotation)
-  },
-
-  onUpdateAnnotationFailed(e) {
-    this.showStatus(e.message)
-  },
-
-  deleteAnnotation(annotation) {
-    console.log("deleteAnnotation", annotation)
-
-    annotateActions.removeAnnotation(this.props.params.id, annotation)
-  },
-
-  onRemoveAnnotationCompleted() {
-    this.showStatus("Annotation wurde gelöscht.")
-  },
-
-  onRemoveAnnotationFailed(e) {
-    this.showStatus(e.message)
-  },
-
   setAnnotationFragments(annotation) {
     console.log("set", annotation, "fragments")
     this._withFragments(annotation.begin, annotation.end, inline => {
@@ -378,16 +327,45 @@ export default React.createClass({
     let annotation = this.state.currentAnnotation
     if (!annotation) return
 
-    if (this.state.currentAnnotation.type === 'new') {
-      // Turn a new into a permanent one
-      annotation.type = type
-      this.addAnnotation(annotation)
+    let isNew = this.state.currentAnnotation.type === 'new'
+
+    // Update the type:
+    annotation.type = type
+
+    if (isNew) {
+      annotation.text = this.getFragmentsText(annotation.begin, annotation.end)
+      this.setState({
+        annotations: this.state.annotations.concat(annotation),
+        currentAnnotation: annotation
+      })
+
+      annotateActions.createAnnotation(this.props.params.id, annotation)
     } else {
-      // Update existing annotation
-      annotation.type = type
-      this.updateAnnotation(annotation)
+      annotateActions.updateAnnotation(this.props.params.id, annotation)
     }
+
+    // create: split fragments, update: let colors refresh
     this.setAnnotationFragments(annotation)
+  },
+
+  onCreateAnnotationCompleted(id) {
+    let annotation = this.state.currentAnnotation
+    if (!annotation) {
+      this.showStatus("Keine neue Annotation wurde erstellt o_0")
+      return
+    }
+
+    this.showStatus("Neue Annotation wurde erstellt.")
+    // Update id, having successfully created annotation on the server:
+    annotation.id = id
+  },
+
+  onCreateAnnotationFailed(e) {
+    this.showStatus(`Konnte keine neue Annotation erstellen: ${e.message}`)
+  },
+
+  onUpdateAnnotationFailed(e) {
+    this.showStatus(e.message)
   },
 
   handleDeleteAnnotation() {
@@ -404,7 +382,15 @@ export default React.createClass({
     annotation.type = 'delete'
     this.setAnnotationFragments(annotation)
 
-    this.deleteAnnotation(annotation)
+    annotateActions.removeAnnotation(this.props.params.id, annotation)
+  },
+
+  onRemoveAnnotationCompleted() {
+    this.showStatus("Annotation wurde gelöscht.")
+  },
+
+  onRemoveAnnotationFailed(e) {
+    this.showStatus(e.message)
   }
 })
 
