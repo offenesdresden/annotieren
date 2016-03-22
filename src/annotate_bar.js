@@ -40,23 +40,29 @@ class TypesMenu extends React.Component {
     return (
       <div>
         {Types.map((category, i) => (
-          <List subheader={category.title} key={i}>
+          <List key={i}
+              subheader={category.title}
+              subheaderStyle={{ lineHeight: '32px' }}
+              >
             {category.types.map((type, j) => (
-              <ListItem key={j} style={{ backgroundColor: `rgb(${type.rgb})` }}>
-                <RadioButton label={type.title} title={type.hint}
-                    name="type" value={type.id}
-                    checked={annotation && annotation.type == type.id}
-                    onCheck={ev => this.onCheck(ev)}
-                    />
+              <ListItem key={j}
+                  style={{ backgroundColor: `rgb(${type.rgb})`, fontSize: "85%" }}
+                  title={type.hint}
+                  leftCheckbox={<RadioButton
+                      name="type" value={type.id}
+                      checked={annotation && annotation.type == type.id}
+                      onCheck={ev => this.onCheck(ev)}
+                      />}
+                    >
+                <div>{type.title}</div>
                 {(type.metadata && annotation && annotation.type == type.id) ?
-                 type.metadata.map((keyName, i) =>
-                   <TypeMetadata key={i}
-                       keyName={keyName} value={annotation && annotation[keyName]}
-                       text={annotation && annotation.text}
-                       onUpdate={value => this.props.onMetadata(keyName, value)}
-                       />
-                 ) : ""
-                }
+                  type.metadata.map((keyName, i) =>
+                    <TypeMetadata key={i}
+                        keyName={keyName} value={annotation && annotation[keyName]}
+                        text={annotation && annotation.text}
+                        onUpdate={value => this.props.onMetadata(keyName, value)}
+                        />
+                ) : ""}
               </ListItem>
             ))}
           </List>
