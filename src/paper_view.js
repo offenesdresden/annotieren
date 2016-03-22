@@ -10,6 +10,7 @@ import CardHeader from 'material-ui/lib/card/card-header'
 import CardText from 'material-ui/lib/card/card-text'
 import CardActions from 'material-ui/lib/card/card-actions'
 import RaisedButton from 'material-ui/lib/raised-button'
+import CircularProgress from 'material-ui/lib/circular-progress'
 
 import PaperAvatar from './paper_avatar'
 
@@ -217,13 +218,24 @@ class FileDetails extends React.Component {
   }
 
   componentDidMount() {
+    this.setState({
+      loading: true
+    })
+
     return fetch(`/api/file/${this.props.file.id}/annotations`)
       .then(res => res.json())
       .then(annotations =>
         this.setState({
-          annotations: this._processAnnotations(annotations)
+          annotations: this._processAnnotations(annotations),
+          loading: false
         })
       )
+      .catch(e => {
+        this.setState({
+          error: e.message,
+          loading: false
+        })
+      })
   }
 
   _processAnnotations(annotations) {
@@ -253,62 +265,80 @@ class FileDetails extends React.Component {
     let file = this.state.file || this.props.file
     let annotations = this.state.annotations
 
-    return (
-      <article>
-        {annotations.length === 0 ?
-         <h4 style={{ color: '#888', textAlign: 'center' }}>Noch keine Annotationen</h4> :
-         annotations.map(annotation => {
-          if (annotation.type === 'record.speaker') {
-            return (
-              <p style={{ fontWeight: 'bold', backgroundColor: 'black', color: 'white' }} title="Sprecher">
-                {annotation.text}
-              </p>
-            )
-          } else if (annotation.type === 'record.protocol') {
-            return (
-              <p title="Niederschrift" style={{ fontStyle: 'italic' }}>
-                {annotation.text}
-              </p>
-            )
-          } else if (annotation.type === 'paper.proposition') {
-            return (
-              <div>
-                <h4 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
-                  Beschlussvorschlag
-                </h4>
-                <p>
+    if (this.state.loading) {
+      return (
+        <article style={{ textAlign: 'center' }}>
+          <CircularProgress size={2}/>
+        </article>
+      )
+    } else if (this.state.error) {
+      return (
+        <h4 style={{ color: '#700', textAlign: 'center' }}>
+          {this.state.error}
+        </h4>
+      )
+    } else if (annotations.length === 0) {
+      return (
+        <h4 style={{ color: '#888', textAlign: 'center' }}>
+          Noch keine relevanten Annotationen
+        </h4>
+      )
+    } else {
+      return (
+        <article>
+          {annotations.map(annotation => {
+            if (annotation.type === 'record.speaker') {
+              return (
+                <p style={{ fontWeight: 'bold', backgroundColor: 'black', color: 'white' }} title="Sprecher">
                   {annotation.text}
                 </p>
-              </div>
-            )
-          } else if (annotation.type === 'paper.reason') {
-            return (
-              <div>
-                <h4 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
-                  Begründung
-                </h4>
-                <p>
+              )
+            } else if (annotation.type === 'record.protocol') {
+              return (
+                <p title="Niederschrift" style={{ fontStyle: 'italic' }}>
                   {annotation.text}
                 </p>
-              </div>
-            )
-          } else if (annotation.type === 'paper.resolution') {
-            return (
-              <div>
-                <h4 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
-                  Beschluss
-                </h4>
-                <p>
-                  {annotation.text}
-                </p>
-              </div>
-            )
-          } else {
-            return ""
-          }
-        })}
-      </article>
-    )
+              )
+            } else if (annotation.type === 'paper.proposition') {
+              return (
+                <div>
+                  <h4 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
+                    Beschlussvorschlag
+                  </h4>
+                  <p>
+                    {annotation.text}
+                  </p>
+                </div>
+              )
+            } else if (annotation.type === 'paper.reason') {
+              return (
+                <div>
+                  <h4 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
+                    Begründung
+                  </h4>
+                  <p>
+                    {annotation.text}
+                  </p>
+                </div>
+              )
+            } else if (annotation.type === 'paper.resolution') {
+              return (
+                <div>
+                  <h4 style={{ fontSize: "80%", fontWeight: 'bold', color: '#888' }}>
+                    Beschluss
+                  </h4>
+                  <p>
+                    {annotation.text}
+                  </p>
+                </div>
+              )
+            } else {
+              return ""
+            }
+          })}
+        </article>
+      )
+    }
   }
 }
 
