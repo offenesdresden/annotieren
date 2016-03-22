@@ -133,10 +133,8 @@ class TypeMetadata extends React.Component {
           labels: labels
         })
         if (!this.state.label && labels[0]) {
-          this.setState({
-            id: byLabel[labels[0]],
-            label: labels[0]
-          })
+          // Nothing yet, input the first suggestion and trigger updateAnnotation
+          this.handleUpdateInput(labels[0])
         }
       })
   }
