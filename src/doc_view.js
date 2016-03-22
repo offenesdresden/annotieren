@@ -385,9 +385,11 @@ export default React.createClass({
       return
     }
 
-    // Add the metadata:
-    annotation[key] = value
-    annotateActions.updateAnnotation(this.props.params.id, annotation)
+    if (annotation[key] !== value) {
+      // Add the metadata:
+      annotation[key] = value
+      annotateActions.updateAnnotation(this.props.params.id, annotation)
+    }
   },
 
   handleDeleteAnnotation() {
