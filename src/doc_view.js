@@ -1,4 +1,5 @@
 import React from 'react'
+import Reflux from 'reflux'
 import Route from 'react-route'
 
 import Paper from 'material-ui/lib/paper'
@@ -12,20 +13,27 @@ import Snackbar from 'material-ui/lib/snackbar'
 
 import DocText from './doc_text'
 import AnnotateBar from './annotate_bar'
+import { actions as annotateActions } from './annotate_store'
 
 
-export default class DocView extends React.Component {
-  constructor(props) {
-    super(props)
+export default React.createClass({
+  mixins: [
+    Reflux.listenTo(annotateActions.createAnnotation.completed, 'onCreateAnnotationCompleted'),
+    Reflux.listenTo(annotateActions.createAnnotation.failed, 'onCreateAnnotationFailed'),
+    Reflux.listenTo(annotateActions.updateAnnotation.failed, 'onUpdateAnnotationFailed'),
+    Reflux.listenTo(annotateActions.removeAnnotation.completed, 'onRemoveAnnotationCompleted'),
+    Reflux.listenTo(annotateActions.removeAnnotation.failed, 'onRemoveAnnotationFailed')
+  ],
 
-    this.state = {
+  getInitialState: function() {
+    return {
       loading: true,
       file: {},
       annotations: [],
       pages: [],
       statusMessage: null
     }
-  }
+  },
 
   _fetchFile() {
     return fetch(`/api/oparl/file/${this.props.params.id}`)
@@ -36,7 +44,7 @@ export default class DocView extends React.Component {
           file: json
         })
       })
-  }
+  },
 
   _fetchFragments() {
     return fetch(`/api/file/${this.props.params.id}/fragments`)
@@ -47,7 +55,7 @@ export default class DocView extends React.Component {
           pages: preparePageFragments(json)
         })
       })
-  }
+  },
 
   _fetchAnnotations() {
     return fetch(`/api/file/${this.props.params.id}/annotations`)
@@ -60,7 +68,7 @@ export default class DocView extends React.Component {
           annotations: this.state.annotations.concat(...annotations)
         })
       })
-  }
+  },
 
   componentDidMount() {
     this.setState({
@@ -79,7 +87,7 @@ export default class DocView extends React.Component {
           })
         })
     })
-  }
+  },
 
   addAnnotation(annotation) {
     this.setAnnotationFragments(annotation)
@@ -88,72 +96,49 @@ export default class DocView extends React.Component {
       annotations: this.state.annotations.concat(annotation),
       currentAnnotation: annotation
     })
-    console.log("added annotation", annotation)
 
-    fetch(`/api/file/${this.props.params.id}/annotations`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(annotation)
-    })
-      .then(res => {
-        if (res.status < 200 || res.status >= 300) {
-          throw new Error(`HTTP status ${res.status} ${res.statusText}`)
-        }
+    annotateActions.createAnnotation(this.props.params.id, annotation)
+  },
 
-        return res
-      })
-      .then(res => res.json())
-      .then(json => {
-        console.log("addAnnotation response:", json)
-        this.showStatus("Neue Annotation wurde erstellt.")
-        // Update id, having successfully created annotation on the server:
-        annotation.id = json.id
-      })
-      .catch(e => {
-        console.error("addAnnotation", e.stack)
-        this.showStatus(e.message)
-      })
-  }
+  onCreateAnnotationCompleted(id) {
+    let annotation = this.state.currentAnnotation
+    if (!annotation) {
+      this.showStatus("Keine neue Annotation wurde erstellt o_0")
+      return
+    }
+
+    this.showStatus("Neue Annotation wurde erstellt.")
+    // Update id, having successfully created annotation on the server:
+    annotation.id = id
+  },
+
+  onCreateAnnotationFailed(e) {
+    this.showStatus(`Konnte keine neue Annotation erstellen: ${e.message}`)
+  },
 
   updateAnnotation(annotation) {
     console.log("updateAnnotation", annotation)
 
-    fetch(`/api/file/${this.props.params.id}/annotations/${annotation.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(annotation)
-    })
-      .then(res => {
-        if (res.status < 200 || res.status >= 300) {
-          throw new Error(`HTTP status ${res.status} ${res.statusText}`)
-        }
+    annotateActions.updateAnnotation(this.props.params.id, annotation)
+  },
 
-        return res
-      })
-      .catch(e => {
-        console.error("updateAnnotation", e.stack)
-        this.showStatus(e.message)
-      })
-  }
+  onUpdateAnnotationFailed(e) {
+    this.showStatus(e.message)
+  },
 
   deleteAnnotation(annotation) {
     console.log("deleteAnnotation", annotation)
 
-    fetch(`/api/file/${this.props.params.id}/annotations/${annotation.id}`, {
-      method: 'DELETE'
-    })
-      .then(res => {
-        if (res.status < 200 || res.status >= 300) {
-          throw new Error(`HTTP status ${res.status} ${res.statusText}`)
-        }
+    annotateActions.removeAnnotation(this.props.params.id, annotation)
+  },
 
-        this.showStatus("Annotation wurde gelöscht.")
-      })
-      .catch(e => {
-        console.error("deleteAnnotation", e.stack)
-        this.showStatus(e.message)
-      })
-  }
+  onRemoveAnnotationCompleted() {
+    this.showStatus("Annotation wurde gelöscht.")
+  },
+
+  onRemoveAnnotationFailed(e) {
+    this.showStatus(e.message)
+  },
 
   setAnnotationFragments(annotation) {
     console.log("set", annotation, "fragments")
@@ -185,14 +170,14 @@ export default class DocView extends React.Component {
 
     // Invalidate user selection
     document.getSelection().empty()
-  }
+  },
 
   // TODO: s/<\/p>/\n/
   getFragmentsText(begin, end) {
     let text = ""
     this._withFragments(begin, end, frag => text += frag.text)
     return text
-  }
+  },
 
   _withFragments(begin, end, iter) {
     this._splitFragments(begin)
@@ -242,7 +227,7 @@ export default class DocView extends React.Component {
     this.setState({
       pages: this.state.pages
     })
-  }
+  },
 
   // ensures that inline fragments are split at certain offset for
   // exact annotation marking
@@ -283,7 +268,7 @@ export default class DocView extends React.Component {
         }
       }
     }
-  }
+  },
 
   render() {
     console.log("DocView.render, loading:", this.state.loading,
@@ -330,7 +315,7 @@ export default class DocView extends React.Component {
             />
       </div>
     )
-  }
+  },
 
   showStatus(message) {
     this.setState({
@@ -345,7 +330,7 @@ export default class DocView extends React.Component {
         })
       }
     }, 3000)
-  }
+  },
 
   /**
    * DocText events handlers
@@ -371,7 +356,7 @@ export default class DocView extends React.Component {
         currentAnnotation: null
       })
     }
-  }
+  },
 
   handleClickAnnotation(annotation) {
     if (this.state.currentAnnotation && this.state.currentAnnotation.type === 'new') {
@@ -383,7 +368,7 @@ export default class DocView extends React.Component {
       currentAnnotation: annotation,
       pages: this.state.pages
     })
-  }
+  },
 
   /**
    * AnnotateBar events handlers
@@ -403,7 +388,7 @@ export default class DocView extends React.Component {
       this.updateAnnotation(annotation)
     }
     this.setAnnotationFragments(annotation)
-  }
+  },
 
   handleDeleteAnnotation() {
     let annotation = this.state.currentAnnotation
@@ -421,7 +406,7 @@ export default class DocView extends React.Component {
 
     this.deleteAnnotation(annotation)
   }
-}
+})
 
 let lastAnnotationId = 0
 function generateAnnotationId() {

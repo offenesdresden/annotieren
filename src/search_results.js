@@ -30,9 +30,9 @@ const TYPE_FILE = "https://oparl.org/schema/1.0/File"
 
 export default React.createClass({
   mixins: [
-    Reflux.listenTo(searchActions.search, "onSearch"),
-    Reflux.listenTo(searchActions.search.completed, "onSearchCompleted"),
-    Reflux.listenTo(searchActions.search.failed, "onSearchFailed")
+    Reflux.listenTo(searchActions.search, 'onSearch'),
+    Reflux.listenTo(searchActions.search.completed, 'onSearchCompleted'),
+    Reflux.listenTo(searchActions.search.failed, 'onSearchFailed')
   ],
 
   getInitialState: function() {
