@@ -51,7 +51,7 @@ const TYPES = [
       { id: 'vote.yes',
         title: "Ja-Stimmen",
         hint: "Stimmenanzahl oder Personenname",
-        rgb: "255,79,255"
+        rgb: "239,95,239"
       },
       { id: 'vote.no',
         title: "Nein-Stimmen",
