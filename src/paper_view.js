@@ -325,6 +325,18 @@ class FileDetails extends React.Component {
         let keyParts = annotation.type.split(/\./)
         vote[keyParts[1]] = annotation.text
         break
+
+      case 'ref.person':
+      case 'ref.organization':
+      case 'ref.meeting':
+      case 'ref.paper':
+      case 'ref.file':
+      case 'ref.location':
+        if (prevPart) {
+          if (!prevPart.refs) prevPart.refs = []
+          prevPart.refs.push(annotation)
+        }
+        break
       }
     }
 
