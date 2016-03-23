@@ -9,7 +9,8 @@ const TYPES = [
       },
       { id: 'paper.name',
         title: "Titel",
-        rgb: "127,255,127"
+        rgb: "127,255,127",
+        metadata: ['paper']
       },
       { id: 'paper.proposition',
         title: "Beschlussvorschlag",

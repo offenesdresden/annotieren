@@ -257,14 +257,11 @@ class FileDetails extends React.Component {
       (a.begin - b.begin) :
       (a.end - b.end)
     ).reduce((results, annotation) => {
-      console.log("reduce", annotation.type)
       // Then, restrict to this paper up until next one
-      if (this.props.paper && annotation.type === 'paper.reference') {
-        console.log("inPaperChapter =", (annotation.text === this.props.paper.reference), "||",
-          (annotation.paper && (annotation.paper.id === this.props.paper.id)))
-        inPaperChapter =
-          (annotation.text === this.props.paper.reference) ||
-          (annotation.paper && (annotation.paper.id === this.props.paper.id))
+      if (this.props.paper &&
+          (annotation.type === 'paper.reference' || annotation.type === 'paper.name')) {
+        inPaperChapter = annotation.paper &&
+          (annotation.paper.id === this.props.paper.id)
       } else if (inPaperChapter) {
         results.push(annotation)
       }
@@ -288,7 +285,8 @@ class FileDetails extends React.Component {
     let vote
     let prevSpeaker = null
     for(var annotation of annotations) {
-      console.log("a", annotation.type)
+      let prevPart = (parts.length > 0) ? parts[parts.length - 1] : null
+
       switch(annotation.type) {
 
       case 'paper.proposition':
@@ -309,7 +307,6 @@ class FileDetails extends React.Component {
       case 'record.speaker':
         prevSpeaker = null
 
-        let prevPart = (parts.length > 0) ? parts[parts.length - 1] : null
         if (prevPart && annotation.begin < prevPart.end) {
           // Attach to overlapping prevPart
           prevPart.speaker = annotation
