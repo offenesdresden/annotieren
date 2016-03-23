@@ -236,6 +236,7 @@ class FileDetails extends React.Component {
         )
       )
       .catch(e => {
+        console.error(e.stack)
         this.setState({
           error: e.message,
           loading: false
@@ -450,9 +451,12 @@ class Vote extends React.Component {
     let total = 0
     for(var fraction of ['yes', 'neutral', 'biased', 'no']) {
       if (this.props.hasOwnProperty(fraction)) {
-        let value = parseInt(this.props[fraction])
-        if (value > 0) {
-          fractions.push({ fraction, amount: value })
+        let value
+        try {
+          value = parseInt(this.props[fraction])
+        } catch(e) { }
+        if (typeof value === 'number' && value > 0) {
+          fractions.push({ fraction, value })
           total += value
         }
       }
@@ -464,10 +468,11 @@ class Vote extends React.Component {
         <h4 style={{ color: '#999', margin: "0", padding: "1em 0" }}>Abstimmung</h4>
         <p style={{ display: 'inline-block' }}>
           {fractions.map(f => (
-            <span key={f.fraction} title={f.fraction} style={{
-                width: `${Math.ceil(320 * f.amount / total)}px`,
+            <span key={f.fraction} title={`${f.value}× ${f.fraction}`} style={{
+                width: `${Math.ceil(320 * f.value / total)}px`,
                 height: "16px",
                 display: 'inline-block',
+                textAlign: 'center',
                 backgroundColor: VOTE_COLORS[f.fraction]
                 }}>
               {f.value}

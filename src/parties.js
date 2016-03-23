@@ -9,11 +9,11 @@ const PARTIES = [{
 }, {
   id: "30",
   name: "Fraktion Bündnis 90/Die Grünen",
-  rgb: "0,255,0"
+  rgb: "0,191,0"
 }, {
   id: "34",
   name: "FDP-Fraktion",
-  rgb: "255,255,0"
+  rgb: "127,127,0"
 }, {
   id: "5",
   name: "CDU-Fraktion",
@@ -21,19 +21,19 @@ const PARTIES = [{
 }, {
   id: "115",
   name: "Fraktion Bündnis Freie Bürger",
-  rgb: "127,127,127"
+  rgb: "127,127,0"
 }, {
   id: "35",
   name: "BürgerBündnis / Freie Bürger Fraktion",
-  rgb: "127,127,127"
+  rgb: "127,127,0"
 }, {
   id: "120",
   name: "Fraktion Alternative für Deutschland",
-  rgb: "127,127,191"
+  rgb: "63,63,191"
 }, {
   id: "121",
   name: "FDP/FB-Fraktion",
-  rgb: "191,191,0"
+  rgb: "127,127,0"
 }]
 
 export default PARTIES
