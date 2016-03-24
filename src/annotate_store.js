@@ -38,6 +38,8 @@ export default Reflux.createStore({
       .then(res => res.json())
       .then(json => {
         console.log("addAnnotation response:", json)
+        // Update id before triggering completed event
+        annotation.id = json.id
         actions.createAnnotation.completed(json.id)
       })
       .catch(actions.createAnnotation.failed)
