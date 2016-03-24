@@ -287,6 +287,11 @@ class FileDetails extends React.Component {
     for(var annotation of annotations) {
       let prevPart = (parts.length > 0) ? parts[parts.length - 1] : null
 
+      if (prevPart && prevPart.type === annotation.type) {
+        // Same type as the previous one
+        annotation.noHeading = true
+      }
+
       switch(annotation.type) {
 
       case 'paper.proposition':
@@ -390,10 +395,16 @@ class AnnotationPart extends React.Component {
             borderLeft: `4px solid rgb(${type ? type.rgb : "255,255,255"})`,
             paddingLeft: "8px"
           }}>
-        <h4 style={{ color: '#999', textAlign: 'center', margin: "0", padding: "1em 0" }}>
-          {title}
-        </h4>
-        <p style={{ whiteSpace: 'pre-wrap', margin: "0", padding: "0.5em 0 1.5em" }}>
+        {this.props.noHeading ? "" :
+          <h4 style={{ color: '#999', textAlign: 'center', margin: "0", padding: "1em 0" }}>
+            {title}
+          </h4>}
+        <p style={{
+              whiteSpace: 'pre-wrap',
+              clear: 'left',
+              margin: "0",
+              padding: "0.5em 0 1.5em"
+            }}>
           {this.props.speaker ?
             <AnnotationSpeaker {...this.props.speaker}/> :
             ""}
@@ -425,15 +436,22 @@ class AnnotationSpeaker extends React.Component {
     let person = this.state.person
     let party = this.state.party
     let backgroundColor = party ? `rgb(${party.rgb})` : "#666"
+    let spanStyle = {
+      fontWeight: 'bold',
+      color: 'white',
+      backgroundColor,
+      marginRight: '2px',
+      padding: '1px 2px'
+    }
 
     return !person ? (
-      <span style={{ fontWeight: 'bold', color: 'white', backgroundColor, marginRight: '0.5em' }}>
+      <span style={spanStyle}>
         {this.props.person && this.props.person.label || this.props.text}
       </span>
     ) : (
-      <span style={{ color: 'white', backgroundColor, marginRight: '0.5em' }}>
+      <span style={spanStyle}>
         {person.photo ?
-         <img src={person.photo} style={{ width: "64px", float: 'left', margin: "0 0.5em 0.5em 0" }}/> :
+         <img src={person.photo} style={{ width: "96px", float: 'left', margin: "0 0.1em 0.2em 0" }}/> :
          ""}
         <span style={{ fontWeight: 'bold' }}>
           {person.name}
