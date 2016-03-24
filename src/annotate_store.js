@@ -9,19 +9,20 @@ export let actions = Reflux.createActions({
 export default Reflux.createStore({
   listenables: actions,
 
-  getInitialState() {
-    return {
-      loading: false
-    }
-  },
-
   init: function() {
-    this.loading = false
+    this.pending = false
+    this.queue = []
   },
 
   onCreateAnnotation: function(fileId, annotation) {
+    if (this.pending) {
+      this.queue.push(() => actions.createAnnotation(fileId, annotation))
+      return
+    }
+    this.pending = true
+
     console.log("onCreate", annotation)
-    
+
     fetch(`/api/file/${fileId}/annotations`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -42,7 +43,16 @@ export default Reflux.createStore({
       .catch(actions.createAnnotation.failed)
   },
 
+  onCreateAnnotationCompleted: oneDone,
+  onCreateAnnotationFailed: oneDone,
+
   onUpdateAnnotation: function(fileId, annotation) {
+    if (this.pending) {
+      this.queue.push(() => actions.updateAnnotation(fileId, annotation))
+      return
+    }
+    this.pending = true
+
     console.log("onUpdate", annotation)
     
     fetch(`/api/file/${fileId}/annotations/${annotation.id}`, {
@@ -63,7 +73,16 @@ export default Reflux.createStore({
       .catch(actions.updateAnnotation.failed)
   },
 
+  onUpdateAnnotationCompleted: oneDone,
+  onUpdateAnnotationFailed: oneDone,
+
   onRemoveAnnotation: function(fileId, annotation) {
+    if (this.pending) {
+      this.queue.push(() => actions.removeAnnotation(fileId, annotation))
+      return
+    }
+    this.pending = true
+
     console.log("onRemove", annotation)
     
     fetch(`/api/file/${fileId}/annotations/${annotation.id}`, {
@@ -81,4 +100,14 @@ export default Reflux.createStore({
       })
       .catch(actions.removeAnnotation.failed)
   },
+
+  onRemoveAnnotationCompleted: oneDone,
+  onRemoveAnnotationFailed: oneDone
 })
+
+function oneDone() {
+  this.pending = false
+
+  let next = this.queue.shift()
+  next && next()
+}
