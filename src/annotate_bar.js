@@ -113,7 +113,9 @@ class TypeMetadata extends React.Component {
   // * suggest from other annotations ("Die Oberbürgermeisterin" maps to the same person)
   _fetchSuggestions(text) {
     // Query with current input or, if empty, annotation text
-    fetch(`/api/suggest/${this.props.keyName}`, {
+    let keyName = this.props.keyName
+    let typeName = keyName === 'fileref' ? 'file' : keyName
+    fetch(`/api/suggest/${typeName}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: text })

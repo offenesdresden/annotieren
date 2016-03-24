@@ -100,7 +100,7 @@ const TYPES = [
       { id: 'ref.file',
         title: "Datei",
         rgb: "255,191,191",
-        metadata: ['file']
+        metadata: ['fileref']
       },
       { id: 'ref.location',
         title: "Ort",
