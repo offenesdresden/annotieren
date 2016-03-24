@@ -124,14 +124,19 @@ export default React.createClass({
   // TODO: s/<\/p>/\n/
   getFragmentsText(begin, end) {
     let text = ""
-    this._withFragments(begin, end, frag => text += frag.text)
-    return text
+    this._withFragments(
+      begin, end,
+      frag => text += frag.text,
+      () => text += "\n"
+    )
+    return text.replace(/\xA0/g, " ")
   },
 
-  _withFragments(begin, end, iter) {
+  _withFragments(begin, end, fragIter, blockIter, pageIter) {
     this._splitFragments(begin)
     this._splitFragments(end)
 
+    let lastInline
     for(let page of this.state.pages) {
       if (begin <= page.end && page.begin <= end) {
         // console.log("with page", page)
@@ -143,8 +148,12 @@ export default React.createClass({
               // has made the offsets right
               if (begin <= inline.begin && inline.end <= end) {
                 // console.log("with inline", inline)
-                iter(inline)
+                fragIter(inline)
               }
+              lastInline = inline
+            }
+            if (blockIter && lastInline.end <= end) {
+              blockIter()
             }
 
             // Merge equal inline fragments
@@ -167,6 +176,10 @@ export default React.createClass({
             }
             block.contents = newContents
           }
+        }
+
+        if (pageIter && lastInline.end <= end) {
+          pageIter()
         }
 
         // For DocText/Page.shouldComponentUpdate():

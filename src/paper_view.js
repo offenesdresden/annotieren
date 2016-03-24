@@ -271,10 +271,14 @@ class FileDetails extends React.Component {
     // Last, merge speakers into records
     let parts = []
     function appendPart(annotation) {
+      annotation.text = annotation.text
+        .replace(/^\s+/, "")
+        .replace(/\n\s+$/, "")
+
       let prevPart = parts.length > 0 ? parts[parts.length - 1] : null
       if (prevPart && prevPart.type === annotation.type && !annotation.speaker) {
         // Merge if not introducing new metadata
-        prevPart.text += "\n" + annotation.text
+        prevPart.text += annotation.text
         prevPart.end = annotation.end
       } else {
         // Append
