@@ -13,12 +13,16 @@
 # TODO
 
 * Frontend:
+  * paper view: refs
   * Fix: display of stacked annotations with equal begin offset
   * Cycle thru stack o' annotations by repeated clicking
-  * paper view: more info, more pretty
+  * mediaquery: don't center doc_text in narrow windows
+  * doc_view: metadata/context?
+  * paper view: more info, more pretty, maps
   * Consistent themeing
   * Provide raw exports
   * Favicon
+  * location metadata with map
 * Backend:
   * Cache headers for production
   * journaling
