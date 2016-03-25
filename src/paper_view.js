@@ -255,7 +255,7 @@ class FileDetails extends React.Component {
     annotations = annotations.sort((a, b) =>
       (a.begin !== b.begin) ?
       (a.begin - b.begin) :
-      (a.end - b.end)
+      (/^ref/.test(b.type) ? -1 : (a.end - b.end))
     ).reduce((results, annotation) => {
       // Then, restrict to this paper up until next one
       if (this.props.paper &&
@@ -349,6 +349,28 @@ class FileDetails extends React.Component {
       }
     }
 
+    let uniqRefs = {}
+    for(let part in parts) {
+      if (part.refs) {
+        part.refs = part.refs
+          .filter(ref => {
+            let id =
+                (ref.person && ref.person.id || ref.person.label) ||
+                (ref.organization && ref.organization.id || ref.organization.label) ||
+                (ref.meeting && ref.meeting.id || ref.meeting.label) ||
+                (ref.paper && ref.paper.id || ref.paper.label) ||
+                (ref.fileref && ref.fileref.id || ref.fileref.label) ||
+                ref.text
+            let refId = `${ref.type}:${id}`
+            if (uniqRefs[refId]) {
+              return false
+            } else {
+              uniqRefs[refId] = true
+              return true
+            }
+          })
+      }
+    }
     this.setState({ parts, vote }, cb)
   }
 
@@ -403,6 +425,9 @@ class AnnotationPart extends React.Component {
           <h4 style={{ color: '#999', textAlign: 'center', margin: "0", padding: "1em 0" }}>
             {title}
           </h4>}
+        {this.props.refs ?
+         this.props.refs.map(ref => <AnnotationRef key={ref.id} {...ref}/>) :
+         ""}
         <p style={{
               whiteSpace: 'pre-wrap',
               clear: 'left',
@@ -441,7 +466,6 @@ class AnnotationSpeaker extends React.Component {
     let party = this.state.party
     let backgroundColor = party ? `rgb(${party.rgb})` : "#666"
     let spanStyle = {
-      fontWeight: 'bold',
       color: 'white',
       backgroundColor,
       marginRight: '2px',
@@ -464,6 +488,59 @@ class AnnotationSpeaker extends React.Component {
          <span>, {party.name}</span> :
          ""}
       </span>
+    )
+  }
+}
+
+class AnnotationRef extends React.Component {
+  render() {
+    switch(this.props.type) {
+    case 'ref.person':
+      return <PersonRef {...this.props}/>
+    default:
+      return <span/>
+    }
+  }
+}
+
+class PersonRef extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  componentDidMount() {
+    if (this.props.person && this.props.person.id) {
+      fetch(`/api/oparl/person/${this.props.person.id}`)
+        .then(res => res.json())
+        .then(person => {
+          let party = getPersonParty(person)
+          this.setState({ person, party })
+        })
+    }
+  }
+
+  render() {
+    let person = this.state.person
+    if (!person) return <span/>
+
+    let party = this.state.party
+    let backgroundColor = party ? `rgb(${party.rgb})` : "#666"
+
+    return (
+      <div style={{ float: 'right', backgroundColor, color: 'white', textAlign: 'center' }}>
+        {person.photo ?
+         <img src={person.photo} style={{ width: "96px", float: 'left', margin: "0 0.1em 0.2em 0" }}/> :
+         ""}
+        <p style={{ fontWeight: 'bold', margin: "0" }}>
+          {person.name}
+        </p>
+        {party ?
+         <p style={{ margin: "0" }}>
+           {party.name}
+         </p> :
+         ""}
+      </div>
     )
   }
 }
