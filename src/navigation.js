@@ -17,10 +17,6 @@ export default class Navigation extends React.Component {
     }
   }
 
-  componentDidMount() {
-    this._checkLoggedIn()
-  }
-
   _checkLoggedIn() {
     if (!this.state.hasOwnProperty('username')) {
       fetch("/api/login", {
@@ -41,33 +37,47 @@ export default class Navigation extends React.Component {
     }
   }
 
+  componentDidMount() {
+    this._checkLoggedIn()
+
+    let tab = null
+    switch(this.props.for) {
+    case "/":
+      tab = 'search'
+      break
+    }
+
+    if (tab) {
+      this.setState({
+        tab: tab
+      })
+    }
+  }
+  
   render() {
     let tabStyle = {
-      backgroundColor: 'black'
+      backgroundColor: '#222'
     }
 
     return (
-      <div
-          style={{
-            position: 'fixed',
-            zIndex: 100,
-            top: "0",
-            left: "0",
-            right: "0",
-            margin: "0"
-          }}>
+      <div style={{ marginBottom: "48px" }}>
         <Tabs key="t"
             value={this.state.tab}
             onChange={value => this.handleTabChange(value)}
             style={{
-              backgroundColor: 'black'
+              position: 'fixed',
+              zIndex: 10000,
+              top: "0",
+              left: "0",
+              right: "0",
+              margin: "0"
             }}>
 
           <Tab label="Suchen" value="search" style={tabStyle}/>
 
           {!this.state.username ?
            <Tab id='login' label="Login" value="login" style={tabStyle}/> :
-           <Tab label={`Logout ${this.state.username}`} value="logout" style={tabStyle}/>
+           <Tab label={<span>Logout <b>{this.state.username}</b></span>} value="logout" style={tabStyle}/>
           }
         </Tabs>
 
@@ -101,7 +111,7 @@ export default class Navigation extends React.Component {
             <p style={{ fontSize: "90%", color: '#888', margin: "0" }}>
               Noch keinen Account?
             </p>
-            <RaisedButton label="Registrieren…" secondary={true} onClick={() => Route.go("/register")}/>
+            <RaisedButton label="Registrieren…" secondary={true} onClick={() => this.handleRegister()}/>
           </div>
         </Popover>
       </div>
@@ -114,8 +124,13 @@ export default class Navigation extends React.Component {
       tab: value
     })
 
-    if (value === 'logout') {
+    switch(value) {
+    case 'search':
+      Route.go("/")
+      break
+    case 'logout':
       this.handleLogout()
+      break
     }
   }
 
@@ -181,5 +196,11 @@ export default class Navigation extends React.Component {
           tab: this.state.prevTab
         })
       })
+  }
+
+  handleRegister() {
+    this.handleCloseLogin()
+
+    Route.go("/register")
   }
 }

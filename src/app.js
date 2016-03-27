@@ -5,6 +5,7 @@ import injectTapEventPlugin from 'react-tap-event-plugin'
 injectTapEventPlugin()
 
 import Navigation from './navigation'
+import Register from './register'
 import Search from './search'
 import SearchResults from './search_results'
 import DocView from './doc_view'
@@ -26,16 +27,25 @@ class Main extends React.Component {
   render() {
     return (
       <div>
-        <Navigation/>
-
-        <div style={{ marginTop: "3em" }}>
+        <div>
           <Route path="/">
+            <Navigation for="/"/>
+
             <SearchResults/>
           </Route>
+          <Route path="/register">
+            <Navigation/>
+
+            <Register/>
+          </Route>
           <Route path="/file/:id">
+            <Navigation/>
+
             <DocView/>
           </Route>
           <Route path="/paper/:id">
+            <Navigation/>
+
             <PaperView/>
           </Route>
         </div>
