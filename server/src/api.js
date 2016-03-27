@@ -6,6 +6,7 @@ var htmlProcess = require('./html_process')
 var through = require('through2')
 var elasticsearch = require('elasticsearch')
 var bodyParser = require('body-parser')
+var bcrypt = require('bcrypt')
 
 
 function oparlType(type) {
@@ -25,6 +26,70 @@ class API {
     this.elasticsearch = new elasticsearch.Client({
       host: conf.elasticsearchUrl,
       log: 'info'
+    })
+  }
+
+  // We first check if the username already exists.
+  //
+  // Because ElasticSearch doesn't provide transactions, a negligible
+  // race condition opens up between the two operations.
+  register(username, password, cb) {
+    if (/\s/.test(username)) {
+      return cb(new Error("Username must not contain white-space"))
+    }
+
+    this.elasticsearch.get({
+      index: 'users',
+      type: 'account',
+      id: username
+    }, (err, res) => {
+      if (err && err.message !== 'Not Found') {
+        return cb(err)
+      }
+      if (res && res.found !== false) {
+        return cb(new Error("Username already exists"))
+      }
+
+      bcrypt.hash(password, 8, (err, hash) => {
+        if (err) {
+          return cb(err)
+        }
+
+        this.elasticsearch.index({
+          index: 'users',
+          type: 'account',
+          id: username,
+          body: {
+            hash,
+            created: new Date().toISOString()
+          }
+        }, err => cb(err))
+      })
+    })
+  }
+
+  login(username, password, cb) {
+    this.elasticsearch.get({
+      index: 'users',
+      type: 'account',
+      id: username
+    }, (err, res) => {
+      if (err) {
+        return cb(err)
+      }
+
+      bcrypt.compare(password, res._source.hash, (err, res) => {
+        if (err) {
+          return cb(err)
+        }
+
+        if (res) {
+          // Hash matches, login ok
+          cb()
+        } else {
+          cb(new Error("Access denied"))
+        }
+      })
     })
   }
 
@@ -321,6 +386,44 @@ module.exports = function(conf) {
 
   app.use(bodyParser.json())
 
+  app.post('/register', (req, res) => {
+    api.register(req.body.username, req.body.password, err => {
+      if (err) {
+        console.error(err.stack || err.message)
+        res.writeHead(500, {
+          'Content-Type': 'application/json'
+        })
+        res.write(JSON.stringify({ error: err.message }))
+        res.end()
+        return
+      }
+
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      })
+      res.write(JSON.stringify({}))
+      res.end()
+    })
+  })
+  app.post('/login', (req, res) => {
+    api.login(req.body.username, req.body.password, err => {
+      if (err) {
+        console.error(err.stack || err.message)
+        res.writeHead(500, {
+          'Content-Type': 'application/json'
+        })
+        res.write(JSON.stringify({ error: err.message }))
+        res.end()
+        return
+      }
+
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      })
+      res.write(JSON.stringify({}))
+      res.end()
+    })
+  })
   app.get('/search/', (req, res) => {
     api.searchDocs("", res)
   })
