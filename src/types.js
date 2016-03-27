@@ -4,13 +4,21 @@ const TYPES = [
       { id: 'paper.reference',
         title: "Aktenzeichen",
         hint: "Daran werden Dateiabschnitte zu Vorlagen/Anfragen erkannt.",
-        rgb: "127,239,127",
+        rgb: "127,207,127",
         metadata: ['paper']
       },
       { id: 'paper.name',
         title: "Titel",
-        rgb: "127,255,127",
+        rgb: "127,223,127",
         metadata: ['paper']
+      },
+      { id: 'paper.inquiry',
+        title: "Anfrage",
+        rgb: "127,239,127"
+      },
+      { id: 'paper.response',
+        title: "Antwort",
+        rgb: "127,255,127"
       },
       { id: 'paper.proposition',
         title: "Beschlussvorschlag",

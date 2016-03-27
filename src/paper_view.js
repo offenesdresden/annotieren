@@ -298,6 +298,8 @@ class FileDetails extends React.Component {
 
       switch(annotation.type) {
 
+      case 'paper.inquiry':
+      case 'paper.response':
       case 'paper.proposition':
       case 'paper.reason':
       case 'paper.resolution':
