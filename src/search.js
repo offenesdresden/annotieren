@@ -19,18 +19,14 @@ export default class Search extends React.Component {
   
   render() {
     return (
-      <Card {...this.props}>
-        <CardMedia>
-          <div style={{textAlign: "right", padding: "0 4px"}}>
-            <TextField hintText="Dokumente suchen"
-                onChange={ev => this.handleChange(ev)}
-                type="search"
-                onEnterKeyDown={ev => this.handleSubmit(ev)}
-                style={{marginRight: "2em"}}/>
-            <RaisedButton icon={<SearchIcon/>} backgroundColor={colors.lime800} label="Suchen" primary={true} onMouseDown={ev => this.handleSubmit(ev)}/>
-          </div>
-        </CardMedia>
-      </Card>
+      <div style={{textAlign: "center", padding: "32px 4px"}}>
+        <TextField hintText="Dokumente suchen"
+            onChange={ev => this.handleChange(ev)}
+            type="search"
+            onEnterKeyDown={ev => this.handleSubmit(ev)}
+            style={{marginRight: "2em"}}/>
+        <RaisedButton icon={<SearchIcon/>} backgroundColor={colors.lime800} label="Suchen" primary={true} onMouseDown={ev => this.handleSubmit(ev)}/>
+      </div>
     )
   }
 

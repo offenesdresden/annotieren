@@ -31,6 +31,7 @@ class Main extends React.Component {
           <Route path="/">
             <Navigation for="/"/>
 
+            <Search/>
             <SearchResults/>
           </Route>
           <Route path="/register">
