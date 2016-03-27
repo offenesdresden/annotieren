@@ -585,6 +585,12 @@ module.exports = function(conf) {
       res.end()
     })
   })
+  // TODO:
+  // app.get('/paper/:id/annotated_files', (req, res) => {
+  //   api.getPaperAnnotations({
+  //     paper: req.params.id
+  //   }, res)
+  // })
 
   // Catch all: 404
   app.use((req, res) => {

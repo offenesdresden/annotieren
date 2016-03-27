@@ -13,7 +13,11 @@
 # TODO
 
 * Frontend:
-  * paper view: refs
+  * login_store: provide actions/state to navigation & annotate_bar visibility
+  * refactor login out of navigation
+  * paper_view: fix speaker in record
+  * paper_view: multiple votes
+  * paper_view: more refs, inline
   * Fix: display of stacked annotations with equal begin offset
   * Cycle thru stack o' annotations by repeated clicking
   * mediaquery: don't center doc_text in narrow windows
@@ -23,6 +27,7 @@
   * Provide raw exports
   * Favicon
   * location metadata with map
+  * paper_view optimization: /api/file/241251/annotations/${paper.id}
 * Backend:
   * Cache headers for production
   * journaling

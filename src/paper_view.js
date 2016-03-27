@@ -256,7 +256,9 @@ class FileDetails extends React.Component {
       (a.begin !== b.begin) ?
       (a.begin - b.begin) :
       (/^ref/.test(b.type) ? -1 : (a.end - b.end))
-    ).reduce((results, annotation) => {
+                                  )
+    // TODO: if less then two different paper.{reference,name}, don't reduce:
+    .reduce((results, annotation) => {
       // Then, restrict to this paper up until next one
       if (this.props.paper &&
           (annotation.type === 'paper.reference' || annotation.type === 'paper.name')) {
