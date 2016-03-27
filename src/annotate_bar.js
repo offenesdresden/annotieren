@@ -21,7 +21,7 @@ export default class AnnotateBar extends React.Component {
       this.props.currentAnnotation.type === 'new' ?
       "Annotieren" : "Ändern"
     return (
-      <LeftNav open={open} openRight={true} width={240}>
+      <LeftNav open={open} openRight={true} width={260}>
         <AppBar title={title} showMenuIconButton={false}/>
         <TypesMenu
             currentAnnotation={this.props.currentAnnotation}
