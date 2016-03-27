@@ -6,6 +6,7 @@ import Tab from 'material-ui/lib/tabs/tab'
 import Popover from 'material-ui/lib/popover/popover'
 import TextField from 'material-ui/lib/text-field'
 import RaisedButton from 'material-ui/lib/raised-button'
+import CircularProgress from 'material-ui/lib/circular-progress'
 
 
 export default class Navigation extends React.Component {
@@ -72,7 +73,8 @@ export default class Navigation extends React.Component {
 
         <Popover open={!this.state.username && this.state.tab === 'login'}
             anchorEl={document.getElementById('login')}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            targetOrigin={{ vertical: 'top', horizontal: 'right' }}
             style={{ padding: "0.5em 1em" }}
             onRequestClose={() => this.handleCloseLogin()}
             >
@@ -90,7 +92,10 @@ export default class Navigation extends React.Component {
                 />
           </div>
           <div style={{ textAlign: 'right' }}>
-            <RaisedButton label="Login" primary={true} onClick={() => this.handleLogin()}/>
+            {!this.state.loginLoading ?
+             <RaisedButton label="Login" primary={true} onClick={() => this.handleLogin()}/> :
+             <CircularProgress/>
+            }
           </div>
           <div style={{ textAlign: 'right', marginTop: "3em" }}>
             <p style={{ fontSize: "90%", color: '#888', margin: "0" }}>
@@ -128,7 +133,10 @@ export default class Navigation extends React.Component {
   }
 
   handleLogin() {
-    // TODO: throbber
+    this.setState({
+      loginLoading: true
+    })
+
     fetch("/api/login", {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -140,15 +148,15 @@ export default class Navigation extends React.Component {
     })
       .then(res => res.json())
       .then(json => {
-        console.log("login response:", json)
         if (json.error) {
-          this.setState({ loginError: json.error })
+          this.setState({ loginError: json.error, loginLoading: false })
         } else {
-          this.setState({ username: json.username })
+          this.setState({ username: json.username, loginLoading: false })
+          this.handleCloseLogin()
         }
       })
       .catch(e => {
-        this.setState({ loginError: e.message })
+        this.setState({ loginError: e.message, loginLoading: false })
       })
   }
 
