@@ -4,6 +4,7 @@ var express = require('express')
 var app = express()
 var CONF = require('../config.js')
 
+app.use(require('morgan')('dev'))
 app.use(require('compression')())
 app.use('/api', require('./api')(CONF))
 var publicStatic = express.static(`${__dirname}/../../public`)
