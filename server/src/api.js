@@ -7,6 +7,7 @@ var through = require('through2')
 var elasticsearch = require('elasticsearch')
 var bodyParser = require('body-parser')
 var bcrypt = require('bcrypt')
+var sessions = require('client-sessions')
 
 
 function oparlType(type) {
@@ -379,12 +380,41 @@ class API {
   }
 }
 
+const SESSION_KEY_PATH = `${__dirname}/../session.key`
+
+function getOrGenerateSessionSecret() {
+  try {
+    return fs.readFileSync(SESSION_KEY_PATH)
+  } catch (e) {
+    console.log(`Cannot read ${SESSION_KEY_PATH}, generating anew...`)
+
+    let key = new Buffer(32)
+    for(let i = 0; i < key.length; i++) {
+      key[i] = Math.floor(255 * Math.random())
+    }
+    fs.writeFileSync(SESSION_KEY_PATH, key)
+    return key
+  }
+}
 
 module.exports = function(conf) {
   let api = new API(conf)
   var app = express()
 
   app.use(bodyParser.json())
+  app.use(sessions({
+    cookieName: 'session',
+    secret: getOrGenerateSessionSecret(),
+    duration: 24 * 60 * 60 * 1000, // how long the session will stay valid in ms
+    activeDuration: 1000 * 60 * 5, // if expiresIn < activeDuration, the session will be extended by activeDuration milliseconds
+    cookie: {
+      path: '/api', // cookie will only be sent to requests under '/api'
+      ephemeral: false, // when true, cookie expires when the browser closes
+      httpOnly: true, // when true, cookie is not accessible from javascript
+      secure: false, // when true, cookie will only be sent over SSL. use key 'secureProxy' instead if you handle SSL not in your node process
+      secureProxy: false // TODO: switch on for production
+    }
+  }))
 
   app.post('/register', (req, res) => {
     api.register(req.body.username, req.body.password, err => {
@@ -398,12 +428,24 @@ module.exports = function(conf) {
         return
       }
 
+      req.session.username = req.body.username
+
       res.writeHead(200, {
         'Content-Type': 'application/json'
       })
       res.write(JSON.stringify({}))
       res.end()
     })
+  })
+  app.get('/login', (req, res) => {
+    // TODO: restrict Origin
+    res.writeHead(200, {
+      'Content-Type': 'application/json'
+    })
+    res.write(JSON.stringify({
+      username: req.session.username
+    }))
+    res.end()
   })
   app.post('/login', (req, res) => {
     api.login(req.body.username, req.body.password, err => {
@@ -417,12 +459,23 @@ module.exports = function(conf) {
         return
       }
 
+      req.session.username = req.body.username
+
       res.writeHead(200, {
         'Content-Type': 'application/json'
       })
-      res.write(JSON.stringify({}))
+      res.write(JSON.stringify({ username: req.body.username }))
       res.end()
     })
+  })
+  app.post('/logout', (req, res) => {
+    delete req.session.username
+
+    res.writeHead(200, {
+      'Content-Type': 'application/json'
+    })
+    res.write(JSON.stringify({}))
+    res.end()
   })
   app.get('/search/', (req, res) => {
     api.searchDocs("", res)
