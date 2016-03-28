@@ -23,7 +23,7 @@ export default React.createClass({
     Reflux.listenTo(annotateActions.removeAnnotation.failed, 'onRemoveAnnotationFailed')
   ],
 
-  getInitialState: function() {
+  getInitialState() {
     return {
       loading: true,
       file: {},

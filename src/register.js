@@ -15,12 +15,12 @@ export default React.createClass({
     Reflux.listenTo(accountActions.register.failed, 'onRegisterFailed'),
   ],
 
-  getInitialState: function() {
+  getInitialState() {
     return {
     }
   },
 
-  render: function() {
+  render() {
     return (
         <div style={{ margin: "2em auto", maxWidth: "20em" }}>
         <div>
@@ -51,7 +51,7 @@ export default React.createClass({
     )
   },
 
-  handleFieldChange: function(field, value) {
+  handleFieldChange(field, value) {
     this.setState({
       [field]: value,
       error: null
@@ -64,7 +64,7 @@ export default React.createClass({
     })
   },
 
-  handleSubmit: function() {
+  handleSubmit() {
     this.setState({
       error: null,
       loading: true
@@ -73,7 +73,7 @@ export default React.createClass({
     accountActions.register(this.state.username, this.state.password1)
   },
 
-  onRegisterCompleted: function() {
+  onRegisterCompleted() {
     this.setState({
       error: null,
       loading: false
@@ -81,7 +81,7 @@ export default React.createClass({
     Route.go("/")
   },
 
-  onRegisterFailed: function(e) {
+  onRegisterFailed(e) {
     this.setState({
       error: e.message,
       loading: false

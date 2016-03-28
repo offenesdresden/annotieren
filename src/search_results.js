@@ -35,37 +35,37 @@ export default React.createClass({
     Reflux.listenTo(searchActions.search.failed, 'onSearchFailed')
   ],
 
-  getInitialState: function() {
+  getInitialState() {
     return {
       results: []
     }
   },
 
-  componentDidMount: function() {
+  componentDidMount() {
     // Start an empty search on startup
     searchActions.search("")
   },
 
-  onSearch: function() {
+  onSearch() {
     this.setState({
       loading: true
     })
   },
 
-  onSearchFailed: function() {
+  onSearchFailed() {
     this.setState({
       loading: false
     })
   },
 
-  onSearchCompleted: function(results) {
+  onSearchCompleted(results) {
     this.setState({
       loading: false,
       results: results
     })
   },
 
-  render: function() {
+  render() {
     return (
       <div style={{ maxWidth: "60em", margin: "0 auto" }}>
         {this.state.loading ?

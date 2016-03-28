@@ -16,12 +16,12 @@ export default React.createClass({
     Reflux.listenTo(accountActions.login.failed, 'onLoginFailed'),
   ],
 
-  getInitialState: function() {
+  getInitialState() {
     return {
     }
   },
 
-  render: function() {
+  render() {
     return (
       <Popover {...this.props}>
         <div>
@@ -53,14 +53,14 @@ export default React.createClass({
     )
   },
 
-  handleFieldChange: function(field, value) {
+  handleFieldChange(field, value) {
     this.setState({
       [field]: value,
       error: null
     })
   },
 
-  handleSubmit: function() {
+  handleSubmit() {
     this.setState({
       error: null,
       loading: true

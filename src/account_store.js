@@ -10,11 +10,11 @@ export let actions = Reflux.createActions({
 export default Reflux.createStore({
   listenables: actions,
 
-  init: function() {
+  init() {
     actions.refreshLogin()
   },
 
-  onRefreshLogin: function() {
+  onRefreshLogin() {
     fetch("/api/login", {
       credentials: 'same-origin'
     })
@@ -29,7 +29,7 @@ export default Reflux.createStore({
       })
   },
 
-  onLogin: function(username, password) {
+  onLogin(username, password) {
     fetch("/api/login", {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -54,7 +54,7 @@ export default Reflux.createStore({
       })
   },
 
-  onLogout: function() {
+  onLogout() {
     fetch("/api/logout", {
       method: 'POST',
       credentials: 'same-origin'
@@ -63,7 +63,7 @@ export default Reflux.createStore({
       .catch(e => actions.logout.failed(e))
   },
 
-  onRegister: function(username, password) {
+  onRegister(username, password) {
     fetch("/api/register", {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

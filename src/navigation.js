@@ -16,7 +16,7 @@ export default React.createClass({
     Reflux.listenTo(accountActions.logout.failed, 'onLogoutFailed'),
   ],
 
-  getInitialState: function() {
+  getInitialState() {
     return {
       tab: null
     }

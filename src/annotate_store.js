@@ -9,12 +9,12 @@ export let actions = Reflux.createActions({
 export default Reflux.createStore({
   listenables: actions,
 
-  init: function() {
+  init() {
     this.pending = false
     this.queue = []
   },
 
-  onCreateAnnotation: function(fileId, annotation) {
+  onCreateAnnotation(fileId, annotation) {
     if (this.pending) {
       this.queue.push(() => actions.createAnnotation(fileId, annotation))
       return
@@ -48,7 +48,7 @@ export default Reflux.createStore({
   onCreateAnnotationCompleted: oneDone,
   onCreateAnnotationFailed: oneDone,
 
-  onUpdateAnnotation: function(fileId, annotation) {
+  onUpdateAnnotation(fileId, annotation) {
     if (this.pending) {
       this.queue.push(() => actions.updateAnnotation(fileId, annotation))
       return
@@ -78,7 +78,7 @@ export default Reflux.createStore({
   onUpdateAnnotationCompleted: oneDone,
   onUpdateAnnotationFailed: oneDone,
 
-  onRemoveAnnotation: function(fileId, annotation) {
+  onRemoveAnnotation(fileId, annotation) {
     if (this.pending) {
       this.queue.push(() => actions.removeAnnotation(fileId, annotation))
       return

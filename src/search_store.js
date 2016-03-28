@@ -15,11 +15,11 @@ export default Reflux.createStore({
     }
   },
 
-  init: function() {
+  init() {
     this.loading = false
   },
 
-  onSearch: function(query) {
+  onSearch(query) {
     console.log("onSearch", query)
     actions.search.started()
     
@@ -29,16 +29,16 @@ export default Reflux.createStore({
       .catch(actions.search.failed)
   },
 
-  onSearchStarted: function() {
+  onSearchStarted() {
     this.loading = true
   },
 
-  onSearchCompleted: function(results) {
+  onSearchCompleted(results) {
     console.log("onSearchCompleted", results)
     this.loading = false
   },
 
-  onSearchFailed: function(err) {
+  onSearchFailed(err) {
     console.log("onSearchFailed", err)
     this.loading = false
   }
