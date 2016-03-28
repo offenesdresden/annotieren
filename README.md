@@ -13,6 +13,7 @@
 # TODO
 
 * Frontend:
+  * paper_view: rm agenda_items files that are in paper
   * annotate_bar visibility
   * annotation: rename file to fileId, fileref to file?
   * paper_view: fix speaker in record
@@ -29,6 +30,7 @@
   * location metadata with map
   * paper_view optimization: /api/file/241251/annotations/${paper.id}
 * Backend:
+  * fragments api: sort blocks by position in page
   * Cache headers for production
   * journaling
   * annotations aggregations by file for pretty badges
