@@ -113,18 +113,22 @@ const TYPES = [
         rgb: "255,175,175",
         metadata: ['paper']
       },
-      { id: 'ref.file',
-        title: "Datei",
-        rgb: "255,191,191",
-        metadata: ['fileref']
-      },
-      { id: 'ref.location',
-        title: "Ort",
-        rgb: "255,207,207",
-        metadata: ['location']
-      }
+      // { id: 'ref.file',
+      //   title: "Datei",
+      //   rgb: "255,191,191",
+      //   metadata: ['fileref']
+      // },
+      // { id: 'ref.location',
+      //   title: "Ort",
+      //   rgb: "255,207,207",
+      //   metadata: ['geolocation']
+      // }
     ]
   },
+  // Autor: Gremium, Person
+  // Anwesenheit: Anwesend, Abwesend, Verlassen, Erscheinen
+  // Gelder: Einnahmen, Einsparungen, Ausgaben
+  // Links?
 /*  { title: "",
     types: [
       { title: "",

@@ -13,8 +13,8 @@
 # TODO
 
 * Frontend:
-  * login_store: provide actions/state to navigation & annotate_bar visibility
-  * refactor login out of navigation
+  * annotate_bar visibility
+  * annotation: rename file to fileId, fileref to file?
   * paper_view: fix speaker in record
   * paper_view: multiple votes
   * paper_view: more refs, inline
@@ -31,12 +31,11 @@
 * Backend:
   * Cache headers for production
   * journaling
-  * auth, sessions with https://github.com/mozilla/node-client-sessions
   * annotations aggregations by file for pretty badges
 * Navigation:
+  * Suchen (Facets?): no results by default
+  * Neue Dokumente
+  * Kürzlich annotierte
   * Meistannotierte
   * Selten annotierte
-  * Kürzlich annotierte
-  * Neue Dokumente
-  * Suche (Facets?)
 
