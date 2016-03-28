@@ -9,28 +9,36 @@ const TYPES = [
       },
       { id: 'paper.name',
         title: "Titel",
-        rgb: "127,223,127",
+        rgb: "143,231,143",
         metadata: ['paper']
-      },
+      }
+    ]
+  },
+  { title: "Anfrage",
+    types: [
       { id: 'paper.inquiry',
-        title: "Anfrage",
-        rgb: "127,239,127"
+        title: "Fragestellung",
+        rgb: "231,231,127"
       },
       { id: 'paper.response',
         title: "Antwort",
-        rgb: "127,255,127"
-      },
+        rgb: "255,255,127"
+      }
+    ]
+  },
+  { title: "Vorlage",
+    types: [
       { id: 'paper.proposition',
         title: "Beschlussvorschlag",
-        rgb: "159,255,159"
+        rgb: "79,223,223"
       },
       { id: 'paper.reason',
         title: "Begründung",
-        rgb: "191,255,191"
+        rgb: "143,239,239"
       },
       { id: 'paper.resolution',
         title: "Beschluss",
-        rgb: "223,255,223"
+        rgb: "207,255,255"
       }
     ]
   },
