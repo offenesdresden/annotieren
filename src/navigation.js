@@ -1,4 +1,5 @@
 import React from 'react'
+import Reflux from 'reflux'
 import Route from 'react-route'
 
 import Tabs from 'material-ui/lib/tabs/tabs'
@@ -8,37 +9,28 @@ import TextField from 'material-ui/lib/text-field'
 import RaisedButton from 'material-ui/lib/raised-button'
 import CircularProgress from 'material-ui/lib/circular-progress'
 
+import { actions as accountActions, default as accountStore } from './account_store'
 
-export default class Navigation extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
+export default React.createClass({
+  mixins: [
+    Reflux.listenTo(accountActions.refreshLogin.completed, 'onRefreshLoginCompleted'),
+    Reflux.listenTo(accountActions.refreshLogin.failed, 'onRefreshLoginFailed'),
+    Reflux.listenTo(accountActions.login.completed, 'onLoginCompleted'),
+    Reflux.listenTo(accountActions.login.failed, 'onLoginFailed'),
+    Reflux.listenTo(accountActions.logout.completed, 'onLogoutCompleted'),
+    Reflux.listenTo(accountActions.logout.failed, 'onLogoutFailed'),
+  ],
+
+  getInitialState: function() {
+    return {
       tab: null
     }
-  }
-
-  _checkLoggedIn() {
-    if (!this.state.hasOwnProperty('username')) {
-      fetch("/api/login", {
-        credentials: 'same-origin'
-      })
-        .then(res => res.json())
-        .then(json => {
-          this.setState({
-            username: json.username
-          })
-        })
-        .catch(e => {
-          console.error(e.stack || e)
-          this.setState({
-            username: null
-          })
-        })
-    }
-  }
+  },
 
   componentDidMount() {
-    this._checkLoggedIn()
+    this.setState({
+      username: accountStore.username
+    })
 
     let tab = null
     switch(this.props.for) {
@@ -52,8 +44,16 @@ export default class Navigation extends React.Component {
         tab: tab
       })
     }
-  }
-  
+  },
+
+  onRefreshLoginCompleted(username) {
+    this.setState({ username })
+  },
+
+  onRefreshLoginFailed(e) {
+    this.setState({ username: null })
+  },
+
   render() {
     let tabStyle = {
       backgroundColor: '#222'
@@ -116,7 +116,7 @@ export default class Navigation extends React.Component {
         </Popover>
       </div>
     )
-  }
+  },
 
   handleTabChange(value) {
     this.setState({
@@ -132,75 +132,72 @@ export default class Navigation extends React.Component {
       this.handleLogout()
       break
     }
-  }
+  },
 
   handleCloseLogin() {
     this.setState({
       prevTab: null,
       tab: this.state.prevTab
     })
-  }
+  },
   
   handleLoginFieldChange(field, value) {
     this.setState({
       [field]: value
     })
-  }
+  },
 
   handleLogin() {
     this.setState({
+      loginError: null,
       loginLoading: true
     })
 
-    fetch("/api/login", {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username: this.state.loginUsername,
-        password: this.state.loginPassword
-      }),
-      credentials: 'same-origin'
+    accountActions.login(this.state.loginUsername, this.state.loginPassword)
+  },
+
+  onLoginCompleted(username) {
+    this.setState({
+      username,
+      loginError: null,
+      loginLoading: false
     })
-      .then(res => res.json())
-      .then(json => {
-        if (json.error) {
-          this.setState({ loginError: json.error, loginLoading: false })
-        } else {
-          this.setState({ username: json.username, loginLoading: false })
-          this.handleCloseLogin()
-        }
-      })
-      .catch(e => {
-        this.setState({ loginError: e.message, loginLoading: false })
-      })
-  }
+
+    this.handleCloseLogin()
+  },
+
+  onLoginFailed(e) {
+    this.setState({
+      loginError: e.message,
+      loginLoading: false
+    })
+  },
 
   handleLogout() {
-    fetch("/api/logout", {
-      method: 'POST',
-      credentials: 'same-origin'
+    accountActions.logout()
+  },
+
+  onLogoutCompleted() {
+    this.setState({
+      username: null,
+
+      prevTab: null,
+      tab: this.state.prevTab
     })
-      .then(res => {
-        this.setState({
-          username: null,
+  },
 
-          prevTab: null,
-          tab: this.state.prevTab
-        })
-      })
-      .catch(e => {
-        console.error(e.stack || e)
+  onLogoutFailed(e) {
+    console.error(e.stack || e)
 
-        this.setState({
-          prevTab: null,
-          tab: this.state.prevTab
-        })
-      })
-  }
+    this.setState({
+      prevTab: null,
+      tab: this.state.prevTab
+    })
+  },
 
   handleRegister() {
     this.handleCloseLogin()
 
     Route.go("/register")
   }
-}
+})

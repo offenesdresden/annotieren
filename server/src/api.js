@@ -433,7 +433,7 @@ module.exports = function(conf) {
       res.writeHead(200, {
         'Content-Type': 'application/json'
       })
-      res.write(JSON.stringify({}))
+      res.write(JSON.stringify({ username: req.body.username }))
       res.end()
     })
   })

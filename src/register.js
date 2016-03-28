@@ -1,18 +1,26 @@
 import React from 'react'
+import Reflux from 'reflux'
 import Route from 'react-route'
 
 import TextField from 'material-ui/lib/text-field'
 import RaisedButton from 'material-ui/lib/raised-button'
+import CircularProgress from 'material-ui/lib/circular-progress'
+
+import { actions as accountActions } from './account_store'
 
 
-export default class Register extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
+export default React.createClass({
+  mixins: [
+    Reflux.listenTo(accountActions.register.completed, 'onRegisterCompleted'),
+    Reflux.listenTo(accountActions.register.failed, 'onRegisterFailed'),
+  ],
+
+  getInitialState: function() {
+    return {
     }
-  }
+  },
 
-  render() {
+  render: function() {
     return (
         <div style={{ margin: "2em auto", maxWidth: "20em" }}>
         <div>
@@ -35,13 +43,15 @@ export default class Register extends React.Component {
               />
         </div>
         <div style={{ marginTop: "2em" }}>
-          <RaisedButton label="Account erstellen" primary={true} onClick={() => this.handleSubmit()}/>
+          {this.state.loading ?
+           <CircularProgress/> :
+           <RaisedButton label="Account erstellen" primary={true} onClick={() => this.handleSubmit()}/>}
         </div>
       </div>
     )
-  }
+  },
 
-  handleFieldChange(field, value) {
+  handleFieldChange: function(field, value) {
     this.setState({
       [field]: value,
       error: null
@@ -52,32 +62,29 @@ export default class Register extends React.Component {
         })
       }
     })
-  }
+  },
 
-  handleSubmit() {
+  handleSubmit: function() {
     this.setState({
+      error: null,
       loading: true
     })
-    
-    fetch("/api/register", {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username: this.state.username,
-        password: this.state.password1
-      }),
-      credentials: 'same-origin'
+
+    accountActions.register(this.state.username, this.state.password1)
+  },
+
+  onRegisterCompleted: function() {
+    this.setState({
+      error: null,
+      loading: false
     })
-      .then(res => res.json())
-      .then(json => {
-        if (json.error) {
-          this.setState({ error: json.error, loading: false })
-        } else {
-          Route.go("/")
-        }
-      })
-      .catch(e => {
-        this.setState({ error: e.message, loading: false })
-      })
+    Route.go("/")
+  },
+
+  onRegisterFailed: function(e) {
+    this.setState({
+      error: e.message,
+      loading: false
+    })
   }
-}
+})
