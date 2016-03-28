@@ -4,19 +4,14 @@ import Route from 'react-route'
 
 import Tabs from 'material-ui/lib/tabs/tabs'
 import Tab from 'material-ui/lib/tabs/tab'
-import Popover from 'material-ui/lib/popover/popover'
-import TextField from 'material-ui/lib/text-field'
-import RaisedButton from 'material-ui/lib/raised-button'
-import CircularProgress from 'material-ui/lib/circular-progress'
 
 import { actions as accountActions, default as accountStore } from './account_store'
+import Login from './login'
 
 export default React.createClass({
   mixins: [
     Reflux.listenTo(accountActions.refreshLogin.completed, 'onRefreshLoginCompleted'),
     Reflux.listenTo(accountActions.refreshLogin.failed, 'onRefreshLoginFailed'),
-    Reflux.listenTo(accountActions.login.completed, 'onLoginCompleted'),
-    Reflux.listenTo(accountActions.login.failed, 'onLoginFailed'),
     Reflux.listenTo(accountActions.logout.completed, 'onLogoutCompleted'),
     Reflux.listenTo(accountActions.logout.failed, 'onLogoutFailed'),
   ],
@@ -81,39 +76,13 @@ export default React.createClass({
           }
         </Tabs>
 
-        <Popover open={!this.state.username && this.state.tab === 'login'}
+        <Login open={!this.state.username && this.state.tab === 'login'}
             anchorEl={document.getElementById('login')}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             targetOrigin={{ vertical: 'top', horizontal: 'right' }}
             style={{ padding: "0.5em 1em" }}
             onRequestClose={() => this.handleCloseLogin()}
-            >
-          <div>
-            <TextField
-                floatingLabelText="Benutzername"
-                onChange={ev => this.handleLoginFieldChange('loginUsername', ev.target.value)}
-                />
-          </div>
-          <div>
-            <TextField type="password"
-                floatingLabelText="Passwort"
-                onChange={ev => this.handleLoginFieldChange('loginPassword', ev.target.value)}
-                errorText={this.state.loginError}
-                />
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            {!this.state.loginLoading ?
-             <RaisedButton label="Login" primary={true} onClick={() => this.handleLogin()}/> :
-             <CircularProgress/>
-            }
-          </div>
-          <div style={{ textAlign: 'right', marginTop: "3em" }}>
-            <p style={{ fontSize: "90%", color: '#888', margin: "0" }}>
-              Noch keinen Account?
-            </p>
-            <RaisedButton label="Registrieren…" secondary={true} onClick={() => this.handleRegister()}/>
-          </div>
-        </Popover>
+            />
       </div>
     )
   },
@@ -141,38 +110,6 @@ export default React.createClass({
     })
   },
   
-  handleLoginFieldChange(field, value) {
-    this.setState({
-      [field]: value
-    })
-  },
-
-  handleLogin() {
-    this.setState({
-      loginError: null,
-      loginLoading: true
-    })
-
-    accountActions.login(this.state.loginUsername, this.state.loginPassword)
-  },
-
-  onLoginCompleted(username) {
-    this.setState({
-      username,
-      loginError: null,
-      loginLoading: false
-    })
-
-    this.handleCloseLogin()
-  },
-
-  onLoginFailed(e) {
-    this.setState({
-      loginError: e.message,
-      loginLoading: false
-    })
-  },
-
   handleLogout() {
     accountActions.logout()
   },
@@ -194,10 +131,4 @@ export default React.createClass({
       tab: this.state.prevTab
     })
   },
-
-  handleRegister() {
-    this.handleCloseLogin()
-
-    Route.go("/register")
-  }
 })
