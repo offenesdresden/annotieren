@@ -369,7 +369,7 @@ class FileDetails extends React.Component {
                 (ref.organization && ref.organization.id || ref.organization.label) ||
                 (ref.meeting && ref.meeting.id || ref.meeting.label) ||
                 (ref.paper && ref.paper.id || ref.paper.label) ||
-                (ref.fileref && ref.fileref.id || ref.fileref.label) ||
+                (ref.file && ref.file.id || ref.file.label) ||
                 ref.text
             let refId = `${ref.type}:${id}`
             if (uniqRefs[refId]) {
