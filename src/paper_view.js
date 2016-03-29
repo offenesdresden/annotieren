@@ -2,8 +2,6 @@ import React from 'react'
 import Route from 'react-route'
 
 import AppBar from 'material-ui/lib/app-bar'
-import IconButton from 'material-ui/lib/icon-button'
-import ActionHome from 'material-ui/lib/svg-icons/action/home'
 import Card from 'material-ui/lib/card/card'
 import CardHeader from 'material-ui/lib/card/card-header'
 import CardText from 'material-ui/lib/card/card-text'
@@ -55,20 +53,13 @@ export default class PaperView extends React.Component {
     return (
       <div>
         <AppBar
-            title={
-              <div>
-                <PaperAvatar paper={paper} size={32}/>
-
-                <span style={{ whiteSpace: 'pre-wrap' }}>
-                  {paper.name}
-                </span>
-              </div>
-            }
             iconElementLeft={
-              <IconButton title="Zurück zur Suche"
-                  onClick={ev => Route.go("/")}>
-                <ActionHome/>
-              </IconButton>
+              <PaperAvatar paper={paper} size={48}/>
+            }
+            title={
+              <span style={{ whiteSpace: 'pre-wrap' }}>
+                {paper.name}
+              </span>
             }
             iconElementRight={
               <p style={{ margin: "16px 0 0", fontSize: "80%", color: 'white' }}>
