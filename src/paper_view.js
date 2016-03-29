@@ -193,9 +193,8 @@ class FileCard extends React.Component {
           >
         <CardHeader
           title={file.name}
-          titleStyle={{ textAlign: 'center', fontWeight: 'bold' }}
+          titleStyle={{ fontWeight: 'bold' }}
           subtitle={this.props.role}
-          subtitleStyle={{ textAlign: 'center' }}
           actAsExpander={true}
           showExpandableButton={true}
           />
