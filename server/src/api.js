@@ -24,33 +24,53 @@ function toHitsSources(result) {
 
 // Reorder blocks in a page by vertical, then horizontal position
 function reorderPageBlocks(page) {
-  page.contents = page.contents.sort((a, b) => {
-    let ma, mb
-    if (a.style && a.style.top &&
-        (ma = a.style.top.match(/(\d+)px/)) &&
-        b.style && b.style.top &&
-        (mb = b.style.top.match(/(\d+)px/))) {
-      let ta = parseInt(ma[1], 10)
-      let tb = parseInt(mb[1], 10)
+  // Perform a bubble-sort that is slow but stable:
+  let blocks = page.contents
+  let done
+  do {
+    done = true
 
-      if (ta !== tb) {
-        return ta - tb
-      } else {
-        if (a.style && a.style.top &&
-            (ma = a.style.left.match(/(\d+)px/)) &&
-            b.style && b.style.top &&
-            (mb = b.style.left.match(/(\d+)px/))) {
-          let la = parseInt(ma[1], 10)
-          let lb = parseInt(mb[1], 10)
-          return la - lb
+    for(let i = 0; i < blocks.length - 1; i++) {
+      let swap = false
+      let a = blocks[i]
+      let b = blocks[i + 1]
+
+      let ma, mb
+      if (a.style && a.style.top &&
+          (ma = a.style.top.match(/(\d+)px/)) &&
+          b.style && b.style.top &&
+          (mb = b.style.top.match(/(\d+)px/))) {
+        let ta = parseInt(ma[1], 10)
+        let tb = parseInt(mb[1], 10)
+
+        if (ta < tb) {
+          // Ok
+        } else if (ta > tb) {
+          swap = true
         } else {
-          return 0
+          if (a.style && a.style.top &&
+              (ma = a.style.left.match(/(\d+)px/)) &&
+              b.style && b.style.top &&
+              (mb = b.style.left.match(/(\d+)px/))) {
+            let la = parseInt(ma[1], 10)
+            let lb = parseInt(mb[1], 10)
+
+            if (la < lb) {
+              // Ok
+            } else if (la > lb) {
+              swap = true
+            }
+          }
         }
       }
-    } else {
-      return 0
+
+      if (swap) {
+        blocks[i + 1] = a
+        blocks[i] = b
+        done = false
+      }
     }
-  })
+  } while(!done)
 
   return page
 }
