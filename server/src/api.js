@@ -2,13 +2,14 @@
 
 var fs = require('fs')
 var express = require('express')
-var htmlProcess = require('./html_process')
 var through = require('through2')
 var elasticsearch = require('elasticsearch')
 var bodyParser = require('body-parser')
 var bcrypt = require('bcrypt')
 var sessions = require('client-sessions')
 
+var htmlProcess = require('./html_process')
+var httpError = require('./http_error')
 
 function oparlType(type) {
   return `https://oparl.org/schema/1.0/${type}`
@@ -307,11 +308,62 @@ class API {
       })
   }
 
-  indexAnnotation(req, cb) {
+  _indexAnnotation(req, cb) {
     req.index = 'annotations'
     req.type = 'text'
+    delete req.body._id
+    if (req.body.id) {
+      req.id = req.body.id
+      delete req.body.id
+    }
+
     this.elasticsearch.index(req, (err, res) => {
       cb(err, res && res._id)
+    })
+  }
+
+  createAnnotation(annotation, username, cb) {
+    // Prepare
+    annotation.created = new Date().toISOString()
+    delete annotation.id  // Let ES auto-generate
+
+    if (username) {
+      annotation.createdBy = username
+    } else {
+      return cb(new httpError.Forbidden("Please authenticate"))
+    }
+
+    // Set!
+    this._indexAnnotation({ body: annotation }, cb)
+  }
+
+  // We could use ES' _version but actually we don't want users to run
+  // into errors. Also, annotations are fairly atomic records. Thus we
+  // simply overwrite them.
+  updateAnnotation(annotation, username, cb) {
+    // Get
+    this.elasticsearch.get({
+      index: 'annotations',
+      type: 'text',
+      id: annotation.id
+    }, (err, res) => {
+      if (!res.found) {
+        return cb(new httpError.NotFound("Not found"))
+      }
+      // Prepare
+      let oldAnnotation = res._source
+      annotation.created = oldAnnotation.created
+      annotation.createdBy = oldAnnotation.createdBy
+
+      annotation.updated = new Date().toISOString()
+      if (username) {
+        annotation.updatedBy = username
+      } else {
+        return cb(new httpError.Forbidden("Please authenticate"))
+      }
+
+      // Set!
+      this._indexAnnotation({ body: annotation }, cb)
     })
   }
 
@@ -518,30 +570,11 @@ module.exports = function(conf) {
   app.post('/file/:id/annotations', (req, res) => {
     let annotation = req.body
     annotation.file = req.params.id
-    req.body.created = new Date().toISOString()
-    delete annotation.id
-    delete annotation._id
 
-    if (req.session.username) {
-      console.log("createdBy:", req.session.username)
-      annotation.createdBy = req.session.username
-    } else {
-      res.writeHead(403, "Forbidden", {
-        'Content-Type': 'application/json'
-      })
-      res.write(JSON.stringify({ error: "Please authenticate" }))
-      res.end()
-      return
-    }
-
-    api.indexAnnotation({ body: annotation }, (err, annotationId) => {
+    api.createAnnotation(annotation, req.session.username, (err, annotationId) => {
       if (err) {
         console.error(err.stack || err.message)
-        res.writeHead(500, {
-          'Content-Type': 'application/json'
-        })
-        res.write(JSON.stringify({ error: "addAnnotation" }))
-        res.end()
+        httpError.write(err, res)
         return
       }
 
@@ -555,36 +588,13 @@ module.exports = function(conf) {
     })
   })
   app.put('/file/:id/annotations/:annotationId', (req, res) => {
-    // TODO: get first, don't overwrite `created'
-    // TODO: only if exists?
     let annotation = req.body
-    delete annotation.id
     annotation.file = req.params.id
-    req.body.updated = new Date().toISOString()
 
-    if (req.session.username) {
-      console.log("updatedBy:", req.session.username)
-      annotation.updatedBy = req.session.username
-    } else {
-      res.writeHead(403, "Forbidden", {
-        'Content-Type': 'application/json'
-      })
-      res.write(JSON.stringify({ error: "Please authenticate" }))
-      res.end()
-      return
-    }
-
-    api.indexAnnotation({
-      id: req.params.annotationId,
-      body: annotation
-    }, err => {
+    api.updateAnnotation(annotation, req.session.username, err => {
       if (err) {
         console.error(err.stack || err.message)
-        res.writeHead(500, {
-          'Content-Type': 'application/json'
-        })
-        res.write(JSON.stringify({ error: "updateAnnotation" }))
-        res.end()
+        httpError.write(err, res)
         return
       }
 
