@@ -30,7 +30,12 @@ export default class PaperView extends React.Component {
     fetch(`/api/oparl/paper/${encodeURIComponent(this.state.paper.id)}`)
       .then(res => res.json())
       .then(paper => {
-        this.setState({ paper: paper })
+        paper.fileIds = paper.auxiliaryFile || []
+        if (paper.mainFile) paper.fileIds.push(paper.mainFile)
+
+        this.setState({
+          paper: paper
+        })
       })
   }
 
@@ -145,20 +150,20 @@ class AgendaItem extends React.Component {
     function pushFileCards(file, role) {
       if (Array.isArray(file)) {
         file.forEach(f => pushFileCards(f, role))
-      } else if (typeof file == 'string') {
+      } else if (typeof file == 'string' && paper.fileIds.indexOf(file) === -1) {
         fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper}/>)
       }
     }
     pushFileCards(item.resolutionFile, "Beschlussfassung")
     pushFileCards(item.auxiliaryFile)
 
-    return (
+    return fileCards.length > 0 ? (
       <div>
         <h3 style={{ textAlign: 'center', color: "#666" }}>{item.name}</h3>
 
         {fileCards}
       </div>
-    )
+    ) : <div/>
   }
 }
 

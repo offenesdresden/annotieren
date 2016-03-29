@@ -13,7 +13,6 @@
 # TODO
 
 * Frontend:
-  * paper_view: rm agenda_items files that are in paper
   * paper_view: fix speaker in record
   * paper_view: multiple votes
   * paper_view: more refs, inline
