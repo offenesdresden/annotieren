@@ -132,7 +132,7 @@ const TYPES = [
   // Autor: Gremium, Person
   // Anwesenheit: Anwesend, Abwesend, Verlassen, Erscheinen
   // Gelder: Einnahmen, Einsparungen, Ausgaben
-  // Links?
+  // Links? Termine?
 /*  { title: "",
     types: [
       { title: "",
