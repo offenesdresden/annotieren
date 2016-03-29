@@ -128,7 +128,8 @@ class TypeMetadata extends React.Component {
     this.state = {
       byLabel: {},
       labels: [],
-      label: ""
+      label: "",
+      input: ""
     }
   }
 
@@ -157,9 +158,11 @@ class TypeMetadata extends React.Component {
           byLabel: byLabel,
           labels: labels
         })
-        if (!this.state.label && labels[0]) {
+
+        let input
+        if (!this.state.label && (input = labels[0])) {
           // Nothing yet, input the first suggestion and trigger updateAnnotation
-          this.handleUpdateInput(labels[0])
+          this.setState({ input }, () => this.handleUpdateInput(input))
         }
       })
   }
@@ -169,7 +172,8 @@ class TypeMetadata extends React.Component {
       // Copy metadata value if already existing
       this.setState({
         id: this.props.value.id,
-        label: this.props.value.label
+        label: this.props.value.label,
+        input: this.props.value.label
       })
     }
 
@@ -203,7 +207,7 @@ class TypeMetadata extends React.Component {
     return (
       <div>
         <AutoComplete hintText={METADATA_LABELS[this.props.keyName]}
-            searchText={this.state.label}
+            searchText={this.state.input}
             dataSource={this.state.labels}
             onUpdateInput={label => this.handleUpdateInput(label)}
             onNewRequest={label => this.handleUpdateInput(label)}
