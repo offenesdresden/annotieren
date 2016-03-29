@@ -1,4 +1,5 @@
 import React from 'react'
+import Reflux from 'reflux'
 
 import LeftNav from 'material-ui/lib/left-nav'
 import AppBar from 'material-ui/lib/app-bar'
@@ -12,17 +13,40 @@ import colors from 'material-ui/lib/styles/colors'
 import AutoComplete from 'material-ui/lib/auto-complete'
 
 import Types from './types'
+import { actions as accountActions, default as accountStore } from './account_store'
 
 
-export default class AnnotateBar extends React.Component {
+export default React.createClass({
+  mixins: [
+    Reflux.listenTo(accountActions.refreshLogin.completed, 'onRefreshLoginCompleted')
+  ],
+
+  getInitialState() {
+    return {
+      username: null
+    }
+  },
+
+  componentDidMount() {
+    this.setState({
+      username: accountStore.username
+    })
+  },
+
+  onRefreshLoginCompleted(username) {
+    this.setState({ username })
+  },
+
   render() {
-    let open = !!this.props.currentAnnotation
+    let open = !!this.state.username && !!this.props.currentAnnotation
     let title = this.props.currentAnnotation &&
       this.props.currentAnnotation.type === 'new' ?
       "Annotieren" : "Ändern"
     return (
       <LeftNav open={open} openRight={true} width={260}>
-        <AppBar title={title} showMenuIconButton={false}/>
+        <AppBar title={title} showMenuIconButton={false}
+            style={{ marginTop: "48px" }}
+            />
         <TypesMenu
             currentAnnotation={this.props.currentAnnotation}
             onType={this.props.onType} onDelete={this.props.onDelete}
@@ -31,7 +55,7 @@ export default class AnnotateBar extends React.Component {
       </LeftNav>
     )
   }
-}
+})
 
 class TypesMenu extends React.Component {
   render() {

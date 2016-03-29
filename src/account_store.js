@@ -59,7 +59,10 @@ export default Reflux.createStore({
       method: 'POST',
       credentials: 'same-origin'
     })
-      .then(res => actions.logout.completed())
+      .then(res => {
+        actions.logout.completed()
+        actions.refreshLogin.completed(null)
+      })
       .catch(e => actions.logout.failed(e))
   },
 
