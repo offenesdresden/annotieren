@@ -26,7 +26,8 @@ export default Reflux.createStore({
     fetch(`/api/file/${fileId}/annotations`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(annotation)
+      body: JSON.stringify(annotation),
+      credentials: 'same-origin'
     })
       .then(res => {
         if (res.status < 200 || res.status >= 300) {
@@ -60,7 +61,8 @@ export default Reflux.createStore({
     fetch(`/api/file/${fileId}/annotations/${annotation.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(annotation)
+      body: JSON.stringify(annotation),
+      credentials: 'same-origin'
     })
       .then(res => {
         if (res.status < 200 || res.status >= 300) {
@@ -88,7 +90,8 @@ export default Reflux.createStore({
     console.log("onRemove", annotation)
     
     fetch(`/api/file/${fileId}/annotations/${annotation.id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      credentials: 'same-origin'
     })
       .then(res => {
         if (res.status < 200 || res.status >= 300) {

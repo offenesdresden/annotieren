@@ -522,6 +522,17 @@ module.exports = function(conf) {
     delete annotation.id
     delete annotation._id
 
+    if (req.session.username) {
+      console.log("createdBy:", req.session.username)
+      annotation.createdBy = req.session.username
+    } else {
+      res.writeHead(403, "Forbidden", {
+        'Content-Type': 'application/json'
+      })
+      res.write(JSON.stringify({ error: "Please authenticate" }))
+      res.end()
+      return
+    }
 
     api.indexAnnotation({ body: annotation }, (err, annotationId) => {
       if (err) {
@@ -544,10 +555,24 @@ module.exports = function(conf) {
     })
   })
   app.put('/file/:id/annotations/:annotationId', (req, res) => {
+    // TODO: get first, don't overwrite `created'
+    // TODO: only if exists?
     let annotation = req.body
     delete annotation.id
     annotation.file = req.params.id
     req.body.updated = new Date().toISOString()
+
+    if (req.session.username) {
+      console.log("updatedBy:", req.session.username)
+      annotation.updatedBy = req.session.username
+    } else {
+      res.writeHead(403, "Forbidden", {
+        'Content-Type': 'application/json'
+      })
+      res.write(JSON.stringify({ error: "Please authenticate" }))
+      res.end()
+      return
+    }
 
     api.indexAnnotation({
       id: req.params.annotationId,
@@ -569,6 +594,15 @@ module.exports = function(conf) {
     })
   })
   app.delete('/file/:id/annotations/:annotationId', (req, res) => {
+    if (!req.session.username) {
+      res.writeHead(403, "Forbidden", {
+        'Content-Type': 'application/json'
+      })
+      res.write(JSON.stringify({ error: "Please authenticate" }))
+      res.end()
+      return
+    }
+
     api.deleteAnnotation(req.params.id, req.params.annotationId, err => {
       if (err) {
         console.error(err.stack || err.message)
