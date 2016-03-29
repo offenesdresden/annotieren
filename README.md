@@ -13,7 +13,6 @@
 # TODO
 
 * Frontend:
-  * paper_view: multiple votes
   * paper_view: more refs, inline
   * Fix: display of stacked annotations with equal begin offset
   * Cycle thru stack o' annotations by repeated clicking

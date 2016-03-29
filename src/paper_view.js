@@ -278,15 +278,16 @@ class FileDetails extends React.Component {
     let parts = []
     function appendPart(annotation) {
       // Normalize text once more
-      annotation.text = annotation.text
-        .replace(/^\s+/, "")
-        .replace(/\n\s+$/, "\n")
+      if (annotation.text) {
+        annotation.text = annotation.text
+          .replace(/^\s+/, "")
+          .replace(/\n\s+$/, "\n")
+      }
 
       // Append
       parts.push(annotation)
     }
 
-    let vote
     let prevSpeaker = null
     for(var annotation of annotations) {
       let prevPart = (parts.length > 0) ? parts[parts.length - 1] : null
@@ -333,9 +334,21 @@ class FileDetails extends React.Component {
       case 'vote.neutral':
       case 'vote.biased':
       case 'vote.result':
-        if (!vote) vote = {}
-        let keyParts = annotation.type.split(/\./)
-        vote[keyParts[1]] = annotation.text
+        let key = annotation.type.split(/\./)[1]
+
+        let vote
+        if (prevPart && prevPart.type == 'vote' &&  // Consecutive vote.* annotations
+            !prevPart[key]  // But no duplicate data
+           ) {
+          // Resume previous vote part
+          vote = prevPart
+        } else {
+          // Otherwise, create a new vote part
+          vote = { type: 'vote' }
+          appendPart(vote)
+        }
+
+        vote[key] = annotation.text
         break
 
       case 'ref.person':
@@ -397,7 +410,7 @@ class FileDetails extends React.Component {
     // Pick marked for removal
     parts = parts.filter(part => !!part.type)
 
-    this.setState({ parts, vote }, cb)
+    this.setState({ parts }, cb)
   }
 
   render() {
@@ -424,11 +437,11 @@ class FileDetails extends React.Component {
     } else {
       return (
         <article>
-          {parts.map(part => <AnnotationPart key={part.id} {...part}/>)}
-
-          {this.state.vote ?
-           <Vote {...this.state.vote}/> :
-           ""}
+          {parts.map((part, i) =>
+                     (part.type == 'vote' ?
+                      <Vote key={i} {...part}/> :
+                      <AnnotationPart key={part.id} {...part}/>
+                     ))}
         </article>
       )
     }
