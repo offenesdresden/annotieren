@@ -30,7 +30,6 @@
   * location metadata with map
   * paper_view optimization: /api/file/241251/annotations/${paper.id}
 * Backend:
-  * fragments api: sort blocks by position in page
   * Cache headers for production
   * journaling
   * annotations aggregations by file for pretty badges

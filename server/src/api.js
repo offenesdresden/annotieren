@@ -22,6 +22,39 @@ function toHitsSources(result) {
   return result.hits.hits.map(hit => hit._source)
 }
 
+// Reorder blocks in a page by vertical, then horizontal position
+function reorderPageBlocks(page) {
+  page.contents = page.contents.sort((a, b) => {
+    let ma, mb
+    if (a.style && a.style.top &&
+        (ma = a.style.top.match(/(\d+)px/)) &&
+        b.style && b.style.top &&
+        (mb = b.style.top.match(/(\d+)px/))) {
+      let ta = parseInt(ma[1], 10)
+      let tb = parseInt(mb[1], 10)
+
+      if (ta !== tb) {
+        return ta - tb
+      } else {
+        if (a.style && a.style.top &&
+            (ma = a.style.left.match(/(\d+)px/)) &&
+            b.style && b.style.top &&
+            (mb = b.style.left.match(/(\d+)px/))) {
+          let la = parseInt(ma[1], 10)
+          let lb = parseInt(mb[1], 10)
+          return la - lb
+        } else {
+          return 0
+        }
+      }
+    } else {
+      return 0
+    }
+  })
+
+  return page
+}
+
 class API {
   constructor(conf) {
     this.conf = conf
@@ -108,6 +141,9 @@ class API {
         res.end()
       })
       .pipe(htmlProcess())
+      .pipe(through.obj((page, enc, cb) => {
+        cb(null, reorderPageBlocks(page))
+      }))
       .pipe(toJsonArray())
       .pipe(res)
       .on('error', e => {
