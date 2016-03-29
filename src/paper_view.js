@@ -364,11 +364,11 @@ class FileDetails extends React.Component {
         part.refs = part.refs
           .filter(ref => {
             let id =
-                (ref.person && ref.person.id || ref.person.label) ||
-                (ref.organization && ref.organization.id || ref.organization.label) ||
-                (ref.meeting && ref.meeting.id || ref.meeting.label) ||
-                (ref.paper && ref.paper.id || ref.paper.label) ||
-                (ref.file && ref.file.id || ref.file.label) ||
+                (ref.person && (ref.person.id || ref.person.label)) ||
+                (ref.organization && (ref.organization.id || ref.organization.label)) ||
+                (ref.meeting && (ref.meeting.id || ref.meeting.label)) ||
+                (ref.paper && (ref.paper.id || ref.paper.label)) ||
+                (ref.file && (ref.file.id || ref.file.label)) ||
                 ref.text
             let refId = `${ref.type}:${id}`
             if (uniqRefs[refId]) {
