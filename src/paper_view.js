@@ -277,19 +277,13 @@ class FileDetails extends React.Component {
     // Last, merge speakers into records
     let parts = []
     function appendPart(annotation) {
+      // Normalize text once more
       annotation.text = annotation.text
         .replace(/^\s+/, "")
-        .replace(/\n\s+$/, "")
+        .replace(/\n\s+$/, "\n")
 
-      let prevPart = parts.length > 0 ? parts[parts.length - 1] : null
-      if (prevPart && prevPart.type === annotation.type && !annotation.speaker) {
-        // Merge if not introducing new metadata
-        prevPart.text += annotation.text
-        prevPart.end = annotation.end
-      } else {
-        // Append
-        parts.push(annotation)
-      }
+      // Append
+      parts.push(annotation)
     }
 
     let vote
@@ -359,8 +353,10 @@ class FileDetails extends React.Component {
     }
 
     let uniqRefs = {}
-    for(let part in parts) {
+    let prevPart = null
+    for(let part of parts) {
       if (part.refs) {
+        // Remove duplicate refs
         part.refs = part.refs
           .filter(ref => {
             let id =
@@ -379,7 +375,28 @@ class FileDetails extends React.Component {
             }
           })
       }
+
+      // Merge if not introducing new speaker
+      if (prevPart && prevPart.type === part.type && !part.speaker) {
+        console.log("Merge", { prevPart, part })
+        prevPart.text += part.text
+        prevPart.end = part.end
+        if (prevPart.refs && part.refs) {
+          prevPart.refs = prevPart.refs.concat(part.refs)
+        } else if (!prevPart.refs && part.refs) {
+          prevPart.refs = part.refs
+        }
+        // Mark this for removal
+        delete part.type
+        // Immediately continue, not overwriting prevPart
+      } else {
+        prevPart = part
+      }
     }
+
+    // Pick marked for removal
+    parts = parts.filter(part => !!part.type)
+
     this.setState({ parts, vote }, cb)
   }
 
