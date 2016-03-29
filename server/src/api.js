@@ -421,7 +421,7 @@ class API {
       body: {
         query: {
           match: {
-            file: opts.file
+            fileId: opts.fileId
           }
         }
       },
@@ -600,12 +600,12 @@ module.exports = function(conf) {
   })
   app.get('/file/:id/annotations', (req, res) => {
     api.getDocAnnotations({
-      file: req.params.id
+      fileId: req.params.id
     }, res)
   })
   app.post('/file/:id/annotations', (req, res) => {
     let annotation = req.body
-    annotation.file = req.params.id
+    annotation.fileId = req.params.id
 
     api.createAnnotation(annotation, req.session.username, (err, annotationId) => {
       if (err) {
@@ -625,7 +625,7 @@ module.exports = function(conf) {
   })
   app.put('/file/:id/annotations/:annotationId', (req, res) => {
     let annotation = req.body
-    annotation.file = req.params.id
+    annotation.fileId = req.params.id
 
     api.updateAnnotation(annotation, req.session.username, err => {
       if (err) {

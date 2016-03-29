@@ -14,8 +14,6 @@
 
 * Frontend:
   * paper_view: rm agenda_items files that are in paper
-  * annotate_bar visibility
-  * annotation: rename file to fileId, fileref to file?
   * paper_view: fix speaker in record
   * paper_view: multiple votes
   * paper_view: more refs, inline
