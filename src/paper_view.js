@@ -305,6 +305,7 @@ class FileDetails extends React.Component {
       case 'paper.proposition':
       case 'paper.reason':
       case 'paper.resolution':
+      case 'paper.report':
         appendPart(annotation)
         break
 

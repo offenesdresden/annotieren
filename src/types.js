@@ -30,14 +30,18 @@ const TYPES = [
     types: [
       { id: 'paper.proposition',
         title: "Beschlussvorschlag",
-        rgb: "79,223,223"
+        rgb: "15,207,207"
       },
       { id: 'paper.reason',
         title: "Begründung",
-        rgb: "143,239,239"
+        rgb: "79,223,223"
       },
       { id: 'paper.resolution',
         title: "Beschluss",
+        rgb: "143,239,239"
+      },
+      { id: 'paper.report',
+        title: "Beschlusskontrolle",
         rgb: "207,255,255"
       }
     ]
