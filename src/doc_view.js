@@ -116,8 +116,8 @@ export default React.createClass({
       }
     })
 
-    // Invalidate user selection
-    document.getSelection().empty()
+    // Clear user selection
+    document.getSelection().removeAllRanges()
   },
 
   // TODO: s/<\/p>/\n/
