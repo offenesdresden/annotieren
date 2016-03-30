@@ -458,7 +458,7 @@ class AnnotationPart extends React.Component {
             paddingLeft: "8px"
           }}>
         {this.props.noHeading ? "" :
-          <h4 style={{ color: '#999', textAlign: 'center', margin: "0", padding: "1em 0" }}>
+          <h4 style={{ color: '#999', textAlign: 'center', margin: "0", padding: "1em 0", clear: 'both' }}>
             {title}
           </h4>}
         {this.props.refs ?
@@ -609,8 +609,8 @@ class Vote extends React.Component {
 
     let yesType = getTypeById('vote.yes')
     return (
-        <div style={{ textAlign: 'center', borderLeft: `4px solid rgb(${yesType.rgb})` }}>
-        <h4 style={{ color: '#999', margin: "0", padding: "1em 0" }}>Abstimmung</h4>
+      <div style={{ borderLeft: `4px solid rgb(${yesType.rgb})` }}>
+        <h4 style={{ textAlign: 'center', color: '#999', margin: "0", padding: "1em 0" }}>Abstimmung</h4>
         <p style={{ display: 'inline-block' }}>
           {fractions.map(f => (
             <span key={f.fraction} title={`${f.value}× ${f.fraction}`} style={{
