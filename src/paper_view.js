@@ -601,8 +601,9 @@ class Vote extends React.Component {
     }
     console.log("fractions", fractions, "total", total, "props", this.props)
 
+    let yesType = getTypeById('vote.yes')
     return (
-      <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center', borderLeft: `4px solid rgb(${yesType.rgb})` }}>
         <h4 style={{ color: '#999', margin: "0", padding: "1em 0" }}>Abstimmung</h4>
         <p style={{ display: 'inline-block' }}>
           {fractions.map(f => (
