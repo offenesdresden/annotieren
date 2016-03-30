@@ -33,12 +33,16 @@ export default class DocText extends React.Component {
     }
   }
 
+  // also hook 'mouseup' in addition to 'selectionchange' because the
+  // latter is not enabled on Firefox
   componentDidMount() {
     document.addEventListener('selectionchange', this.handleSelection, true)
+    document.addEventListener('mouseup', this.handleSelection, true)
   }
 
   componentWillUnmount() {
     document.removeEventListener('selectionchange', this.handleSelection, true)
+    document.removeEventListener('mouseup', this.handleSelection, true)
   }
 
   render() {
