@@ -335,7 +335,7 @@ class FileDetails extends React.Component {
           vote = prevPart
         } else {
           // Otherwise, create a new vote part
-          vote = { type: 'vote' }
+          vote = { type: 'vote', id: annotation.id }
           appendPart(vote)
         }
 
@@ -428,9 +428,9 @@ class FileDetails extends React.Component {
     } else {
       return (
         <article>
-          {parts.map((part, i) =>
+          {parts.map(part =>
                      (part.type == 'vote' ?
-                      <Vote key={i} {...part}/> :
+                      <Vote key={part.id} {...part}/> :
                       <AnnotationPart key={part.id} {...part}/>
                      ))}
         </article>
