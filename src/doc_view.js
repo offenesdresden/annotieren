@@ -79,6 +79,7 @@ export default React.createClass({
           loading: false
         }))
         .catch(e => {
+          console.error(e.message, e.stack || e)
           this.showStatus(e.message)
           this.setState({
             loading: false

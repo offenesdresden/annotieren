@@ -43,7 +43,10 @@ export default Reflux.createStore({
         annotation.id = json.id
         actions.createAnnotation.completed(json.id)
       })
-      .catch(actions.createAnnotation.failed)
+      .catch(e => {
+        console.error(e.stack || e)
+        actions.createAnnotation.failed(e)
+      })
   },
 
   onCreateAnnotationCompleted: oneDone,
@@ -74,7 +77,10 @@ export default Reflux.createStore({
       .then(res => {
         actions.updateAnnotation.completed()
       })
-      .catch(actions.updateAnnotation.failed)
+      .catch(e => {
+        console.error(e.stack || e)
+        actions.updateAnnotation.failed(e)
+      })
   },
 
   onUpdateAnnotationCompleted: oneDone,
@@ -103,7 +109,10 @@ export default Reflux.createStore({
       .then(res => {
         actions.removeAnnotation.completed()
       })
-      .catch(actions.removeAnnotation.failed)
+      .catch(e => {
+        console.error(e.stack || e)
+        actions.removeAnnotation.failed(e)
+      })
   },
 
   onRemoveAnnotationCompleted: oneDone,
