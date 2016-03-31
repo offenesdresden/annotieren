@@ -24,7 +24,8 @@ export default class Search extends React.Component {
             onChange={ev => this.handleChange(ev)}
             type="search"
             onEnterKeyDown={ev => this.handleSubmit(ev)}
-            style={{marginRight: "2em"}}/>
+            style={{ marginRight: "2em", width: "30em" }}
+            />
         <RaisedButton icon={<SearchIcon/>} backgroundColor={colors.lime800} label="Suchen" primary={true} onMouseDown={ev => this.handleSubmit(ev)}/>
       </div>
     )
