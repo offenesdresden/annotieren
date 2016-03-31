@@ -19,7 +19,7 @@ export default class PaperView extends React.Component {
     super(props)
     this.state = {
       paper: {
-        id: this.props.params.id
+        id: this.props.id
       }
     }
   }

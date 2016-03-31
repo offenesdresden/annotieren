@@ -34,7 +34,7 @@ export default React.createClass({
   },
 
   _fetchFile() {
-    return fetch(`/api/oparl/file/${this.props.params.id}`)
+    return fetch(`/api/oparl/file/${this.props.id}`)
       .then(res => res.json())
       .then(json => {
         // Trigger update:
@@ -45,7 +45,7 @@ export default React.createClass({
   },
 
   _fetchFragments() {
-    return fetch(`/api/file/${this.props.params.id}/fragments`)
+    return fetch(`/api/file/${this.props.id}/fragments`)
       .then(res => res.json())
       .then(json => {
         // Trigger update:
@@ -56,7 +56,7 @@ export default React.createClass({
   },
 
   _fetchAnnotations() {
-    return fetch(`/api/file/${this.props.params.id}/annotations`)
+    return fetch(`/api/file/${this.props.id}/annotations`)
       .then(res => res.json())
       .then(annotations => {
         for(var annotation of annotations) {
@@ -356,9 +356,9 @@ export default React.createClass({
         currentAnnotation: annotation
       })
 
-      annotateActions.createAnnotation(this.props.params.id, annotation)
+      annotateActions.createAnnotation(this.props.id, annotation)
     } else {
-      annotateActions.updateAnnotation(this.props.params.id, annotation)
+      annotateActions.updateAnnotation(this.props.id, annotation)
     }
 
     // create: split fragments, update: let colors refresh
@@ -395,7 +395,7 @@ export default React.createClass({
     if (annotation[key] !== value) {
       // Add the metadata:
       annotation[key] = value
-      annotateActions.updateAnnotation(this.props.params.id, annotation)
+      annotateActions.updateAnnotation(this.props.id, annotation)
     }
   },
 
@@ -413,7 +413,7 @@ export default React.createClass({
     annotation.type = 'delete'
     this.setAnnotationFragments(annotation)
 
-    annotateActions.removeAnnotation(this.props.params.id, annotation)
+    annotateActions.removeAnnotation(this.props.id, annotation)
   },
 
   onRemoveAnnotationCompleted() {

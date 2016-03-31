@@ -40,16 +40,38 @@ class Main extends React.Component {
             <Register/>
           </Route>
           <Route path="/file/:id">
-            <Navigation/>
-
-            <DocView/>
+            <FileRoute/>
           </Route>
           <Route path="/paper/:id">
-            <Navigation/>
-
-            <PaperView/>
+            <PaperRoute/>
           </Route>
         </div>
+      </div>
+    )
+  }
+}
+
+class FileRoute extends React.Component {
+  render() {
+    let id = this.props.params.id
+    return (
+      <div>
+        <Navigation/>
+
+        <DocView key={id} id={id}/>
+      </div>
+    )
+  }
+}
+
+class PaperRoute extends React.Component {
+  render() {
+    let id = this.props.params.id
+    return (
+      <div>
+        <Navigation/>
+
+        <PaperView key={id} id={id}/>
       </div>
     )
   }
