@@ -23,12 +23,12 @@ var config = {
       fetch: 'imports?this=>global!exports?global.fetch!whatwg-fetch'
     }),
     //Minify the bundle
-    /*new webpack.optimize.UglifyJsPlugin({
+    new webpack.optimize.UglifyJsPlugin({
       compress: {
         //supresses warnings, usually from module minification
         warnings: false
       }
-    }),*/
+    }),
     //Allows error warnings but does not stop compiling. Will remove when eslint is added
     new webpack.NoErrorsPlugin(),
     //Transfer Files
