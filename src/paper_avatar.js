@@ -12,6 +12,7 @@ export default class PaperView extends React.Component {
     return (
       <Avatar title={shortName} size={this.props.size || 32}
           backgroundColor={paperShortNameToColor(shortName)}
+          {...this.props}
           >
         {shortName[0]}
       </Avatar>

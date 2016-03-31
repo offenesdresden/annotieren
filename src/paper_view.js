@@ -462,7 +462,9 @@ class AnnotationPart extends React.Component {
             {title}
           </h4>}
         {this.props.refs ?
-         this.props.refs.map(ref => <AnnotationRef key={ref.id} {...ref}/>) :
+         (<div style={{ float: 'right', clear: 'right' }}>
+            {this.props.refs.map(ref => <AnnotationRef key={ref.id} {...ref}/>)}
+          </div>) :
          ""}
         <p style={{
               whiteSpace: 'pre-wrap',
@@ -533,8 +535,10 @@ class AnnotationRef extends React.Component {
     switch(this.props.type) {
     case 'ref.person':
       return <PersonRef {...this.props}/>
+    case 'ref.paper':
+      return <PaperRef {...this.props}/>
     default:
-      return <span/>
+      return <div/>
     }
   }
 }
@@ -558,13 +562,13 @@ class PersonRef extends React.Component {
 
   render() {
     let person = this.state.person
-    if (!person) return <span/>
+    if (!person) return <div/>
 
     let party = this.state.party
     let backgroundColor = party ? `rgb(${party.rgb})` : "#666"
 
     return (
-      <div style={{ float: 'right', backgroundColor, color: 'white', textAlign: 'center' }}>
+      <div style={{ margin: '0 0 0.5em 1em', padding: "0.5em", backgroundColor, color: 'white', textAlign: 'center' }}>
         {person.photo ?
          <img src={person.photo} style={{ width: "96px", float: 'left', margin: "0 0.1em 0.2em 0" }}/> :
          ""}
@@ -576,6 +580,34 @@ class PersonRef extends React.Component {
            {party.name}
          </p> :
          ""}
+      </div>
+    )
+  }
+}
+
+class PaperRef extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { paper: null }
+  }
+
+  componentDidMount() {
+    fetch(`/api/oparl/paper/${this.props.paper.id}`)
+      .then(res => res.json())
+      .then(paper => this.setState({ paper }))
+  }
+
+  render() {
+    let paper = this.state.paper
+    if (!paper) return <div/>
+
+    return (
+      <div style={{ margin: '0 0 0.5em 1em', padding: "0.5em", backgroundColor: 'white' }}>
+        <PaperAvatar paper={paper} size={24} style={{ display: 'inline-block', verticalAlign: 'top' }}/>
+        <p style={{ display: 'inline-block', verticalAlign: 'middle', maxWidth: "15em", margin: "0", whiteSpace: 'pre-wrap', cursor: 'pointer' }}
+            onClick={() => Route.go(`/paper/${this.props.paper.id}`)}>
+          {paper.name}
+        </p>
       </div>
     )
   }
