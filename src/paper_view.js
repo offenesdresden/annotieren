@@ -417,7 +417,8 @@ class FileDetails extends React.Component {
       }
 
       // Merge if not introducing new speaker
-      if (prevPart && prevPart.type === part.type && !part.speaker) {
+      if (part.type !== 'vote' &&
+          prevPart && prevPart.type === part.type && !part.speaker) {
         console.log("Merge", { prevPart, part })
         prevPart.text += part.text
         prevPart.end = part.end
