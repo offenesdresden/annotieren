@@ -155,7 +155,7 @@ class Paper extends React.Component {
     return (
       <Card style={{ marginBottom: "1em" }}>
         <CardHeader
-            avatar={<PaperAvatar paper={paper}/>}
+            avatar={<PaperAvatar paper={paper} size={32}/>}
             title={paper.name}
             titleStyle={{
               whiteSpace: 'nowrap',
@@ -321,7 +321,7 @@ class PaperItem extends React.Component {
     let paper = this.state || this.props
 
     return <ListItem
-        leftIcon={<PaperAvatar paper={paper}/>}
+        leftIcon={<PaperAvatar paper={paper} size={24} style={{ color: 'white' }}/>}
         primaryText={paper.name}
         secondaryText={iso8601ToDate(paper.publishedDate)}
         onClick={() => Route.go(`/paper/${encodeURIComponent(paper.id)}`)}
