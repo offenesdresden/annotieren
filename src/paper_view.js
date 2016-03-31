@@ -470,8 +470,6 @@ class FileDetails extends React.Component {
                       <Vote key={part.id} {...part}/> :
                       <AnnotationPart key={part.id} {...part}/>
                      ))}
-          <div style={{ clear: 'both' }}>
-          </div>
         </article>
       )
     }
@@ -497,7 +495,7 @@ class AnnotationPart extends React.Component {
             paddingLeft: "8px"
           }}>
         {this.props.noHeading ? "" :
-          <h4 style={{ color: '#999', textAlign: 'center', margin: "0", padding: "1em 0", clear: 'both' }}>
+          <h4 style={{ color: '#999', textAlign: 'center', margin: "0", padding: "1em 0" }}>
             {title}
           </h4>}
         {this.props.refs ?
@@ -516,6 +514,9 @@ class AnnotationPart extends React.Component {
             ""}
           {text}
         </p>
+
+        <div style={{ clear: 'both' }}>
+        </div>
       </div>
     )
   }
@@ -601,15 +602,19 @@ class PersonRef extends React.Component {
 
   render() {
     let person = this.state.person
-    if (!person) return <div/>
-
     let party = this.state.party
     let backgroundColor = party ? `rgb(${party.rgb})` : "#666"
 
-    return (
+    return !person ? (
+      <div style={{ margin: '0 0 0.5em 1em', padding: "0.5em", backgroundColor, color: 'white', textAlign: 'center' }}>
+        <p style={{ fontWeight: 'bold', margin: "0" }}>
+          {(this.props.person && this.props.person.label) || this.props.text}
+        </p>
+      </div>
+    ) : (
       <div style={{ margin: '0 0 0.5em 1em', padding: "0.5em", backgroundColor, color: 'white', textAlign: 'center' }}>
         {person.photo ?
-         <img src={person.photo} style={{ width: "96px", float: 'left', margin: "0 0.1em 0.2em 0" }}/> :
+         <img src={person.photo} style={{ width: "12em", float: 'left', margin: "0 auto 0.5em" }}/> :
          ""}
         <p style={{ fontWeight: 'bold', margin: "0" }}>
           {person.name}
@@ -695,7 +700,12 @@ class Vote extends React.Component {
             </span>
           ))}
         </p>
-        <p>{this.props.result}</p>
+        <p style={{ margin: "0", padding: "1em 2em" }}>
+          {this.props.result}
+        </p>
+
+        <div style={{ clear: 'both' }}>
+        </div>
       </div>
     )
   }
