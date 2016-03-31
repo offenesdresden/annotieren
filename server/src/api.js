@@ -486,6 +486,43 @@ class API {
       }
     })
   }
+
+  getAnnotatedFiles(opts, res) {
+    this.elasticsearch.search({
+      index: 'annotations',
+      type: 'text',
+      body: {
+        size: 0,
+        aggs: {
+          files: {
+            filter: {
+              term: {
+                "paper.id": opts.paper
+              }
+            },
+            aggs: {
+              files: {
+                terms: {
+                  field: 'fileId'
+                }
+              }
+            }
+          }
+        }
+      }
+    }).then(result =>
+      result.aggregations.files.files.buckets.map(bucket => bucket.key)
+    ).then(body => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      })
+      res.write(JSON.stringify(body))
+      res.end()
+    }, err => {
+      console.log("ES agg:", err.stack)
+      httpError.write(err, res)
+    })
+  }
 }
 
 const SESSION_KEY_PATH = `${__dirname}/../session.key`
@@ -685,12 +722,11 @@ module.exports = function(conf) {
       res.end()
     })
   })
-  // TODO:
-  // app.get('/paper/:id/annotated_files', (req, res) => {
-  //   api.getPaperAnnotations({
-  //     paper: req.params.id
-  //   }, res)
-  // })
+  app.get('/paper/:id/annotated_files', (req, res) => {
+    api.getAnnotatedFiles({
+      paper: req.params.id
+    }, res)
+  })
 
   // Catch all: 404
   app.use((req, res) => {

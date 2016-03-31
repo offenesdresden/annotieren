@@ -24,8 +24,8 @@ export default class PaperView extends React.Component {
     }
   }
 
-  componentDidMount() {
-    fetch(`/api/oparl/paper/${encodeURIComponent(this.state.paper.id)}`)
+  _fetchPaper() {
+    return fetch(`/api/oparl/paper/${encodeURIComponent(this.state.paper.id)}`)
       .then(res => res.json())
       .then(paper => {
         paper.fileIds = paper.auxiliaryFile || []
@@ -37,14 +37,45 @@ export default class PaperView extends React.Component {
       })
   }
 
+  _fetchAnnotatedFiles() {
+    return fetch(`/api/paper/${encodeURIComponent(this.state.paper.id)}/annotated_files`)
+      .then(res => res.json())
+      .then(fileIds => {
+        this.setState({
+          annotatedFiles: fileIds
+        })
+      })
+  }
+
+  componentDidMount() {
+    this.setState({
+      loading: true
+    }, () => {
+      this._fetchAnnotatedFiles()
+        .then(() => this._fetchPaper())
+        .then(() => this.setState({
+          loading: false
+        }))
+        .catch(e => {
+          console.error(e.message, e.stack || e)
+          this.showStatus(e.message)
+          this.setState({
+            loading: false
+          })
+        })
+    })
+  }
+
   render() {
     let paper = this.state.paper
+    let annotatedFiles = this.state && this.state.annotatedFiles || []
     let fileCards = []
     function pushFileCards(file, role) {
       if (Array.isArray(file)) {
         file.forEach(f => pushFileCards(f, role))
       } else if (typeof file == 'string') {
-        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper}/>)
+        let expanded = annotatedFiles.indexOf(file) >= 0
+        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} initiallyExpanded={expanded}/>)
       }
     }
     pushFileCards(paper.mainFile, "Hauptdatei")
@@ -73,7 +104,7 @@ export default class PaperView extends React.Component {
         {(paper.consultation || [])
          .filter(consultation => !!consultation.meeting)
          .map((consultation, i) =>
-           <Meeting key={i} id={consultation.meeting} filesOf={paper.id} paper={paper}/>
+           <Meeting key={i} id={consultation.meeting} filesOf={paper.id} paper={paper} annotatedFiles={annotatedFiles}/>
         )}
       </div>
     )
@@ -100,12 +131,14 @@ class Meeting extends React.Component {
   render() {
     let meeting = this.state.meeting
     let paper = this.props.paper
+    let annotatedFiles = this.props.annotatedFiles || []
     let fileCards = []
     function pushFileCards(file, role) {
       if (Array.isArray(file)) {
         file.forEach(f => pushFileCards(f, role))
       } else if (typeof file == 'string') {
-        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper}/>)
+        let expanded = annotatedFiles.indexOf(file) >= 0
+        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} initiallyExpanded={expanded}/>)
       }
     }
     pushFileCards(meeting.invitation, "Einladung")
@@ -118,7 +151,7 @@ class Meeting extends React.Component {
           item.consultation &&
           item.consultation.parentID === this.props.filesOf
         ).map((item, i) =>
-          <AgendaItem key={i} item={item} paper={this.props.paper}/>
+          <AgendaItem key={i} item={item} paper={this.props.paper} annotatedFiles={annotatedFiles}/>
         )
 
     return (
@@ -137,12 +170,14 @@ class AgendaItem extends React.Component {
   render() {
     let item = this.props.item
     let paper = this.props.paper
+    let annotatedFiles = this.props.annotatedFiles || []
     let fileCards = []
     function pushFileCards(file, role) {
       if (Array.isArray(file)) {
         file.forEach(f => pushFileCards(f, role))
       } else if (typeof file == 'string' && paper.fileIds.indexOf(file) === -1) {
-        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper}/>)
+        let expanded = annotatedFiles.indexOf(file) >= 0
+        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} initiallyExpanded={expanded}/>)
       }
     }
     pushFileCards(item.resolutionFile, "Beschlussfassung")
@@ -181,6 +216,7 @@ class FileCard extends React.Component {
 
     return (
       <Card style={{ margin: "1em auto", maxWidth: "60em" }}
+          initiallyExpanded={this.props.initiallyExpanded}
           >
         <CardHeader
           title={file.name}
