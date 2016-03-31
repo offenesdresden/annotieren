@@ -469,6 +469,8 @@ class FileDetails extends React.Component {
                       <Vote key={part.id} {...part}/> :
                       <AnnotationPart key={part.id} {...part}/>
                      ))}
+          <div style={{ clear: 'both' }}>
+          </div>
         </article>
       )
     }
