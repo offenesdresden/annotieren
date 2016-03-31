@@ -486,7 +486,7 @@ class AnnotationPart extends React.Component {
       // Join hyphenations
       .replace(/([a-zäöüß])-\n([a-zäöüß])/g, (match, s1, s2) => `${s1}\u00AD\u00AD${s2}`)
       // Join single line breaks that are followed by words
-      .replace(/([^\n])\n([A-Za-zÄÖÜäöüẞß]{2,})/g, (match, s1, s2) => `${s1} ${s2}`)
+      .replace(/([^\n])\n *([A-Za-zÄÖÜäöüẞß]{2,})/g, (match, s1, s2) => `${s1} ${s2}`)
 
     return (
       <div id={this.props.id}
