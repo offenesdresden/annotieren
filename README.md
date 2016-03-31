@@ -13,7 +13,8 @@
 # TODO
 
 * Frontend:
-  * paper_view: more refs, inline
+  * create annotations: auto-rm white-space
+  * paper_view: more refs, inline, render refs per paragraph
   * Fix: display of stacked annotations with equal begin offset
   * Cycle thru stack o' annotations by repeated clicking
   * mediaquery: don't center doc_text in narrow windows
@@ -24,6 +25,7 @@
   * Favicon
   * location metadata with map
   * paper_view optimization: /api/file/241251/annotations/${paper.id}
+  * search: completion
 * Backend:
   * Cache headers for production
   * journaling
