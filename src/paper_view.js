@@ -499,7 +499,7 @@ class AnnotationPart extends React.Component {
             {title}
           </h4>}
         {this.props.refs ?
-         (<div style={{ float: 'right', clear: 'right' }}>
+         (<div style={{ float: 'right', clear: 'right', maxWidth: "14em" }}>
             {this.props.refs.map(ref => <AnnotationRef key={ref.id} {...ref}/>)}
           </div>) :
          ""}
@@ -607,7 +607,7 @@ class PersonRef extends React.Component {
 
     return !person ? (
       <div style={{ margin: '0 0 0.5em 1em', padding: "0.5em", backgroundColor, color: 'white', textAlign: 'center' }}>
-        <p style={{ fontWeight: 'bold', margin: "0" }}>
+        <p style={{ margin: "0" }}>
           {(this.props.person && this.props.person.label) || this.props.text}
         </p>
       </div>
@@ -648,7 +648,7 @@ class PaperRef extends React.Component {
     return (
       <div style={{ margin: '0 0 0.5em 1em', padding: "0.5em", backgroundColor: 'white' }}>
         <PaperAvatar paper={paper} size={24} style={{ display: 'inline-block', verticalAlign: 'top' }}/>
-        <p style={{ display: 'inline-block', verticalAlign: 'middle', maxWidth: "15em", margin: "0", whiteSpace: 'pre-wrap', cursor: 'pointer' }}
+        <p style={{ display: 'inline-block', verticalAlign: 'middle', margin: "0", whiteSpace: 'pre-wrap', cursor: 'pointer' }}
             onClick={() => Route.go(`/paper/${this.props.paper.id}`)}>
           {paper.name}
         </p>
