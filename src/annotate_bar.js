@@ -70,7 +70,7 @@ class TypesMenu extends React.Component {
               >
             {category.types.map((type, j) => (
               <ListItem key={j}
-                  style={{ backgroundColor: `rgb(${type.rgb})` }}
+                  style={{ backgroundColor: type.color }}
                   title={type.hint}
                   leftCheckbox={<RadioButton
                       name="type" value={type.id}

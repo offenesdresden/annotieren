@@ -138,7 +138,7 @@ class Inline extends React.Component {
 
       // backgroundColor by type
       let def = getTypeById(annotation.type)
-      style.backgroundColor = def ? `rgb(${def.rgb})` : '#ccc'
+      style.backgroundColor = def ? def.color : '#ccc'
 
       // frame currentAnnotation
       if (this._isCurrent()) {

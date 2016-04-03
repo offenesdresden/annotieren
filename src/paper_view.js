@@ -491,7 +491,7 @@ class AnnotationPart extends React.Component {
     return (
       <div id={this.props.id}
           style={{
-            borderLeft: `4px solid rgb(${type ? type.rgb : "255,255,255"})`,
+            borderLeft: `4px solid ${type ? type.color : 'white'}`,
             paddingLeft: "8px"
           }}>
         {this.props.noHeading ? "" :
@@ -685,7 +685,7 @@ class Vote extends React.Component {
 
     let yesType = getTypeById('vote.yes')
     return (
-      <div style={{ textAlign: 'center', borderLeft: `4px solid rgb(${yesType.rgb})` }}>
+        <div style={{ textAlign: 'center', borderLeft: `4px solid ${yesType.color}` }}>
         <h4 style={{ color: '#999', margin: "0", padding: "1em 0" }}>Abstimmung</h4>
         <p style={{ display: 'inline-block' }}>
           {fractions.map(f => (

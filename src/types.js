@@ -1,125 +1,110 @@
-const TYPES = [
+let TYPES = [
   { title: "Vorlage/Anfrage",
+    color: (type, i) => `hsl(120, 60%, ${65 + 15 * i}%)`,
     types: [
       { id: 'paper.reference',
         title: "Aktenzeichen",
         hint: "Daran werden Dateiabschnitte zu Vorlagen/Anfragen erkannt.",
-        rgb: "127,207,127",
         metadata: ['paper']
       },
       { id: 'paper.name',
         title: "Titel",
-        rgb: "143,231,143",
         metadata: ['paper']
       }
     ]
   },
   { title: "Anfrage",
+    color: (type, i) => `hsl(60, 75%, ${60 + 15 * i}%)`,
     types: [
       { id: 'paper.inquiry',
         title: "Fragestellung",
-        rgb: "231,231,127"
       },
       { id: 'paper.response',
         title: "Antwort",
-        rgb: "255,255,127"
       }
     ]
   },
   { title: "Vorlage",
+    color: (type, i) => `hsl(180, ${60 + 10 * i}%, ${60 + 10 * i}%)`,
     types: [
       { id: 'paper.proposition',
         title: "Beschlussvorschlag",
-        rgb: "15,207,207"
       },
       { id: 'paper.reason',
         title: "Begründung",
-        rgb: "79,223,223"
       },
       { id: 'paper.resolution',
         title: "Beschluss",
-        rgb: "143,239,239"
       },
       { id: 'paper.report',
         title: "Beschlusskontrolle",
-        rgb: "207,255,255"
       }
     ]
   },
   { title: "Wortprotokoll",
+    color: (type, i) => `hsl(225, 100%, ${85 + 5 * i}%)`,
     types: [
       { id: 'record.speaker',
-        title: "Sprecher",
+        title: "Sprecher/-in",
         hint: "Wer hat es gesagt?",
-        rgb: "191,191,255",
         metadata: ['person']
       },
       { id: 'record.protocol',
         title: "Niederschrift",
         hint: "Zusammengefasster Inhalt",
-        rgb: "207,207,255"
       },
       { id: 'record.transcript',
         title: "Wortlaut",
         hint: "Wortwörtliches Transkript",
-        rgb: "223,223,255"
       }
     ]
   },
   { title: "Abstimmung",
+    color: (type, i) => `hsl(300, 50%, ${70 + 5 * i}%)`,
     types: [
       { id: 'vote.yes',
         title: "Ja-Stimmen",
         hint: "Stimmenanzahl oder Personenname",
-        rgb: "239,95,239"
       },
       { id: 'vote.no',
         title: "Nein-Stimmen",
         hint: "Stimmenanzahl oder Personenname",
-        rgb: "255,111,255"
       },
       { id: 'vote.neutral',
         title: "Enthaltungen",
         hint: "Stimmenanzahl oder Personenname",
-        rgb: "255,143,255"
       },
       { id: 'vote.biased',
         title: "Befangen",
         hint: "Stimmenanzahl oder Personenname",
-        rgb: "255,175,255"
       },
       { id: 'vote.result',
         title: "Ergebnis",
         hint: "\"Zustimmung mit Änderung\"",
-        rgb: "255,207,255"
       }
     ]
   },
   { title: "Verweis",
+    color: (type, i) => `hsl(0, 80%, ${65 + 5 * i}%)`,
     types: [
       { id: 'ref.person',
         title: "Person",
-        rgb: "255,127,127",
         metadata: ['person']
       },
       { id: 'ref.organization',
         title: "Gremium",
-        rgb: "255,143,143",
         metadata: ['organization']
       },
       { id: 'ref.meeting',
         title: "Sitzung",
-        rgb: "255,159,159",
         metadata: ['meeting']
       },
       { id: 'ref.paper',
         title: "Vorlage/Anfrage",
-        rgb: "255,175,175",
         metadata: ['paper']
       },
       { id: 'ref.file',
         title: "Datei",
-        rgb: "255,191,191",
         metadata: ['file']
       },
       // { id: 'ref.location',
@@ -144,6 +129,15 @@ const TYPES = [
     ]
   } */
 ]
+
+for(let category of TYPES) {
+  let i = 0
+  for(let type of category.types) {
+    type.color = category.color(type, i)
+    i += 1
+  }
+}
+
 export default TYPES
 
 let byIdCache = null
