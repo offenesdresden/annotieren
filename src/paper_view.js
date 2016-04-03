@@ -507,7 +507,8 @@ class AnnotationPart extends React.Component {
               whiteSpace: 'pre-wrap',
               clear: 'left',
               margin: "0",
-              padding: "0.5em 0 1.5em"
+              padding: "0.5em 0 1.5em",
+              lineHeight: "1.5em"
             }}>
           {this.props.speaker ?
             <AnnotationSpeaker {...this.props.speaker}/> :
@@ -605,27 +606,40 @@ class PersonRef extends React.Component {
     let party = this.state.party
     let backgroundColor = party ? `rgb(${party.rgb})` : "#666"
 
-    return !person ? (
-      <div style={{ margin: '0 0 0.5em 1em', padding: "0.5em", backgroundColor, color: 'white', textAlign: 'center' }}>
-        <p style={{ margin: "0" }}>
-          {(this.props.person && this.props.person.label) || this.props.text}
-        </p>
-      </div>
-    ) : (
-      <div style={{ margin: '0 0 0.5em 1em', padding: "0.5em", backgroundColor, color: 'white', textAlign: 'center' }}>
-        {person.photo ?
-         <img src={person.photo} style={{ width: "12em", float: 'left', margin: "0 auto 0.5em" }}/> :
-         ""}
-        <p style={{ fontWeight: 'bold', margin: "0" }}>
-          {person.name}
-        </p>
-        {party ?
-         <p style={{ margin: "0" }}>
-           {party.name}
-         </p> :
-         ""}
-      </div>
-    )
+    if (person) {
+      return (
+        <div style={{ margin: '0 0 0.5em 1em', padding: "0.5em", backgroundColor, color: 'white', textAlign: 'center' }}>
+          {person.photo ?
+           <img src={person.photo} style={{ width: "12em", float: 'left', margin: "0 auto 0.5em" }}/> :
+           ""}
+          <p style={{ fontWeight: 'bold', margin: "0" }}>
+            {person.name}
+          </p>
+          {party ?
+           <p style={{ margin: "0" }}>
+             {party.name}
+           </p> :
+           ""}
+        </div>
+      )
+    } else {
+      let text = (this.props.person && this.props.person.label) || this.props.text
+      let comma, name, desc
+      if ((comma = text.indexOf(",")) > 0) {
+        name = text.slice(0, comma)
+        desc = text.slice(comma + 1)
+      } else {
+        name = text
+      }
+      return (
+        <div style={{ margin: '0 0 0.5em 1em', padding: "0.5em", backgroundColor, color: 'white', textAlign: 'center' }}>
+          <p style={{ margin: "0" }}>
+            <span style={{ fontWeight: 'bold' }}>{name}</span>
+            {desc ? `, ${desc}` : ""}
+          </p>
+        </div>
+      )
+    }
   }
 }
 

@@ -93,7 +93,7 @@ class TypesMenu extends React.Component {
         ))}
 
         {(annotation && annotation.type !== 'new') ?
-          <div style={{ textAlign: "center", marginTop: "1em" }}>
+          <div style={{ textAlign: "center", margin: "1em auto" }}>
             <RaisedButton label="Löschen" icon={<DeleteIcon/>}
                 backgroundColor={colors.red700} labelColor="white"
                 onClick={ev => this.props.onDelete()}
