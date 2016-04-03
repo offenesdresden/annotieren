@@ -13,7 +13,10 @@
 # TODO
 
 * Frontend:
+  * search: query in url
+  * paper_view: ref.paper with no id, just text
   * create annotations: auto-rm white-space
+  * doc_text: progressive loading
   * paper_view: more refs, inline, render refs per paragraph
   * Fix: display of stacked annotations with equal begin offset
   * Cycle thru stack o' annotations by repeated clicking
@@ -26,6 +29,7 @@
   * location metadata with map
   * paper_view optimization: /api/file/241251/annotations/${paper.id}
   * search: completion
+  * paper_view: more like this
 * Backend:
   * Cache headers for production
   * journaling
