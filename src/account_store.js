@@ -7,6 +7,8 @@ export let actions = Reflux.createActions({
   register: { asyncResult: true }
 })
 
+const REFRESH_INTERVAL = 10 * 60 * 1000
+
 export default Reflux.createStore({
   listenables: actions,
 
@@ -14,7 +16,25 @@ export default Reflux.createStore({
     actions.refreshLogin()
   },
 
+  setRefreshTimer() {
+    this.clearRefreshTimer()
+
+    this.refreshTimer = setTimeout(
+      () => actions.refreshLogin(),
+      REFRESH_INTERVAL
+    )
+  },
+
+  clearRefreshTimer() {
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer)
+      this.refreshTimer = null
+    }
+  },
+
   onRefreshLogin() {
+    this.clearRefreshTimer()
+
     fetch("/api/login", {
       credentials: 'same-origin'
     })
@@ -27,6 +47,14 @@ export default Reflux.createStore({
         delete this.username
         actions.refreshLogin.failed(e)
       })
+  },
+
+  onRefreshLoginCompleted(username) {
+    if (username) {
+      this.setRefreshTimer()
+    } else {
+      this.clearRefreshTimer()
+    }
   },
 
   onLogin(username, password) {
