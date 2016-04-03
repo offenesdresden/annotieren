@@ -1,4 +1,34 @@
 let TYPES = [
+  { title: "Dokument",
+    color: (type, i) => `hsl(30, ${80 + 5 * i}%, ${60 + 15 * i}%)`,
+    types: [
+      { id: 'doc.originator',
+        title: "Herausgeber",
+        hint: "Von wem kommts?",
+        metadata: ['person']
+      },
+      { id: 'doc.recipient',
+        title: "Empfänger",
+        hint: "An jemanden gerichtet?",
+        metadata: ['person']
+      }
+    ]
+  },
+  { title: "Sitzung",
+    color: (type, i) => `hsl(225, ${50 + 10 * i}%, ${70 + 10 * i}%)`,
+    types: [
+      { id: 'meeting.participant',
+        title: "Teilnehmer/-in",
+        hint: "Wer war da?",
+        metadata: ['person']
+      },
+      { id: 'meeting.absent',
+        title: "Abwesend",
+        hint: "Wer fehlte?",
+        metadata: ['person']
+      }
+    ]
+  },
   { title: "Vorlage/Anfrage",
     color: (type, i) => `hsl(120, 60%, ${65 + 15 * i}%)`,
     types: [
@@ -14,8 +44,11 @@ let TYPES = [
     ]
   },
   { title: "Anfrage",
-    color: (type, i) => `hsl(60, 75%, ${60 + 15 * i}%)`,
+    color: (type, i) => `hsl(60, ${75 + 10 * i}%, ${60 + 15 * i}%)`,
     types: [
+      { id: 'paper.intro',
+        title: "Einleitung",
+      },
       { id: 'paper.inquiry',
         title: "Fragestellung",
       },
@@ -25,7 +58,7 @@ let TYPES = [
     ]
   },
   { title: "Vorlage",
-    color: (type, i) => `hsl(180, ${60 + 10 * i}%, ${60 + 10 * i}%)`,
+    color: (type, i) => `hsl(180, ${60 + 10 * i}%, ${60 + 8 * i}%)`,
     types: [
       { id: 'paper.proposition',
         title: "Beschlussvorschlag",
@@ -38,6 +71,9 @@ let TYPES = [
       },
       { id: 'paper.report',
         title: "Beschlusskontrolle",
+      },
+      { id: 'paper.info',
+        title: "Information",
       }
     ]
   },
