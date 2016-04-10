@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import Divider from 'material-ui/lib/divider'
+import Divider from 'react-md/lib/Dividers'
 
 import { getTypeById } from './types'
 

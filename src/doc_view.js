@@ -2,12 +2,12 @@ import React from 'react'
 import Reflux from 'reflux'
 import Route from 'react-route'
 
-import Paper from 'material-ui/lib/paper'
-import AppBar from 'material-ui/lib/app-bar'
-import colors from 'material-ui/lib/styles/colors'
-import FlatButton from 'material-ui/lib/flat-button'
-import CircularProgress from 'material-ui/lib/circular-progress'
-import Snackbar from 'material-ui/lib/snackbar'
+import Paper from 'react-md/lib/Papers'
+import Toolbar from 'react-md/lib/Toolbars'
+import { FlatButton } from 'react-md/lib/Buttons'
+import { CircularProgress } from 'react-md/lib/Progress'
+import Snackbar from 'react-md/lib/Snackbars'
+import FontIcon from 'react-md/lib/FontIcons'
 
 import DocText from './doc_text'
 import AnnotateBar from './annotate_bar'
@@ -236,20 +236,20 @@ export default React.createClass({
       "currentAnnotation:", this.state.currentAnnotation && this.state.currentAnnotation.id)
     return (
       <div>
-        <Paper zDepth={1}
-            style={{ width: "892px", margin: "0 auto" }}>
-          <AppBar title={this.state.loading ? "Laden…" : this.state.file.name}
-              showMenuIconButton={false}
-              iconElementRight={
+        <Paper className="doc_view" zDepth={2}>
+          <Toolbar secondary={true}
+              title={this.state.loading ? "Laden…" : this.state.file.name}
+              actionLeft={<FontIcon>description</FontIcon>}
+              actionsRight={
                 <FlatButton label="PDF"
                     title="Original-PDF herunterladen"
-                    linkButton={true} href={this.state.file.downloadUrl}
+                    href={this.state.file.downloadUrl}
                     />
               }/>
 
           {this.state.loading ?
             <div style={{ textAlign: 'center' }}>
-              <CircularProgress size={2}/>
+              <CircularProgress scale={2}/>
             </div> :
             <DocText
                 pages={this.state.pages}
@@ -266,9 +266,9 @@ export default React.createClass({
             onMetadata={this.handleMetadata}
             />
 
-        <Snackbar open={!!this.state.statusMessage}
-            message={this.state.statusMessage + ""}
-            onRequestClose={() => this.setState({ statusMessage: null })}
+        <Snackbar
+            toasts={this.state.statusMessage ? [{ text: this.state.statusMessage }] : []}
+            dismiss={() => this.setState({ statusMessage: null })}
             />
       </div>
     )
@@ -308,10 +308,14 @@ export default React.createClass({
         }
       })
     } else if (this.state.currentAnnotation && this.state.currentAnnotation.type === 'new') {
-      // Drop temporary annotation for previous user selection
-      this.setState({
-        currentAnnotation: null
-      })
+      // HACK: don't hide annotate_bar before currentAnnotation has
+      // been converted into a permanent one
+      setTimeout(() => {
+        // Drop temporary annotation for previous user selection
+        this.setState({
+          currentAnnotation: null
+        })
+      }, 300)
     }
   },
 

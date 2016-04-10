@@ -1,13 +1,10 @@
 import React from 'react'
 import Route from 'react-route'
 
-import AppBar from 'material-ui/lib/app-bar'
-import Card from 'material-ui/lib/card/card'
-import CardHeader from 'material-ui/lib/card/card-header'
-import CardText from 'material-ui/lib/card/card-text'
-import CardActions from 'material-ui/lib/card/card-actions'
-import RaisedButton from 'material-ui/lib/raised-button'
-import CircularProgress from 'material-ui/lib/circular-progress'
+import Toolbar from 'react-md/lib/Toolbars'
+import { Card, CardTitle, CardActions, CardText } from 'react-md/lib/Cards'
+import { RaisedButton } from 'react-md/lib/Buttons'
+import { CircularProgress } from 'react-md/lib/Progress'
 
 import PaperAvatar from './paper_avatar'
 import { getTypeById } from './types'
@@ -75,24 +72,25 @@ export default class PaperView extends React.Component {
         file.forEach(f => pushFileCards(f, role))
       } else if (typeof file == 'string') {
         let expanded = annotatedFiles.indexOf(file) >= 0
-        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} initiallyExpanded={expanded}/>)
+        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} isInitialExpanded={expanded}/>)
       }
     }
     pushFileCards(paper.mainFile, "Hauptdatei")
     pushFileCards(paper.auxiliaryFile)
 
     return (
-      <div>
-        <AppBar
-            iconElementLeft={
-              <PaperAvatar paper={paper} size={48}/>
+      <div style={{ maxWidth: "60em", margin: "0 auto" }}>
+        <Toolbar
+            primary={true}
+            actionLeft={
+              <PaperAvatar paper={paper}/>
             }
             title={
-              <span style={{ whiteSpace: 'pre-wrap' }}>
+              <span style={{ whiteSpace: 'pre-wrap' }} title={paper.name}>
                 {paper.name}
               </span>
             }
-            iconElementRight={
+            actionRight={
               <p style={{ margin: "16px 0 0", fontSize: "80%", color: 'white' }}>
                 {iso8601ToDate(paper.publishedDate)}
               </p>
@@ -138,7 +136,7 @@ class Meeting extends React.Component {
         file.forEach(f => pushFileCards(f, role))
       } else if (typeof file == 'string') {
         let expanded = annotatedFiles.indexOf(file) >= 0
-        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} initiallyExpanded={expanded}/>)
+        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} isInitialExpanded={expanded}/>)
       }
     }
     pushFileCards(meeting.invitation, "Einladung")
@@ -177,7 +175,7 @@ class AgendaItem extends React.Component {
         file.forEach(f => pushFileCards(f, role))
       } else if (typeof file == 'string' && paper.fileIds.indexOf(file) === -1) {
         let expanded = annotatedFiles.indexOf(file) >= 0
-        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} initiallyExpanded={expanded}/>)
+        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} isInitialExpanded={expanded}/>)
       }
     }
     pushFileCards(item.resolutionFile, "Beschlussfassung")
@@ -216,25 +214,23 @@ class FileCard extends React.Component {
 
     return (
       <Card style={{ margin: "1em auto", maxWidth: "60em" }}
-          initiallyExpanded={this.props.initiallyExpanded}
+          isInitialExpanded={this.props.isInitialExpanded}
           >
-        <CardHeader
+        <CardTitle
           title={file.name}
           titleStyle={{ fontWeight: 'bold' }}
           subtitle={this.props.role}
-          actAsExpander={true}
-          showExpandableButton={true}
+          isExpander={true}
           />
         <CardText expandable={true} style={{ backgroundColor: "#f7f7f7" }}>
           <FileDetails file={file} paper={this.props.paper}/>
         </CardText>
-        <CardActions expandable={true} style={{ textAlign: 'right' }}>
+        <CardActions>
           <RaisedButton label="Text Annotieren" primary={true}
-              style={{ verticalAlign: 'top' }}
               onClick={ev => Route.go(`/file/${encodeURIComponent(file.id)}`)}
               />
           <RaisedButton label="Original-PDF" secondary={true}
-              linkButton={true} href={file.downloadUrl}
+              href={file.downloadUrl}
               />
         </CardActions>
       </Card>
@@ -447,7 +443,7 @@ class FileDetails extends React.Component {
     if (this.state.loading) {
       return (
         <article style={{ textAlign: 'center' }}>
-          <CircularProgress size={2}/>
+          <CircularProgress scale={2}/>
         </article>
       )
     } else if (this.state.error) {
@@ -661,7 +657,7 @@ class PaperRef extends React.Component {
 
     return (
       <div style={{ margin: '0 0 0.5em 1em', padding: "0.5em", backgroundColor: 'white' }}>
-        <PaperAvatar paper={paper} size={24} style={{ display: 'inline-block', verticalAlign: 'top' }}/>
+        <PaperAvatar paper={paper} style={{ display: 'inline-block', verticalAlign: 'top' }}/>
         <p style={{ display: 'inline-block', verticalAlign: 'middle', margin: "0", whiteSpace: 'pre-wrap', cursor: 'pointer' }}
             onClick={() => Route.go(`/paper/${this.props.paper.id}`)}>
           {paper.name}

@@ -8,14 +8,20 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "css-loader": "^0.23.1",
     "exports-loader": "^0.6.3",
+    "extract-text-webpack-plugin": "^1.0.1",
     "imports-loader": "^0.6.5",
-    "material-ui": "^0.14.4",
+    "node-sass": "^3.4.2",
+    "postcss-loader": "^0.8.2",
     "react": "^0.14.8",
     "react-dom": "^0.14.8",
+    "react-md": "0.1.0-beta",
     "react-route": "^1.0.3",
     "react-tap-event-plugin": "^0.2.2",
     "reflux": "^0.4.1",
+    "sass-loader": "^3.2.0",
+    "style-loader": "^0.13.1",
     "whatwg-fetch": "^0.11.0"
   },
   "devDependencies": {

@@ -1,16 +1,13 @@
 import React from 'react'
 import Reflux from 'reflux'
 
-import LeftNav from 'material-ui/lib/left-nav'
-import AppBar from 'material-ui/lib/app-bar'
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item'
-import ArrowDropRight from 'material-ui/lib/svg-icons/navigation-arrow-drop-right'
-import RadioButton from 'material-ui/lib/radio-button'
-import RaisedButton from 'material-ui/lib/raised-button'
-import DeleteIcon from 'material-ui/lib/svg-icons/action/delete'
-import colors from 'material-ui/lib/styles/colors'
-import AutoComplete from 'material-ui/lib/auto-complete'
+import Sidebar from 'react-md/lib/Sidebars'
+import Toolbar from 'react-md/lib/Toolbars'
+import { List, ListItem, ListItemControl } from 'react-md/lib/Lists'
+import { Radio, RadioGroup } from 'react-md/lib/SelectionControls'
+import { RaisedButton } from 'react-md/lib/Buttons'
+import TextField from 'react-md/lib/TextFields'
+import FontIcon from 'react-md/lib/FontIcons'
 
 import Types from './types'
 import { actions as accountActions, default as accountStore } from './account_store'
@@ -38,21 +35,25 @@ export default React.createClass({
   },
 
   render() {
-    let open = !!this.state.username && !!this.props.currentAnnotation
-    let title = this.props.currentAnnotation &&
-      this.props.currentAnnotation.type === 'new' ?
+    let annotation = this.props.currentAnnotation
+    let open = !!this.state.username && !!annotation
+    console.log("AnnotateBar.open:", open)
+    let title = annotation &&
+      annotation.type === 'new' ?
       "Annotieren" : "Ändern"
     return (
-      <LeftNav open={open} openRight={true} width={260}>
-        <AppBar title={title} showMenuIconButton={false}
-            style={{ marginTop: "48px" }}
-            />
-        <TypesMenu
-            currentAnnotation={this.props.currentAnnotation}
+        <Sidebar isOpen={open} align='right' responsive={true} fixed={true}
+          header={
+              <Toolbar primary={true} title={title}
+                  style={{ marginTop: "48px" }}
+                  />}
+          >
+        <TypesMenu key={annotation && annotation.id}
+            currentAnnotation={annotation}
             onType={this.props.onType} onDelete={this.props.onDelete}
             onMetadata={this.props.onMetadata}
             />
-      </LeftNav>
+      </Sidebar>
     )
   }
 })
@@ -61,51 +62,69 @@ class TypesMenu extends React.Component {
   render() {
     let annotation = this.props.currentAnnotation
 
+    let list = []
+    Types.forEach((category, i) => {
+      let nested = []
+      category.types.forEach((type, j) => {
+        let backgroundColor = type.color
+        nested.push(
+          <ListItemControl key={j}
+              style={{ backgroundColor }}
+              primaryText={type.title}
+              primaryAction={<Radio
+                                 name="type" value={type.id}
+                                 label={type.title}
+                                 title={type.hint}
+                                 checked={annotation && annotation.type === type.id}
+                                 onChange={() => this.onChange(type.id)}
+                                 />}
+              />)
+        if (type.metadata && annotation && annotation.type == type.id) {
+          nested.push(
+            ...type.metadata.map((keyName, k) => (
+              <ListItem key="detail"
+                  style={{ backgroundColor }}>
+                <TypeMetadata key={`${j}-${k}`}
+                    keyName={keyName} value={annotation && annotation[keyName]}
+                    text={annotation && annotation.text}
+                    onUpdate={value => this.props.onMetadata(keyName, value)}
+                    />
+              </ListItem>
+            ))
+          )
+        }
+      })
+      list.push(
+        <ListItem key={i}
+            primaryText={category.title}
+            nestedItems={nested}
+            initiallyOpen={true}
+            />
+      )
+    })
+
     return (
       <div>
-        {Types.map((category, i) => (
-          <List key={i}
-              subheader={category.title}
-              subheaderStyle={{ lineHeight: '32px' }}
-              >
-            {category.types.map((type, j) => (
-              <ListItem key={j}
-                  style={{ backgroundColor: type.color }}
-                  title={type.hint}
-                  leftCheckbox={<RadioButton
-                      name="type" value={type.id}
-                      checked={annotation && annotation.type == type.id}
-                      onCheck={ev => this.onCheck(ev)}
-                      />}
-                    >
-                <div>{type.title}</div>
-                {(type.metadata && annotation && annotation.type == type.id) ?
-                  type.metadata.map((keyName, i) =>
-                    <TypeMetadata key={i}
-                        keyName={keyName} value={annotation && annotation[keyName]}
-                        text={annotation && annotation.text}
-                        onUpdate={value => this.props.onMetadata(keyName, value)}
-                        />
-                ) : ""}
-              </ListItem>
-            ))}
-          </List>
-        ))}
+        <List>
+          {list}
+        </List>
 
         {(annotation && annotation.type !== 'new') ?
           <div style={{ textAlign: "center", margin: "1em auto" }}>
-            <RaisedButton label="Löschen" icon={<DeleteIcon/>}
-                backgroundColor={colors.red700} labelColor="white"
+            <RaisedButton label="Löschen" iconBefore={true}
+                style={{ backgroundColor: '#f00', color: "white" }}
                 onClick={ev => this.props.onDelete()}
-                />
-          </div> : ""
+                >
+              <FontIcon>delete</FontIcon>
+           </RaisedButton>
+         </div> : ""
         }
       </div>
     )
   }
 
-  onCheck(ev) {
-    let value = ev.target.value
+  onChange(value) {
+    console.log("onChange", value)
     if (this.props.onType) {
       this.props.onType(value)
     }
@@ -206,7 +225,7 @@ class TypeMetadata extends React.Component {
   render() {
     return (
       <div>
-        <AutoComplete hintText={METADATA_LABELS[this.props.keyName]}
+        <TextField placeholder={METADATA_LABELS[this.props.keyName]}
             searchText={this.state.input}
             dataSource={this.state.labels}
             onUpdateInput={label => this.handleUpdateInput(label)}

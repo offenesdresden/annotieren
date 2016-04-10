@@ -2,9 +2,9 @@ import React from 'react'
 import Reflux from 'reflux'
 import Route from 'react-route'
 
-import TextField from 'material-ui/lib/text-field'
-import RaisedButton from 'material-ui/lib/raised-button'
-import CircularProgress from 'material-ui/lib/circular-progress'
+import TextField from 'react-md/lib/TextFields'
+import { RaisedButton } from 'react-md/lib/Buttons'
+import { CircularProgress } from 'react-md/lib/Progress'
 
 import { actions as accountActions } from './account_store'
 
@@ -25,20 +25,20 @@ export default React.createClass({
         <div style={{ margin: "2em auto", maxWidth: "20em" }}>
         <div>
           <TextField
-              floatingLabelText="Benutzername"
-              onChange={ev => this.handleFieldChange('username', ev.target.value)}
+              label="Benutzername"
+              onChange={value => this.handleFieldChange('username', value)}
               />
         </div>
         <div>
           <TextField type="password"
-              floatingLabelText="Passwort"
-              onChange={ev => this.handleFieldChange('password1', ev.target.value)}
+              label="Passwort"
+              onChange={value => this.handleFieldChange('password1', value)}
               />
         </div>
         <div>
           <TextField type="password"
-              floatingLabelText="Passwort wiederholen"
-              onChange={ev => this.handleFieldChange('password2', ev.target.value)}
+              label="Passwort wiederholen"
+              onChange={value => this.handleFieldChange('password2', value)}
               errorText={this.state.error}
               />
         </div>

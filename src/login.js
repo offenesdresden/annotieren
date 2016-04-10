@@ -2,10 +2,10 @@ import React from 'react'
 import Reflux from 'reflux'
 import Route from 'react-route'
 
-import Popover from 'material-ui/lib/popover/popover'
-import TextField from 'material-ui/lib/text-field'
-import RaisedButton from 'material-ui/lib/raised-button'
-import CircularProgress from 'material-ui/lib/circular-progress'
+import Dialog from 'react-md/lib/Dialogs'
+import TextField from 'react-md/lib/TextFields'
+import { RaisedButton } from 'react-md/lib/Buttons'
+import { CircularProgress } from 'react-md/lib/Progress'
 
 import { actions as accountActions } from './account_store'
 
@@ -23,17 +23,17 @@ export default React.createClass({
 
   render() {
     return (
-      <Popover {...this.props}>
+      <Dialog {...this.props} title="Login" close={this.props.onClose}>
         <div>
           <TextField
-              floatingLabelText="Benutzername"
-              onChange={ev => this.handleFieldChange('username', ev.target.value)}
+              label="Benutzername"
+              onChange={value => this.handleFieldChange('username', value)}
               />
         </div>
         <div>
           <TextField type="password"
-              floatingLabelText="Passwort"
-              onChange={ev => this.handleFieldChange('password', ev.target.value)}
+              label="Passwort"
+              onChange={value => this.handleFieldChange('password', value)}
               errorText={this.state.error}
               />
         </div>
@@ -49,7 +49,7 @@ export default React.createClass({
           </p>
           <RaisedButton label="Registrieren…" secondary={true} onClick={this.handleRegister}/>
         </div>
-      </Popover>
+      </Dialog>
     )
   },
 
@@ -76,7 +76,7 @@ export default React.createClass({
       loading: false
     })
 
-    this.props.onRequestClose()
+    this.props.onClose()
   },
 
   onLoginFailed(e) {
@@ -87,7 +87,7 @@ export default React.createClass({
   },
 
   handleRegister() {
-    this.props.onRequestClose()
+    this.props.onClose()
 
     Route.go("/register")
   }

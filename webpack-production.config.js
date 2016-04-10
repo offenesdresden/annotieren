@@ -1,15 +1,18 @@
 var webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 var path = require('path');
 var buildPath = path.resolve(__dirname, 'public');
-var nodeModulesPath = path.resolve(__dirname, 'node_modules');
 var TransferWebpackPlugin = require('transfer-webpack-plugin');
+
+const nodeModulesPath = path.resolve(__dirname, 'node_modules');
+const reactmdPath = nodeModulesPath + '/react-md'
 
 var config = {
   entry: [path.join(__dirname, '/src/app.js')],
   resolve: {
     //When require, do not have to add these extensions to file's name
-    extensions: ["", ".js", ".jsx"]
-    //node_modules: ["web_modules", "node_modules"]  (Default Settings)
+    extensions: ["", ".js", ".jsx", ".scss"],
+    //node_modules: ["web_modules", "node_modules"]  (Default Settings),
   },
   //Render source-map file for final build
   devtool: 'source-map',
@@ -34,7 +37,9 @@ var config = {
     //Transfer Files
     new TransferWebpackPlugin([
       {from: 'html'}
-    ], path.resolve(__dirname,"src"))
+    ], path.resolve(__dirname,"src")),
+
+    new ExtractTextPlugin("styles.css")
   ],
   module: {
     preLoaders: [
@@ -53,6 +58,11 @@ var config = {
         query: {
           presets: ['react', 'es2015']
         }
+      },
+      {
+        test: /\.scss$/,
+        //exclude: [nodeModulesPath],
+        loader: ExtractTextPlugin.extract('style', 'css!postcss!sass?outputStyle=compressed'),
       }
     ]
   },

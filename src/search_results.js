@@ -2,21 +2,13 @@ import React from 'react'
 import Reflux from 'reflux'
 import Route from 'react-route'
 
-import Card from 'material-ui/lib/card/card'
-import CardActions from 'material-ui/lib/card/card-actions'
-import CardHeader from 'material-ui/lib/card/card-header'
-import CardMedia from 'material-ui/lib/card/card-media'
-import CardTitle from 'material-ui/lib/card/card-title'
-import CardText from 'material-ui/lib/card/card-text'
-import List from 'material-ui/lib/lists/list'
-import ListItem from 'material-ui/lib/lists/list-item'
-import colors from 'material-ui/lib/styles/colors'
-import DescriptionIcon from 'material-ui/lib/svg-icons/action/description'
-import RaisedButton from 'material-ui/lib/raised-button'
-import FlatButton from 'material-ui/lib/flat-button'
-import Avatar from 'material-ui/lib/avatar'
-import ActionDescription from 'material-ui/lib/svg-icons/action/description'
-import CircularProgress from 'material-ui/lib/circular-progress'
+import { Card, CardTitle, CardActions, CardText } from 'react-md/lib/Cards'
+import { RaisedButton } from 'react-md/lib/Buttons'
+import { List, ListItem } from 'react-md/lib/Lists'
+import Subheader from 'react-md/lib/Subheaders'
+import Avatar from 'react-md/lib/Avatars'
+import FontIcon from 'react-md/lib/FontIcons'
+import { CircularProgress } from 'react-md/lib/Progress'
 
 
 import { actions as searchActions } from './search_store'
@@ -69,7 +61,7 @@ export default React.createClass({
     return (
       <div style={{ maxWidth: "60em", margin: "0 auto" }}>
         {this.state.loading ?
-          <CircularProgress size={2}/> :
+          <CircularProgress scale={2}/> :
           this.state.results.map((result, i) =>
             <SearchResult key={i} {...result}/>
           )}
@@ -98,41 +90,45 @@ class SearchResult extends React.Component {
 
 class Meeting extends React.Component {
   render() {
+    let mainFiles = findFilesInObject(this.props)
+
     return (
       <Card style={{ marginBottom: "1em" }}>
-        <CardHeader
+        <CardTitle
             title={this.props.name}
             subtitle={`${this.props.shortName} ${this.props.start}`}
-            style={{ backgroundColor: colors.lime500 }}
             />
         <CardText>
-          {findFilesInObject(this.props).map(id =>
-            <FileItem key={id} id={id}/>
-          )}
           <List>
-            {this.props.agendaItem ?
-              this.props.agendaItem.map((item, i) =>
+            {mainFiles.length > 1 &&
+             [<Subheader primary={true} primaryText="Dateien"/>]
+               .concat(mainFiles.map(id =>
+                 <FileItem key={id} id={id}/>
+               ))
+            }
+            {this.props.agendaItem &&
+             [<Subheader secondary={true} primaryText="Tagesordnung"/>]
+             .concat(this.props.agendaItem.map((item, i) =>
                 <ListItem
                     key={i}
                     disabled={!(item.consultation && item.consultation.parentID)}
                     onClick={() => Route.go(`/paper/${item.consultation.parentID}`)}
-                    innerDivStyle={{ paddingRight: "0" }}
-                    leftIcon={(item.number && item.number.length <= 2) ?
-                      <Avatar size={24}>{item.number}</Avatar> :
+                    leftAvatar={(item.number && item.number.length <= 2) ?
+                      <Avatar>{item.number}</Avatar> :
                       <span>{item.number}</span>
                     }>
                   <div>
                     {item.name}
                   </div>
-                  {(findFilesInObject(item).length > 0) ? (
+                  {(findFilesInObject(item).length > 0) && (
                     <List>
                       {findFilesInObject(item).map(id =>
                         <FileItem key={id} id={id}/>
                       )}
                     </List>
-                  ) : ""}
+                  )}
                 </ListItem>
-              ) : ""}
+             ))}
           </List>
         </CardText>
       </Card>
@@ -151,28 +147,20 @@ class Paper extends React.Component {
 
   render() {
     let paper = this.props
+    let mainFiles = findFilesInObject(paper)
 
     return (
       <Card style={{ marginBottom: "1em" }}>
-        <CardHeader
-            avatar={<PaperAvatar paper={paper} size={32}/>}
+        <CardTitle
+            avatar={<PaperAvatar paper={paper}/>}
             title={paper.name}
-            titleStyle={{
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              // Vorlagen names tend to get really long, though
-              // they're included in the @title in full
-              maxWidth: '56em'
-            }}
             subtitle={`${paper.shortName} ${iso8601ToDate(paper.publishedDate)}`}
-            style={{ backgroundColor: colors.lime700 }}
             />
         <CardText>
-          {findFilesInObject(paper).map(id =>
-            <FileItem key={id} id={id}/>
-          )}
           <List>
+            {mainFiles.map(id =>
+              <FileItem key={id} id={id}/>
+            )}
             {(paper.consultation || [])
               .filter(consultation => !!consultation.meeting)
               .map((consultation, i) =>
@@ -180,7 +168,7 @@ class Paper extends React.Component {
             )}
           </List>
         </CardText>
-        <CardActions style={{ textAlign: 'right' }}>
+        <CardActions>
           <RaisedButton label="Vorlage lesen" primary={true}
               onClick={() => Route.go(`/paper/${encodeURIComponent(paper.id)}`)}
               />
@@ -223,9 +211,9 @@ class File extends React.Component {
   render() {
     return (
       <Card style={{ marginBottom: "1em" }}>
-        <CardHeader
-            title={<span><Avatar backgroundColor="white" size={36}><ActionDescription/></Avatar> {this.props.name}</span>}
-            style={{ backgroundColor: colors.lime300 }}
+        <CardTitle
+            avatar={<FontIcon>description</FontIcon>}
+            title={this.props.name}
             />
         <CardText>
           <List>
@@ -239,11 +227,10 @@ class File extends React.Component {
         </CardText>
         <CardActions style={{ textAlign: 'right' }}>
           <RaisedButton label="Text Annotieren" primary={true}
-              style={{ verticalAlign: 'top' }}
               onClick={ev => Route.go(`/file/${encodeURIComponent(this.props.id)}`)}
               />
           <RaisedButton label="Original-PDF" secondary={true}
-              linkButton={true} href={this.props.downloadUrl}
+              href={this.props.downloadUrl}
               />
         </CardActions>
       </Card>
@@ -277,31 +264,18 @@ class MeetingItem extends React.Component {
 class PaperMeetingItem extends MeetingItem {
   render() {
     let meeting = this.state || this.props
+    let items = []
+    for(let id of findFilesInObject(meeting)) {
+      items.push(
+        <FileItem key={id} id={id}/>
+      )
+    }
 
     return (
-      <ListItem disabled={true} innerDivStyle={{ paddingRight: "0" }}>
-        <List subheader={meeting.name}>
-          {findFilesInObject(meeting).map(id =>
-            <FileItem key={id} id={id}/>
-          )}
-          {meeting.agendaItem ?
-            <ListItem innerDivStyle={{ paddingRight: "0" }}>
-              {meeting.agendaItem
-                .filter(item =>
-                  item.consultation &&
-                  item.consultation.parentID === this.props.filesOf
-                )
-                .map((item, i) =>
-                  <List key={i} subheader={item.name}>
-                    {findFilesInObject(item).map(id =>
-                      <FileItem key={id} id={id}/>
-                    )}
-                  </List>
-                )}
-            </ListItem> : ""
-          }
-        </List>
-      </ListItem>
+      <ListItem disabled={true}
+          primaryText={meeting.name}
+          nestedItems={items} initiallyOpen={true}
+          />
     )
   }
 }
@@ -320,12 +294,14 @@ class PaperItem extends React.Component {
   render() {
     let paper = this.state || this.props
 
-    return <ListItem
-        leftIcon={<PaperAvatar paper={paper} size={24} style={{ color: 'white' }}/>}
-        primaryText={paper.name}
-        secondaryText={iso8601ToDate(paper.publishedDate)}
-        onClick={() => Route.go(`/paper/${encodeURIComponent(paper.id)}`)}
-        />
+    return (
+      <ListItem
+          leftIcon={<PaperAvatar paper={paper} style={{ color: 'white' }}/>}
+          primaryText={paper.name}
+          secondaryText={iso8601ToDate(paper.publishedDate)}
+          onClick={() => Route.go(`/paper/${encodeURIComponent(paper.id)}`)}
+          />
+    )
   }
 }
 
@@ -345,9 +321,8 @@ class FileItem extends React.Component {
 
     return (
       <ListItem
-          innerDivStyle={{ paddingRight: "0" }}
           primaryText={file.name}
-          leftIcon={<ActionDescription/>}
+          leftIcon={<FontIcon>description</FontIcon>}
           onClick={ev => Route.go(`/file/${encodeURIComponent(this.props.id)}`)}
           />
     )

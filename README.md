@@ -17,7 +17,6 @@
   * Front page: well annotated papers, recent non-annotated
   * Per person summaries
 * Frontend:
-  * switch to react-md
   * LinkButton
   * search: query in url
   * paper_view: ref.paper with no id, just text

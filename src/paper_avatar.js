@@ -1,7 +1,6 @@
 import React from 'react'
 
-import Avatar from 'material-ui/lib/avatar'
-import colors from 'material-ui/lib/styles/colors'
+import Avatar from 'react-md/lib/Avatars'
 
 
 export default class PaperView extends React.Component {
@@ -10,8 +9,8 @@ export default class PaperView extends React.Component {
     let shortName = paper.shortName || ""
 
     return (
-      <Avatar title={shortName} size={this.props.size || 32}
-          backgroundColor={paperShortNameToColor(shortName)}
+      <Avatar title={shortName}
+          style={{ backgroundColor: paperShortNameToColor(shortName) }}
           {...this.props}
           >
         {shortName[0]}
@@ -22,12 +21,12 @@ export default class PaperView extends React.Component {
   
 function paperShortNameToColor(id) {
   if (/^V/.test(id)) {
-    return colors.deepPurple500
+    return '#707'
   } else if (/^A/.test(id)) {
-    return colors.lightBlue500
+    return '#77f'
   } else if (id) {
-    return colors.lightGreen500
+    return '#7f7'
   } else {
-    return colors.lightGreen200
+    return '#666'
   }
 }

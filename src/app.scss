@@ -1,0 +1,62 @@
+$md-primary-color: #827717;
+$md-primary-color-hue-1: #afb42b;
+$md-secondary-color: #2e7d32;
+$md-secondary-color-base: #71c784;
+
+@import "~react-md/src/scss/react-md.scss";
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+.navigation {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 1000;
+}
+
+.md-headline, .md-title {
+    height: 2em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 56em;
+}
+
+/* Don't squish avatars */
+.md-avatar {
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+.doc_view {
+    width: 892px;
+    margin: 0 auto;
+}
+
+.md-card-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+.md-card-actions > .action-area > * {
+    margin-left: 2em;
+}
+
+.md-toolbar {
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.md-toolbar .md-icon {
+    line-height: 50px;
+    color: white;
+}
+.md-toolbar .md-title {
+    flex-grow: 1;
+}
+.md-toolbar .md-btn {
+    line-height: 52px;
+}
