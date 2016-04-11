@@ -34,7 +34,15 @@ html, body {
 
 .doc_view {
     width: 892px;
-    margin: 0 auto;
+    margin: 0 0;
+    transition: margin 0.5s ease;
+}
+/* Align doc to center if screen wider than doc + 2 * sidebar */
+@media screen and (min-width: 1400px) {
+    .doc_view {
+        margin: 0 auto;
+        transition: margin 0.5s ease;
+    }
 }
 
 .md-card-actions {
