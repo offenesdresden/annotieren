@@ -57,14 +57,30 @@ html, body {
 .md-toolbar {
     justify-content: space-between;
     align-items: flex-start;
+    .md-icon {
+        line-height: 48px;
+        color: white;
+    }
+    .md-title {
+        flex-grow: 1;
+    }
+    .md-btn {
+        line-height: 40px;
+    }
 }
-.md-toolbar .md-icon {
-    line-height: 50px;
-    color: white;
-}
-.md-toolbar .md-title {
-    flex-grow: 1;
-}
-.md-toolbar .md-btn {
-    line-height: 50px;
+.annotate-bar {
+    .md-list .md-list-tile {
+        padding: 0 !important;
+    }
+    .md-tile-content.icon-offset {
+        margin-left: 0;
+    }
+    .md-chip {
+        max-width: 200px;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+    }
+    .md-text-field-label {
+        margin-top: -24px;
+    }
 }

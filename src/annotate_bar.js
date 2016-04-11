@@ -5,9 +5,10 @@ import Sidebar from 'react-md/lib/Sidebars'
 import Toolbar from 'react-md/lib/Toolbars'
 import { List, ListItem, ListItemControl } from 'react-md/lib/Lists'
 import { Radio, RadioGroup } from 'react-md/lib/SelectionControls'
-import { RaisedButton } from 'react-md/lib/Buttons'
+import { RaisedButton, FlatButton, IconButton } from 'react-md/lib/Buttons'
 import TextField from 'react-md/lib/TextFields'
 import FontIcon from 'react-md/lib/FontIcons'
+import Chip from 'react-md/lib/Chips'
 
 import Types from './types'
 import { actions as accountActions, default as accountStore } from './account_store'
@@ -42,7 +43,7 @@ export default React.createClass({
       annotation.type === 'new' ?
       "Annotieren" : "Ändern"
     return (
-        <Sidebar isOpen={open} align='right' responsive={true} fixed={true}
+      <Sidebar className="annotate-bar" isOpen={open} align='right' responsive={true} fixed={true}
           header={
               <Toolbar primary={true} title={title}
                   style={{ marginTop: "48px" }}
@@ -80,25 +81,23 @@ class TypesMenu extends React.Component {
                                  />}
               />)
         if (type.metadata && annotation && annotation.type == type.id) {
-          nested.push(
-            ...type.metadata.map((keyName, k) => (
-              <ListItem key="detail"
-                  style={{ backgroundColor }}>
-                <TypeMetadata key={`${j}-${k}`}
-                    keyName={keyName} value={annotation && annotation[keyName]}
-                    text={annotation && annotation.text}
-                    onUpdate={value => this.props.onMetadata(keyName, value)}
-                    />
-              </ListItem>
-            ))
-          )
+          type.metadata.forEach((keyName, k) => {
+            nested.push(
+              <TypeMetadata key={`metadata-${keyName}`}
+                  style={{ backgroundColor }}
+                  keyName={keyName} value={annotation && annotation[keyName]}
+                  text={annotation && annotation.text}
+                  onUpdate={value => this.props.onMetadata(keyName, value)}
+                  />
+            )
+          })
         }
       })
       list.push(
         <ListItem key={i}
             primaryText={category.title}
             nestedItems={nested}
-            initiallyOpen={true}
+            isOpen={true} rightIcon={<span/>}
             />
       )
     })
@@ -124,7 +123,6 @@ class TypesMenu extends React.Component {
   }
 
   onChange(value) {
-    console.log("onChange", value)
     if (this.props.onType) {
       this.props.onType(value)
     }
@@ -141,6 +139,113 @@ const METADATA_LABELS = {
 }
 
 class TypeMetadata extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      filterText: "",
+      suggestions: []
+    }
+  }
+
+  componentDidMount() {
+    if (!this.props.value) {
+      this.handleFilterTextUpdate(this.props.text)
+    }
+  }
+
+  handleFilterTextUpdate(text) {
+    this.setState({
+      filterText: text,
+      loading: true
+    })
+
+    fetchMetadataSuggestions(this.props.keyName, text)
+      .then(suggestions => {
+        this.setState({ loading: false, suggestions })
+      })
+      .catch(e => {
+        console.error(e.stack)
+        
+        this.setState({ loading: false })
+      })
+  }
+  
+  render() {
+    let value = this.props.value
+    if (value && value.id) {
+      /* Render the current value */
+      return (
+        <ListItem disabled={true}
+            style={Object.assign({ textAlign: 'center' }, this.props.style)}
+            primaryText={
+              <Chip label={value.label}
+                  remove={() => this.handleRemove()}
+                  >
+              </Chip>}
+            />
+      )
+    } else {
+      let suggestionItems = []
+      this.state.suggestions.forEach(suggestion => {
+        let onClick = () => this.handleSelectSuggestion(suggestion)
+        suggestionItems.push(
+          <ListItem key={suggestion.id} style={this.props.style}
+              onClick={onClick}
+              leftIcon={
+                <IconButton onClick={onClick}>
+                  done
+                </IconButton>
+              }
+              primaryText={suggestion.label}
+              />
+        )
+      })
+      
+      /* Render a list of suggestions */
+      return (
+        <ListItem style={this.props.style}
+            primaryText={
+              <TextField type="search" icon={<FontIcon>search</FontIcon>}
+                  value={this.state.filterText}
+                  onChange={value => this.handleFilterTextUpdate(value)}
+                  />
+            }
+            isOpen={true} rightIcon={<span/>}
+            nestedItems={suggestionItems}
+            />
+      )
+    }
+  }
+
+  handleSelectSuggestion(suggestion) {
+    this.props.onUpdate(suggestion)
+  }
+  
+  handleRemove() {
+    this.props.onUpdate(null)
+  }
+}
+
+function fetchMetadataSuggestions(key, text) {
+  return fetch(`/api/suggest/${key}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: text })
+  })
+    .then(res => res.json())
+    .then(suggestions => suggestions.map(suggestion => {
+      let s = suggestion.name
+      if (suggestion.shortName) s = `${suggestion.shortName}: ${s}`
+      if (suggestion.status) s = `${s} (${suggestion.status})`
+      return {
+        id: suggestion.id,
+        label: s
+      }
+    }))
+}
+
+class OldTypeMetadata extends React.Component {
   constructor(props) {
     super(props)
 

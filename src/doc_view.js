@@ -311,10 +311,12 @@ export default React.createClass({
       // HACK: don't hide annotate_bar before currentAnnotation has
       // been converted into a permanent one
       setTimeout(() => {
-        // Drop temporary annotation for previous user selection
-        this.setState({
-          currentAnnotation: null
-        })
+        if (this.state.currentAnnotation && this.state.currentAnnotation.type === 'new') {
+          // Drop temporary annotation for previous user selection
+          this.setState({
+            currentAnnotation: null
+          })
+        }
       }, 300)
     }
   },
@@ -400,6 +402,10 @@ export default React.createClass({
       // Add the metadata:
       annotation[key] = value
       annotateActions.updateAnnotation(this.props.id, annotation)
+
+      this.setState({
+        currentAnnotation: annotation
+      })
     }
   },
 
