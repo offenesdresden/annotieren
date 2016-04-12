@@ -3,12 +3,12 @@ let TYPES = [
     color: (type, i) => `hsl(30, ${80 + 5 * i}%, ${60 + 15 * i}%)`,
     types: [
       { id: 'doc.originator',
-        title: "Herausgeber",
+        title: "Herausgeber/-in",
         hint: "Von wem kommts?",
         metadata: ['person']
       },
       { id: 'doc.recipient',
-        title: "Empfänger",
+        title: "Empfänger/-in",
         hint: "An jemanden gerichtet?",
         metadata: ['person']
       }
@@ -73,7 +73,7 @@ let TYPES = [
         title: "Beschlusskontrolle",
       },
       { id: 'paper.info',
-        title: "Information",
+        title: "Allgemeine Information",
       }
     ]
   },
