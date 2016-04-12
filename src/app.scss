@@ -18,12 +18,20 @@ html, body {
     z-index: 1000;
 }
 
+.md-text-field-container {
+    input.md-text-field:not(.multi-line) {
+        height: 35px;
+        padding-top: 25px;
+        padding-bottom: 12px;
+    }
+}
+
 .md-headline, .md-title {
     height: 2em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 56em;
+    max-width: 52em;
 }
 
 /* Don't squish avatars */
@@ -51,7 +59,7 @@ html, body {
     justify-content: flex-end;
 }
 .md-card-actions > .action-area > * {
-    margin-left: 2em;
+    margin-left: 1em;
 }
 
 .md-toolbar {
@@ -63,24 +71,45 @@ html, body {
     }
     .md-title {
         flex-grow: 1;
+        line-height: 50px;
     }
     .md-btn {
         line-height: 40px;
     }
 }
 .annotate-bar {
-    .md-list .md-list-tile {
+    .md-toolbar {
+        .md-title {
+            line-height: 64px;
+            padding-left: 16px;
+        }
+    }
+    .md-list {
         padding: 0 !important;
+        .md-list-tile {
+            padding: 0 !important;
+        }
     }
     .md-tile-content.icon-offset {
         margin-left: 0;
     }
     .md-chip {
-        max-width: 200px;
+        max-width: 172px;
         overflow-x: hidden;
         text-overflow: ellipsis;
     }
     .md-text-field-label {
-        margin-top: -24px;
+        margin-top: -8px;
+    }
+}
+.md-chip-container {
+    .md-icon.material-icons {
+        font-size: 32px;
+    }
+    .md-chip {
+        padding: 8px 2px;
+    }
+    .md-chip-remove {
+        margin: 0 8px 0 0;
     }
 }

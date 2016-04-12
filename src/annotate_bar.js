@@ -10,6 +10,7 @@ import TextField from 'react-md/lib/TextFields'
 import FontIcon from 'react-md/lib/FontIcons'
 import Chip from 'react-md/lib/Chips'
 
+import PaperAvatar from './paper_avatar'
 import Types from './types'
 import { actions as accountActions, default as accountStore } from './account_store'
 
@@ -94,7 +95,7 @@ class TypesMenu extends React.Component {
         }
       })
       list.push(
-        <ListItem key={i}
+        <ListItem key={i} disabled={true}
             primaryText={category.title}
             nestedItems={nested}
             isOpen={true} rightIcon={<span/>}
@@ -154,6 +155,12 @@ class TypeMetadata extends React.Component {
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.filterText && nextProps.text) {
+      this.handleFilterTextUpdate(nextProps.text)
+    }
+  }
+
   handleFilterTextUpdate(text) {
     this.setState({
       filterText: text,
@@ -174,14 +181,38 @@ class TypeMetadata extends React.Component {
   render() {
     let value = this.props.value
     if (value && value.id) {
+      let chipContent
+      switch(this.props.keyName) {
+      case 'person':
+        chipContent = <FontIcon>face</FontIcon>
+        break
+      case 'meeting':
+        chipContent = <FontIcon>event</FontIcon>
+        break
+      case 'organization':
+        chipContent = <FontIcon>group work</FontIcon>
+        break
+      case 'file':
+        chipContent = <FontIcon>description</FontIcon>
+        break
+      case 'paper':
+        chipContent = <PaperAvatar paper={value}/>
+        break
+      case 'geolocation':
+        chipContent = <FontIcon>place</FontIcon>
+        break
+      default:
+        chipContent = []
+      }
       /* Render the current value */
       return (
         <ListItem disabled={true}
             style={Object.assign({ textAlign: 'center' }, this.props.style)}
             primaryText={
-              <Chip label={value.label}
+              <Chip label={getMetadataLabel(value)}
                   remove={() => this.handleRemove()}
                   >
+                {chipContent}
               </Chip>}
             />
       )
@@ -197,7 +228,8 @@ class TypeMetadata extends React.Component {
                   done
                 </IconButton>
               }
-              primaryText={suggestion.label}
+              primaryText={suggestion.shortName || suggestion.name}
+              secondaryText={suggestion.shortName ? suggestion.name : null}
               />
         )
       })
@@ -227,6 +259,13 @@ class TypeMetadata extends React.Component {
   }
 }
 
+function getMetadataLabel(metadata) {
+  let label = metadata.name
+  if (metadata.shortName) label = `${metadata.shortName}: ${label}`
+  if (metadata.status) label = `${label} (${metadata.status})`
+  return label
+}
+
 function fetchMetadataSuggestions(key, text) {
   return fetch(`/api/suggest/${key}`, {
     method: 'POST',
@@ -235,111 +274,12 @@ function fetchMetadataSuggestions(key, text) {
   })
     .then(res => res.json())
     .then(suggestions => suggestions.map(suggestion => {
-      let s = suggestion.name
-      if (suggestion.shortName) s = `${suggestion.shortName}: ${s}`
-      if (suggestion.status) s = `${s} (${suggestion.status})`
       return {
         id: suggestion.id,
-        label: s
+        name: suggestion.name,
+        shortName: suggestion.shortName,
+        status: suggestion.status,
+        label: getMetadataLabel(suggestion)
       }
     }))
-}
-
-class OldTypeMetadata extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      byLabel: {},
-      labels: [],
-      label: "",
-      input: ""
-    }
-  }
-
-  // TODO:
-  // * suggest from context (other files in this session, session participants)
-  // * suggest from other annotations ("Die Oberbürgermeisterin" maps to the same person)
-  _fetchSuggestions(text) {
-    // Query with current input or, if empty, annotation text
-    let keyName = this.props.keyName
-    fetch(`/api/suggest/${keyName}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: text })
-    })
-      .then(res => res.json())
-      .then(suggestions => {
-        let byLabel = {}
-        let labels = suggestions.map(suggestion => {
-          let s = suggestion.name
-          if (suggestion.shortName) s = `${suggestion.shortName}: ${s}`
-          if (suggestion.status) s = `${s} (${suggestion.status})`
-          byLabel[s] = suggestion.id
-          return s
-        })
-        this.setState({
-          byLabel: byLabel,
-          labels: labels
-        })
-
-        let input
-        if (!this.state.label && (input = labels[0])) {
-          // Nothing yet, input the first suggestion and trigger updateAnnotation
-          this.setState({ input }, () => this.handleUpdateInput(input))
-        }
-      })
-  }
-
-  componentDidMount() {
-    if (this.props.value) {
-      // Copy metadata value if already existing
-      this.setState({
-        id: this.props.value.id,
-        label: this.props.value.label,
-        input: this.props.value.label
-      })
-    }
-
-    // Initialize suggestions from annotation text
-    this._fetchSuggestions(this.props.text)
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    if (this.props.value !== nextProps.value || this.props.text !== nextProps.text) {
-      // Reset & reinit
-      this.setState({
-        id: null,
-        label: null
-      }, () => this.componentDidMount())
-    }
-  }
-
-  handleUpdateInput(label) {
-    let id = this.state.byLabel[label]
-
-    this.setState({ id, label }, () => {
-      if (!id) {
-        // Update suggestions from text input
-        this._fetchSuggestions(label)
-      }
-      this.props.onUpdate({ id, label })
-    })
-  }
-
-  render() {
-    return (
-      <div>
-        <TextField placeholder={METADATA_LABELS[this.props.keyName]}
-            searchText={this.state.input}
-            dataSource={this.state.labels}
-            onUpdateInput={label => this.handleUpdateInput(label)}
-            onNewRequest={label => this.handleUpdateInput(label)}
-            filter={(searchText, key) => true}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            fullWidth={true}
-            />
-      </div>
-    )
-  }
 }

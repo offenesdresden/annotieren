@@ -3,7 +3,7 @@ import React from 'react'
 import Avatar from 'react-md/lib/Avatars'
 
 
-export default class PaperView extends React.Component {
+export default class PaperAvatar extends React.Component {
   render() {
     let paper = this.props.paper
     let shortName = paper.shortName || ""

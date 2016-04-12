@@ -58,15 +58,29 @@ export default React.createClass({
   },
 
   render() {
-    return (
-      <div style={{ maxWidth: "60em", margin: "0 auto" }}>
-        {this.state.loading ?
-          <CircularProgress scale={2}/> :
-          this.state.results.map((result, i) =>
+    if (this.state.loading) {
+      return (
+        <div style={{ maxWidth: "60em", margin: "0 auto" }}>
+          <CircularProgress scale={2}/>
+        </div>
+      )
+    } else if (this.state.results.length > 0) {
+      return (
+        <div style={{ maxWidth: "60em", margin: "0 auto" }}>
+          {this.state.results.map((result, i) =>
             <SearchResult key={i} {...result}/>
           )}
-      </div>
-    )
+        </div>
+      )
+    } else {
+      return (
+        <div style={{ maxWidth: "60em", margin: "0 auto" }}>
+          <h4 style={{ color: '#888', textAlign: 'center' }}>
+            Nichts gefunden
+          </h4>
+        </div>
+      )
+    }
   },
 })
 
@@ -95,6 +109,7 @@ class Meeting extends React.Component {
     return (
       <Card style={{ marginBottom: "1em" }}>
         <CardTitle
+            avatar={<FontIcon>event</FontIcon>}
             title={this.props.name}
             subtitle={`${this.props.shortName} ${this.props.start}`}
             />
@@ -107,7 +122,7 @@ class Meeting extends React.Component {
                ))
             }
             {this.props.agendaItem &&
-             [<Subheader secondary={true} primaryText="Tagesordnung"/>]
+             [<Subheader primary={true} primaryText="Tagesordnung"/>]
              .concat(this.props.agendaItem.map((item, i) =>
                 <ListItem
                     key={i}
@@ -116,18 +131,12 @@ class Meeting extends React.Component {
                     leftAvatar={(item.number && item.number.length <= 2) ?
                       <Avatar>{item.number}</Avatar> :
                       <span>{item.number}</span>
-                    }>
-                  <div>
-                    {item.name}
-                  </div>
-                  {(findFilesInObject(item).length > 0) && (
-                    <List>
-                      {findFilesInObject(item).map(id =>
-                        <FileItem key={id} id={id}/>
-                      )}
-                    </List>
-                  )}
-                </ListItem>
+                    }
+                    primaryText={item.name}
+                    nestedItems={findFilesInObject(item).map(id =>
+                      <FileItem key={id} id={id}/>
+                    )}
+                    />
              ))}
           </List>
         </CardText>
@@ -254,6 +263,7 @@ class MeetingItem extends React.Component {
 
     return (
       <ListItem disabled={true}
+          leftIcon={<FontIcon>event</FontIcon>}
           primaryText={meeting.name}
           secondaryText={iso8601ToDate(meeting.start)}
           />
