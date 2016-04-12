@@ -13,6 +13,7 @@
 # TODO
 
 * Ideas:
+  * Update to Reactv15
   * Annotate Bar: always open, show hints
   * Front page: well annotated papers, recent non-annotated
   * Per person summaries
@@ -28,7 +29,6 @@
   * mediaquery: don't center doc_text in narrow windows
   * doc_view: metadata/context?
   * paper view: more info, more pretty, maps
-  * Consistent themeing
   * Provide raw exports
   * Favicon
   * location metadata with map
