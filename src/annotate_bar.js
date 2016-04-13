@@ -56,7 +56,7 @@ export default React.createClass({
                   style={{ marginTop: "48px" }}
                   />}
           >
-        <TypesMenu key={annotation && annotation.id}
+        <TypesMenu
             currentAnnotation={annotation}
             onType={this.props.onType} onDelete={this.props.onDelete}
             onMetadata={this.props.onMetadata}

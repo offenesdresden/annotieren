@@ -214,7 +214,7 @@ class FileCard extends React.Component {
           isInitialExpanded={this.props.isInitialExpanded}
           >
         <CardTitle
-          title={file.name || "Unbenannt.PDF"}
+          title={file.name || ""}
           titleStyle={{ fontWeight: 'bold' }}
           subtitle={this.props.role}
           isExpander={true}
