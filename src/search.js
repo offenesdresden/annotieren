@@ -15,7 +15,7 @@ export default class Search extends React.Component {
   
   render() {
     return (
-      <form style={{textAlign: "center", padding: "32px 4px"}} onSubmit={ev => this.handleSubmit(ev)}>
+      <form className="search" onSubmit={ev => this.handleSubmit(ev)}>
         <TextField placeholder="Dokumente suchen"
             onChange={value => this.handleChange(value)}
             type="search"

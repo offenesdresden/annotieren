@@ -95,7 +95,7 @@ class TypesMenu extends React.Component {
         }
       })
       list.push(
-        <ListItem key={i} disabled={true}
+        <ListItem key={i} disabled={true} className="type-category"
             primaryText={category.title}
             nestedItems={nested}
             isOpen={true} rightIcon={<span/>}
@@ -220,6 +220,7 @@ class TypeMetadata extends React.Component {
       let suggestionItems = []
       this.state.suggestions.forEach(suggestion => {
         let onClick = () => this.handleSelectSuggestion(suggestion)
+
         suggestionItems.push(
           <ListItem key={suggestion.id} style={this.props.style}
               onClick={onClick}
@@ -229,7 +230,7 @@ class TypeMetadata extends React.Component {
                 </IconButton>
               }
               primaryText={suggestion.shortName || suggestion.name}
-              secondaryText={suggestion.shortName ? suggestion.name : null}
+              secondaryText={suggestion.shortName ? suggestion.name : suggestion.status}
               />
         )
       })

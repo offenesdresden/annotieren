@@ -3,7 +3,7 @@ let TYPES = [
     color: (type, i) => `hsl(30, ${80 + 5 * i}%, ${60 + 15 * i}%)`,
     types: [
       { id: 'doc.originator',
-        title: "Herausgeber/-in",
+        title: "Autor/-in",
         hint: "Von wem kommts?",
         metadata: ['person']
       },

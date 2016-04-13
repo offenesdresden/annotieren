@@ -18,11 +18,16 @@ html, body {
     z-index: 1000;
 }
 
-.md-text-field-container {
-    input.md-text-field:not(.multi-line) {
-        height: 35px;
-        padding-top: 25px;
-        padding-bottom: 12px;
+.search {
+    text-align: center;
+    padding: 32px 4px;
+    
+    .md-text-field-container {
+        input.md-text-field:not(.multi-line) {
+            height: 35px;
+            padding-top: 25px;
+            padding-bottom: 12px;
+        }
     }
 }
 
@@ -88,6 +93,15 @@ html, body {
         padding: 0 !important;
         .md-list-tile {
             padding: 0 !important;
+        }
+        .type-category .md-tile-primary-text {
+            font-size: 15px;
+            padding-left: 12px;
+        }
+        .md-list-item {
+            .md-tile-secondary-text {
+                color: #666;
+            }
         }
     }
     .md-tile-content.icon-offset {
