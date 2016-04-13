@@ -37,8 +37,13 @@ export default React.createClass({
   },
 
   render() {
+    if (!this.state.username) {
+      console.log("AnnotateBar.render", this.state.username)
+      return this.renderLoginPrompt()
+    }
+
     let annotation = this.props.currentAnnotation
-    let open = !!this.state.username && !!annotation
+    let open = !!annotation
     console.log("AnnotateBar.open:", open)
     let title = annotation &&
       annotation.type === 'new' ?
@@ -55,6 +60,30 @@ export default React.createClass({
             onType={this.props.onType} onDelete={this.props.onDelete}
             onMetadata={this.props.onMetadata}
             />
+      </Sidebar>
+    )
+  },
+
+  renderLoginPrompt() {
+    return (
+        <Sidebar className="annotate-bar" align='right' responsive={true} fixed={true} isOpen={true}
+          header={
+              <Toolbar primary={true} title="Bearbeiten…"
+                  style={{ marginTop: "48px" }}
+                  />}
+          >
+        <aside>
+          <p style={{ margin: "1em 0.5em" }}>
+            Um Annotationen erstellen oder bearbeiten zu können,
+            solltest du dich einloggen.
+          </p>
+          <div style={{ textAlign: 'right', marginTop: "3em" }}>
+            <p style={{ fontSize: "90%", color: '#888', margin: "0" }}>
+              Noch keinen Account?
+            </p>
+            <RaisedButton label="Registrieren…" secondary={true} onClick={this.handleRegister} href="/register"/>
+          </div>
+        </aside>
       </Sidebar>
     )
   }
@@ -173,11 +202,11 @@ class TypeMetadata extends React.Component {
       })
       .catch(e => {
         console.error(e.stack)
-        
+
         this.setState({ loading: false })
       })
   }
-  
+
   render() {
     let value = this.props.value
     if (value && value.id) {
@@ -234,7 +263,7 @@ class TypeMetadata extends React.Component {
               />
         )
       })
-      
+
       /* Render a list of suggestions */
       return (
         <ListItem style={this.props.style}
@@ -254,7 +283,7 @@ class TypeMetadata extends React.Component {
   handleSelectSuggestion(suggestion) {
     this.props.onUpdate(suggestion)
   }
-  
+
   handleRemove() {
     this.props.onUpdate(null)
   }
