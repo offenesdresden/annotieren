@@ -6,6 +6,7 @@ import { Card, CardTitle, CardActions, CardText } from 'react-md/lib/Cards'
 import { RaisedButton } from 'react-md/lib/Buttons'
 import { CircularProgress } from 'react-md/lib/Progress'
 
+import { RaisedLinkButton } from './link_button'
 import PaperAvatar from './paper_avatar'
 import { getTypeById } from './types'
 import { getPersonParty } from './parties'
@@ -85,11 +86,7 @@ export default class PaperView extends React.Component {
             actionLeft={
               <PaperAvatar paper={paper}/>
             }
-            title={
-              <span style={{ whiteSpace: 'pre-wrap' }} title={paper.name}>
-                {paper.name}
-              </span>
-            }
+            title={paper.name}
             actionRight={
               <p style={{ margin: "16px 0 0", fontSize: "80%", color: 'white' }}>
                 {iso8601ToDate(paper.publishedDate)}
@@ -217,7 +214,7 @@ class FileCard extends React.Component {
           isInitialExpanded={this.props.isInitialExpanded}
           >
         <CardTitle
-          title={file.name}
+          title={file.name || "Unbenannt.PDF"}
           titleStyle={{ fontWeight: 'bold' }}
           subtitle={this.props.role}
           isExpander={true}
