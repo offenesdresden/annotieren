@@ -18,8 +18,11 @@
   * Front page: well annotated papers, recent non-annotated
   * Per person summaries
 * Frontend:
-  * LinkButton
+  * fix search css in firefox
+  * paper_view: render all the types
   * search: query in url
+  * frontpage: recent annotated papers, recent papers, user scoreboard (creates, updated paper.ids, updated refs)
+  * location metadata with map
   * paper_view: ref.paper with no id, just text
   * create annotations: auto-rm white-space
   * doc_text: progressive loading
@@ -31,7 +34,6 @@
   * paper view: more info, more pretty, maps
   * Provide raw exports
   * Favicon
-  * location metadata with map
   * paper_view optimization: /api/file/241251/annotations/${paper.id}
   * search: completion
   * paper_view: more like this
