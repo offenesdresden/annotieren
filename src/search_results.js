@@ -10,7 +10,7 @@ import Avatar from 'react-md/lib/Avatars'
 import FontIcon from 'react-md/lib/FontIcons'
 import { CircularProgress } from 'react-md/lib/Progress'
 
-
+import { RaisedLinkButton } from './link_button'
 import { actions as searchActions } from './search_store'
 import PaperAvatar from './paper_avatar'
 
@@ -178,9 +178,8 @@ class Paper extends React.Component {
           </List>
         </CardText>
         <CardActions>
-          <RaisedButton label="Vorlage lesen" primary={true}
-              onClick={() => Route.go(`/paper/${encodeURIComponent(paper.id)}`)}
-              />
+          <RaisedLinkButton label="Vorlage lesen" primary={true}
+              href={`/paper/${encodeURIComponent(paper.id)}`}/>
         </CardActions>
       </Card>
     )
@@ -235,9 +234,8 @@ class File extends React.Component {
           </List>
         </CardText>
         <CardActions style={{ textAlign: 'right' }}>
-          <RaisedButton label="Text Annotieren" primary={true}
-              onClick={ev => Route.go(`/file/${encodeURIComponent(this.props.id)}`)}
-              />
+          <RaisedLinkButton label="Text Annotieren" primary={true}
+              href={`/file/${encodeURIComponent(this.props.id)}`}/>
           <RaisedButton label="Original-PDF" secondary={true}
               href={this.props.downloadUrl}
               />

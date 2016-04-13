@@ -7,6 +7,7 @@ import TextField from 'react-md/lib/TextFields'
 import { RaisedButton } from 'react-md/lib/Buttons'
 import { CircularProgress } from 'react-md/lib/Progress'
 
+import { RaisedLinkButton } from './link_button'
 import { actions as accountActions } from './account_store'
 
 
@@ -47,7 +48,8 @@ export default React.createClass({
           <p style={{ fontSize: "90%", color: '#888', margin: "0" }}>
             Noch keinen Account?
           </p>
-          <RaisedButton label="Registrieren…" secondary={true} onClick={this.handleRegister}/>
+          <RaisedLinkButton label="Registrieren…" secondary={true}
+              href="/register" onBeforeRoute={() => this.props.onClose()}/>
         </div>
       </Dialog>
     )
@@ -84,11 +86,5 @@ export default React.createClass({
       error: e.message,
       loading: false
     })
-  },
-
-  handleRegister() {
-    this.props.onClose()
-
-    Route.go("/register")
   }
 })

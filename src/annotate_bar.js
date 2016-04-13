@@ -10,6 +10,7 @@ import TextField from 'react-md/lib/TextFields'
 import FontIcon from 'react-md/lib/FontIcons'
 import Chip from 'react-md/lib/Chips'
 
+import { RaisedLinkButton } from './link_button'
 import PaperAvatar from './paper_avatar'
 import Types from './types'
 import { actions as accountActions, default as accountStore } from './account_store'
@@ -81,7 +82,7 @@ export default React.createClass({
             <p style={{ fontSize: "90%", color: '#888', margin: "0" }}>
               Noch keinen Account?
             </p>
-            <RaisedButton label="Registrieren…" secondary={true} onClick={this.handleRegister} href="/register"/>
+            <RaisedLinkButton label="Registrieren…" secondary={true} href="/register"/>
           </div>
         </aside>
       </Sidebar>

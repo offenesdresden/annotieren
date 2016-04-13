@@ -226,9 +226,8 @@ class FileCard extends React.Component {
           <FileDetails file={file} paper={this.props.paper}/>
         </CardText>
         <CardActions>
-          <RaisedButton label="Text Annotieren" primary={true}
-              onClick={ev => Route.go(`/file/${encodeURIComponent(file.id)}`)}
-              />
+          <RaisedLinkButton label="Text Annotieren" primary={true}
+              href={`/file/${encodeURIComponent(file.id)}`}/>
           <RaisedButton label="Original-PDF" secondary={true}
               href={file.downloadUrl}
               />
