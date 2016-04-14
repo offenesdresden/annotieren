@@ -34,7 +34,12 @@ class Main extends React.Component {
             <Navigation for="/"/>
 
             <Search/>
-            <SearchResults/>
+          </Route>
+          <Route path="/s/">
+            <SearchRoute/>
+          </Route>
+          <Route path="/s/:query*">
+            <SearchRoute/>
           </Route>
           <Route path="/register">
             <Navigation/>
@@ -48,6 +53,20 @@ class Main extends React.Component {
             <PaperRoute/>
           </Route>
         </div>
+      </div>
+    )
+  }
+}
+
+class SearchRoute extends React.Component {
+  render() {
+    let query = this.props.params.query
+    return (
+      <div>
+        <Navigation/>
+
+        <Search query={query}/>
+        <SearchResults query={query}/>
       </div>
     )
   }

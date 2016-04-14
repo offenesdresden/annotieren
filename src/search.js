@@ -1,22 +1,33 @@
 import React from 'react'
+import Route from 'react-route'
 
 import TextField from 'react-md/lib/TextFields'
 import { RaisedButton } from 'react-md/lib/Buttons'
 import FontIcon from 'react-md/lib/FontIcons'
 
-import { actions as searchActions } from './search_store'
-
 
 export default class Search extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {query: ""}
+
+    this.state = {
+      query: this.props.query || ""
+    }
   }
-  
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.query !== this.props.query) {
+      this.setState({
+        query: nextProps.query
+      })
+    }
+  }
+
   render() {
     return (
       <form className="search" onSubmit={ev => this.handleSubmit(ev)}>
         <TextField placeholder="Dokumente suchen"
+            value={this.state.query}
             onChange={value => this.handleChange(value)}
             type="search"
             onEnterKeyDown={ev => this.handleSubmit(ev)}
@@ -38,6 +49,6 @@ export default class Search extends React.Component {
   handleSubmit(ev) {
     ev.preventDefault()
     
-    searchActions.search(this.state.query)
+    Route.go(`/s/${encodeURI(this.state.query)}`)
   }
 }

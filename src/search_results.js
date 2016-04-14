@@ -35,7 +35,13 @@ export default React.createClass({
 
   componentDidMount() {
     // Start an empty search on startup
-    searchActions.search("")
+    searchActions.search(this.props.query)
+  },
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.query !== this.props.query) {
+      searchActions.search(nextProps.query)
+    }
   },
 
   onSearch() {

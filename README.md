@@ -20,7 +20,6 @@
 * Frontend:
   * fix search css in firefox
   * paper_view: render all the types
-  * search: query in url
   * frontpage: recent annotated papers, recent papers, user scoreboard (creates, updated paper.ids, updated refs)
   * location metadata with map
   * paper_view: ref.paper with no id, just text
