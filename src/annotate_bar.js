@@ -76,8 +76,13 @@ export default React.createClass({
         <aside>
           <p style={{ margin: "1em 0.5em" }}>
             Um Annotationen erstellen oder bearbeiten zu können,
-            solltest du dich einloggen.
+            solltest du dich einloggen. Dann kannst du einfach:
           </p>
+          <ol>
+            <li>Text markieren</li>
+            <li>Anklicken was das für ein Text ist</li>
+            <li>Optional mit Bestandsdaten verknüpfen</li>
+          </ol>
           <div style={{ textAlign: 'right', marginTop: "3em" }}>
             <p style={{ fontSize: "90%", color: '#888', margin: "0" }}>
               Noch keinen Account?
