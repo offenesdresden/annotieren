@@ -701,8 +701,8 @@ module.exports = function(conf) {
   app.use(sessions({
     cookieName: 'session',
     secret: getOrGenerateSessionSecret(),
-    duration: 24 * 60 * 60 * 1000, // how long the session will stay valid in ms
-    activeDuration: 1000 * 60 * 5, // if expiresIn < activeDuration, the session will be extended by activeDuration milliseconds
+    duration: 90 * 24 * 60 * 60 * 1000, // how long the session will stay valid in ms
+    activeDuration: 365 * 24 * 60 * 60 * 1000, // if expiresIn < activeDuration, the session will be extended by activeDuration milliseconds
     cookie: {
       path: '/api', // cookie will only be sent to requests under '/api'
       ephemeral: false, // when true, cookie expires when the browser closes
