@@ -4,6 +4,7 @@ var fs = require('fs')
 var express = require('express')
 var through = require('through2')
 var elasticsearch = require('elasticsearch')
+var ElasticsearchScrollStream = require('../../../elasticsearch-scroll-stream')
 var bodyParser = require('body-parser')
 var bcrypt = require('bcrypt')
 var sessions = require('client-sessions')
@@ -208,6 +209,37 @@ class API {
         })
         res.write(err.message.toString())
       }
+      res.end()
+    })
+  }
+
+  getRecent(type, res) {
+    this.elasticsearch.search({
+      index: 'oparl',
+      type: type,
+      body: {
+        query: {
+          match_all: {}
+        },
+        sort: [
+          { publishedDate: "desc" },  // type Paper
+          { start: "desc" }  // type Meeting
+          // { date: "desc" }  // type File
+        ]
+      }
+    }).then(toHitsSources)
+    .then(body => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      })
+      res.write(JSON.stringify(body))
+      res.end()
+    }, err => {
+      console.log("ES search:", err.stack)
+      res.writeHead(500, {
+        'Content-Type': 'text/plain'
+      })
+      res.write(err.message.toString())
       res.end()
     })
   }
@@ -535,6 +567,113 @@ class API {
       httpError.write(err, res)
     })
   }
+
+  getMostAnnotatedPapers(res) {
+    this.elasticsearch.search({
+      index: 'annotations',
+      type: 'text',
+      body: {
+        size: 0,
+        aggs: {
+          files: {
+            filter: {
+              or: [{
+                term: {
+                  type: 'paper.reference'
+                }
+              }, {
+                term: {
+                  type: 'paper.name'
+                }
+              }]
+            }
+          },
+          files: {
+            terms: {
+              field: 'paper.id',
+              size: 20,
+              order: { _count: 'desc' }
+            }
+          }
+        }
+      }
+    }).then(result =>
+      result.aggregations.files.buckets.map(bucket => bucket.key)
+    ).then(body => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      })
+      res.write(JSON.stringify(body))
+      res.end()
+    }, err => {
+      console.log("ES agg:", err.stack)
+      httpError.write(err, res)
+    })
+  }
+
+  getRecentAnnotated(key, res) {
+    res.writeHead(200, {
+      'Content-Type': 'application/json'
+    })
+
+    let src = new ElasticsearchScrollStream(this.elasticsearch, {
+      index: 'annotations',
+      type: 'text',
+      scroll: '10s',
+      fields: [key, 'created'],
+      body: {
+        query: {
+          match_all: {}
+        },
+        sort: [
+          { created: 'desc' }
+        ]
+      }
+    }, [], {
+      objectMode: true
+    })
+
+    let seen = {}
+    let n = 0
+    src.pipe(through.obj(function(data, enc, cb) {
+      let value = data[key]
+      if (Array.isArray(value)) {
+        value = value[0]
+      }
+
+      if (!value) {
+        // Ignore the irrelevant
+        return cb()
+      }
+
+      if (seen.hasOwnProperty(value)) {
+        // Ignore duplicate key value
+        return cb()
+      }
+      seen[value] = true
+
+      if (n < 20) {
+        n += 1
+        cb(null, {
+          [key]: value,
+          created: Array.isArray(data.created) ? data.created[0] : data.created
+        })
+      } else if (n == 20) {
+        // Cease reading from ES
+        src.unpipe()
+        // Push EOF
+        this.push(null)
+        n += 1
+        cb()
+      } else {
+        console.log("extraneously streamed:", n)
+        n += 1
+        cb()
+      }
+    }))
+      .pipe(toJsonArray())
+      .pipe(res)
+  }
 }
 
 const SESSION_KEY_PATH = `${__dirname}/../session.key`
@@ -633,6 +772,15 @@ module.exports = function(conf) {
     })
     res.write(JSON.stringify({}))
     res.end()
+  })
+  app.get('/papers/recent', (req, res) => {
+    api.getRecent('Paper', res)
+  })
+  app.get('/files/recent/annotations', (req, res) => {
+    api.getRecentAnnotated('fileId', res)
+  })
+  app.get('/papers/most/annotations', (req, res) => {
+    api.getMostAnnotatedPapers(res)
   })
   app.get('/search/', (req, res) => {
     api.searchDocs("", res)
