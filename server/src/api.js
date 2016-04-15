@@ -19,7 +19,13 @@ const SEARCH_TYPES = ['Meeting', 'Paper', 'File']
 
 
 function toHitsSources(result) {
-  return result.hits.hits.map(hit => hit._source)
+  return result.hits.hits.map(hit => {
+    let src = hit._source
+    if (src.type === oparlType('File')) {
+      delete src.text
+    }
+    return src
+  })
 }
 
 // Reorder blocks in a page by vertical, then horizontal position
@@ -178,6 +184,12 @@ class API {
       type: type,
       id: id
     }).then(result => {
+      // If ES was populated with an automatic mapping, do not return
+      // useless full text to clients:
+      if (result._source.type === oparlType('File')) {
+        delete result._source.text
+      }
+
       res.writeHead(200, {
         'Content-Type': 'application/json'
       })
