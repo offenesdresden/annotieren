@@ -274,7 +274,11 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
           })
         })
       } else {
-        cb(null, data)
+        // Save text for auxiliary use
+        let txtPath = data.path.replace(/\.json$/, ".txt")
+        fs.writeFile(txtPath, data.json.text, function(err) {
+          cb(err, data)
+        })
       }
   }))
   .pipe(through.obj((data, enc, cb) => {
