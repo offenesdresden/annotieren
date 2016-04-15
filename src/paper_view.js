@@ -478,7 +478,7 @@ class AnnotationPart extends React.Component {
       // Remove trailing spaces
       .replace(/ +\n/g, "\n")
       // Join hyphenations
-      .replace(/([a-zäöüß])-\n([a-zäöüß])/g, (match, s1, s2) => `${s1}\u00AD\u00AD${s2}`)
+      .replace(/([a-zäöüß])-\n([a-zäöüß])/g, (match, s1, s2) => `${s1}\u00AD${s2}`)
       // Join single line breaks that are followed by words
       .replace(/([^\n])\n *([A-Za-zÄÖÜäöüẞß]{2,})/g, (match, s1, s2) => `${s1} ${s2}`)
 
@@ -644,21 +644,31 @@ class PaperRef extends React.Component {
   }
 
   componentDidMount() {
-    fetch(`/api/oparl/paper/${this.props.paper.id}`)
-      .then(res => res.json())
-      .then(paper => this.setState({ paper }))
+    if (this.props.paper && this.props.paper.id) {
+      fetch(`/api/oparl/paper/${this.props.paper.id}`)
+        .then(res => res.json())
+        .then(paper => this.setState({ paper }))
+    } else {
+    }
   }
 
   render() {
     let paper = this.state.paper
     if (!paper) return <div/>
 
-    return (
+    return paper ? (
       <div style={{ margin: '0 0 0.5em 1em', padding: "0.5em", backgroundColor: 'white' }}>
-        <PaperAvatar paper={paper} style={{ display: 'inline-block', verticalAlign: 'top' }}/>
-        <p style={{ display: 'inline-block', verticalAlign: 'middle', margin: "0", whiteSpace: 'pre-wrap', cursor: 'pointer' }}
+        <PaperAvatar paper={paper} style={{ float: 'left', verticalAlign: 'top' }}/>
+        <p style={{ verticalAlign: 'middle', margin: "0", whiteSpace: 'pre-wrap', cursor: 'pointer' }}
             onClick={() => Route.go(`/paper/${this.props.paper.id}`)}>
           {paper.name}
+        </p>
+      </div>
+    ) : (
+      <div style={{ margin: '0 0 0.5em 1em', padding: "0.5em", backgroundColor: 'white' }}>
+        <PaperAvatar paper={{ shortName: "?" }} style={{ float: 'left', verticalAlign: 'top' }}/>
+        <p style={{ verticalAlign: 'middle', margin: "0", whiteSpace: 'pre-wrap' }}>
+          {this.props.text}
         </p>
       </div>
     )
