@@ -248,30 +248,19 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
       if (/\/File$/.test(data.json.type) &&
           (!data.json.text ||
            (data.json.text && !/\S/.test(data.json.text)))) {
-        // No characters in text? Fixup with pdftotext:
 
-        let pdfPath = data.path.replace(/\.json$/, ".pdf")
-        let t1 = Date.now()
-        pdftotext(pdfPath, (err, txtPath) => {
-          if (err) {
-            console.log("pdftotext error: " + err.message)
-            return cb(null, data)
-          }
+        // No characters in text? Fixup with pdftotext result:
+        let txtPath = data.path.replace(/\.json$/, ".txt")
+        fs.readFile(txtPath, {
+          encoding: 'utf8'
+        }, (err, text) => {
+          if (err || !text) return cb()
 
-          let t2 = Date.now()
-          console.log(`pdftotext [${t2 - t1}ms] ${pdfPath}`)
-
-          fs.readFile(txtPath, {
-            encoding: 'utf8'
-          }, (err, text) => {
-            if (err) return cb(err)
-
-            // Keep for indexing
-            data.json.text = text.replace(/\f/g, "\n")
-            // Generate processHtml-compatible HTML
-            let htmlPath = data.path.replace(/\.json$/, ".html")
-            writeHtml(text, htmlPath, err => cb(err, data))
-          })
+          // Keep for indexing
+          data.json.text = text.replace(/\f/g, "\n")
+          // Generate processHtml-compatible HTML
+          let htmlPath = data.path.replace(/\.json$/, ".html")
+          writeHtml(text, htmlPath, err => cb(err, data))
         })
       } else {
         cb(null, data)
