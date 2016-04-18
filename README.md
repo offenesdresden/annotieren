@@ -13,23 +13,21 @@
 # TODO
 
 * Ideas:
+  * Navigation: as toolbar with Home, Current context, Logout
+  * location metadata with map
   * Update to Reactv15
-  * Annotate Bar: always open, show hints
-  * Front page: well annotated papers, recent non-annotated
   * Per person summaries
 * Frontend:
-  * fix search css in firefox
   * paper_view: render all the types
-  * frontpage: recent annotated papers, recent papers, user scoreboard (creates, updated paper.ids, updated refs)
-  * location metadata with map
-  * paper_view: ref.paper with no id, just text
+  * paper_view: show all refs if file pertains only to this paper
   * create annotations: auto-rm white-space
+  * annotate_bar: fix hint suggestion text
   * doc_text: progressive loading
   * paper_view: more refs, inline, render refs per paragraph
   * Fix: display of stacked annotations with equal begin offset
   * Cycle thru stack o' annotations by repeated clicking
   * mediaquery: don't center doc_text in narrow windows
-  * doc_view: metadata/context?
+  * doc_view: metadata/context? eg. agendaItems
   * paper view: more info, more pretty, maps
   * Provide raw exports
   * Favicon
