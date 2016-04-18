@@ -193,7 +193,7 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
   }))
   .pipe(through.obj((data, enc, cb) => {
     // pdftohtml for Files
-    if (/\/File$/.test(data.json.type) && data.mimeType == MIME_PDF) {
+    if (/\/File$/.test(data.json.type) && data.json.mimeType == MIME_PDF) {
       let pdfPath = data.path.replace(/\.json$/, ".pdf")
       let htmlPath = pdfPath.replace(/\.pdf$/i, ".html")
       fs.access(htmlPath, err => {
@@ -247,7 +247,7 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
   }))
   .pipe(through.obj((data, enc, cb) => {
     if (/\/File$/.test(data.json.type) &&
-        data.mimeType == MIME_PDF &&
+        data.json.mimeType == MIME_PDF &&
         (!data.json.text ||
          (data.json.text && !/\S/.test(data.json.text)))) {
 
