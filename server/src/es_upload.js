@@ -246,26 +246,27 @@ child_process.spawn("/usr/bin/env", ["find", CONF.scrapeData, "-name", "*.json",
     }
   }))
   .pipe(through.obj((data, enc, cb) => {
-      if (/\/File$/.test(data.json.type) &&
-          (!data.json.text ||
-           (data.json.text && !/\S/.test(data.json.text)))) {
+    if (/\/File$/.test(data.json.type) &&
+        data.mimeType == MIME_PDF &&
+        (!data.json.text ||
+         (data.json.text && !/\S/.test(data.json.text)))) {
 
-        // No characters in text? Fixup with pdftotext result:
-        let txtPath = data.path.replace(/\.json$/, ".txt")
-        fs.readFile(txtPath, {
-          encoding: 'utf8'
-        }, (err, text) => {
-          if (err || !text) return cb()
+      // No characters in text? Fixup with pdftotext result:
+      let txtPath = data.path.replace(/\.json$/, ".txt")
+      fs.readFile(txtPath, {
+        encoding: 'utf8'
+      }, (err, text) => {
+        if (err || !text) return cb()
 
-          // Keep for indexing
-          data.json.text = text.replace(/\f/g, "\n")
-          // Generate processHtml-compatible HTML
-          let htmlPath = data.path.replace(/\.json$/, ".html")
-          writeHtml(text, htmlPath, err => cb(err, data))
-        })
-      } else {
-        cb(null, data)
-      }
+        // Keep for indexing
+        data.json.text = text.replace(/\f/g, "\n")
+        // Generate processHtml-compatible HTML
+        let htmlPath = data.path.replace(/\.json$/, ".html")
+        writeHtml(text, htmlPath, err => cb(err, data))
+      })
+    } else {
+      cb(null, data)
+    }
   }))
   .pipe(through.obj((data, enc, cb) => {
     // Actually, we only send the JSON to ES, not the paths
