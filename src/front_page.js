@@ -13,7 +13,7 @@ import iso8601ToDate from './iso8601_to_date'
 export default class Main extends React.Component {
   render() {
     let cardStyle = {
-      flex: "1 1 30em",
+      flex: "1 1 35em",
       overflowX: 'hidden'
     }
 
@@ -33,6 +33,13 @@ export default class Main extends React.Component {
         </Card>
 
         <Card style={cardStyle}>
+          <CardTitle title="Gut annotierte Vorgänge"/>
+          <CardText>
+            <MostAnnotatedPapers/>
+          </CardText>
+        </Card>
+
+        <Card style={cardStyle}>
           <CardTitle title="Zuletzt annotierte Dokumente"/>
           <CardText>
             <RecentAnnotatedFiles/>
@@ -40,12 +47,11 @@ export default class Main extends React.Component {
         </Card>
 
         <Card style={cardStyle}>
-          <CardTitle title="Gut annotierte Vorgänge"/>
+          <CardTitle title="Highscore"/>
           <CardText>
-            <MostAnnotatedPapers/>
+            <MostAnnotatingUsers/>
           </CardText>
         </Card>
-
       </div>
     )
   }
@@ -54,6 +60,34 @@ export default class Main extends React.Component {
 class RecentPapers extends React.Component {
   componentDidMount() {
     fetch("/api/papers/recent")
+      .then(res => res.json())
+      .then(results => {
+        this.setState({
+          papers: results
+        })
+      })
+  }
+
+  render() {
+    if (this.state && this.state.papers) {
+      return (
+        <List>
+          {this.state.papers.map(paper => <PaperItem key={paper.id} {...paper}/> )}
+        </List>
+      )
+    } else {
+      return (
+        <div style={{ margin: "2em auto" }}>
+          <CircularProgress/>
+        </div>
+      )
+    }
+  }
+}
+
+class MostAnnotatedPapers extends React.Component {
+  componentDidMount() {
+    fetch("/api/papers/most/annotations")
       .then(res => res.json())
       .then(results => {
         this.setState({
@@ -107,22 +141,41 @@ class RecentAnnotatedFiles extends React.Component {
   }
 }
 
-class MostAnnotatedPapers extends React.Component {
+class MostAnnotatingUsers extends React.Component {
   componentDidMount() {
-    fetch("/api/papers/most/annotations")
+    fetch("/api/users/top/annotations")
       .then(res => res.json())
       .then(results => {
         this.setState({
-          papers: results
+          users: results
         })
       })
   }
 
   render() {
-    if (this.state && this.state.papers) {
+    let userIcon = user => {
+      let { annotationsCreated } = user
+      if (annotationsCreated < 5) {
+        return 'pool'
+      } else if (annotationsCreated < 25) {
+        return 'directions_walk'
+      } else if (annotationsCreated < 1000) {
+        return 'directions_run'
+      } else {
+        return 'directions_bike'
+      }
+    }
+
+    if (this.state && this.state.users) {
       return (
         <List>
-          {this.state.papers.map(paper => <PaperItem key={paper.id} {...paper}/> )}
+          {this.state.users.map(user => (
+            <ListItem disabled={true}
+                leftIcon={<FontIcon>{userIcon(user)}</FontIcon>}
+                primaryText={user.name}
+                secondaryText={`${user.annotationsCreated} Annotationen erstellt`}
+                />
+          ))}
         </List>
       )
     } else {

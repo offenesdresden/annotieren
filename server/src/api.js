@@ -586,19 +586,22 @@ class API {
                   type: 'paper.name'
                 }
               }]
-            }
-          },
-          files: {
-            terms: {
-              field: 'paper.id',
-              size: RESULT_SIZE,
-              order: { _count: 'desc' }
+            },
+            aggs: {
+              files: {
+                terms: {
+                  field: 'paper.id',
+                  size: RESULT_SIZE,
+                  order: { _count: 'desc' }
+                }
+              }
             }
           }
         }
       }
     }).then(result =>
-      result.aggregations.files.buckets.map(bucket => bucket.key)
+      result.aggregations.files.files.buckets
+          .map(bucket => bucket.key)
     ).then(paperIds =>
       // Get full papers for each id
       Promise.all(
@@ -610,6 +613,43 @@ class API {
           }).then(result => result._source)
         )
       )
+    ).then(body => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      })
+      res.write(JSON.stringify(body))
+      res.end()
+    }, err => {
+      console.log("ES agg:", err.stack)
+      httpError.write(err, res)
+    })
+  }
+
+  getMostAnnotatingUsers(res) {
+    this.elasticsearch.search({
+      index: 'annotations',
+      type: 'text',
+      body: {
+        size: 0,
+        aggs: {
+          users: {
+            terms: {
+              field: 'createdBy',
+              size: RESULT_SIZE,
+              order: { _count: 'desc' }
+            }
+          }
+        }
+      }
+    }).then(result =>
+      result.aggregations.users.buckets
+        .filter(bucket => bucket.doc_count > 0)
+        .map(bucket => {
+          return {
+            name: bucket.key,
+            annotationsCreated: bucket.doc_count
+          }
+        })
     ).then(body => {
       res.writeHead(200, {
         'Content-Type': 'application/json'
@@ -802,6 +842,9 @@ module.exports = function(conf) {
   })
   app.get('/papers/most/annotations', (req, res) => {
     api.getMostAnnotatedPapers(res)
+  })
+  app.get('/users/top/annotations', (req, res) => {
+    api.getMostAnnotatingUsers(res)
   })
   app.get('/search/', (req, res) => {
     api.searchDocs("", res)
