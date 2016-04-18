@@ -80,7 +80,7 @@ export default class PaperView extends React.Component {
     pushFileCards(paper.auxiliaryFile)
 
     return (
-      <div style={{ maxWidth: "60em", margin: "0 auto" }}>
+      <div className="paper-view" style={{ maxWidth: "60em", margin: "0 auto" }}>
         <Toolbar
             primary={true}
             actionLeft={
@@ -240,7 +240,9 @@ class FileDetails extends React.Component {
     super(props)
 
     this.state = {
-      parts: []
+      parts: [],
+      originators: [],
+      recipients: []
     }
   }
 
@@ -279,11 +281,13 @@ class FileDetails extends React.Component {
       (a.begin !== b.begin) ?
       (a.begin - b.begin) :
       (/^ref/.test(b.type) ? -1 : (a.end - b.end))
-                                  )
+    )
     // TODO: if less then two different paper.{reference,name}, don't reduce:
     .reduce((results, annotation) => {
       // Then, restrict to this paper up until next one
-      if (this.props.paper &&
+      if (/^doc\./.test(annotation.type)) {
+        results.push(annotation)
+      } else if (this.props.paper &&
           (annotation.type === 'paper.reference' || annotation.type === 'paper.name')) {
         inPaperChapter = annotation.paper &&
           (annotation.paper.id === this.props.paper.id)
@@ -307,6 +311,8 @@ class FileDetails extends React.Component {
       parts.push(annotation)
     }
 
+    let originators = []
+    let recipients = []
     let prevSpeaker = null
     for(var annotation of annotations) {
       let prevPart = (parts.length > 0) ? parts[parts.length - 1] : null
@@ -317,6 +323,13 @@ class FileDetails extends React.Component {
       }
 
       switch(annotation.type) {
+
+      case 'doc.originator':
+        originators.push(annotation)
+        break
+      case 'doc.recipient':
+        recipients.push(annotation)
+        break
 
       case 'paper.intro':
       case 'paper.inquiry':
@@ -432,7 +445,7 @@ class FileDetails extends React.Component {
     // Pick marked for removal
     parts = parts.filter(part => !!part.type)
 
-    this.setState({ parts }, cb)
+    this.setState({ parts, originators, recipients }, cb)
   }
 
   render() {
@@ -457,8 +470,21 @@ class FileDetails extends React.Component {
         </h4>
       )
     } else {
+      let type = getTypeById('doc.originator')
       return (
         <article>
+          <div className="addrs" style={{
+            flex: "1 1 25em",
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'nowrap',
+            borderLeft: `4px solid ${type ? type.color : 'white'}`
+          }}>
+            {this.renderAddrs("Von:", 'left', this.state.originators)}
+            {this.renderAddrs("An:", 'right', this.state.recipients)}
+          </div>
           {parts.map(part =>
                      (part.type == 'vote' ?
                       <Vote key={part.id} {...part}/> :
@@ -466,6 +492,39 @@ class FileDetails extends React.Component {
                      ))}
         </article>
       )
+    }
+  }
+
+  // TODO: must load person for photo
+  renderAddrs(label, float, addrs) {
+    if (addrs.length > 0) {
+      // Uniquify:
+      let seen = {}
+      addrs = addrs.filter(addr => {
+        let key = addr.person ? addr.person.id : addr.text
+        if (seen.hasOwnProperty(key)) {
+          return false
+        } else {
+          seen[key] = true
+          return true
+        }
+      })
+
+      return (
+        <div style={{ margin: "0 1em 0.5em" }}>
+          <h4>{label}</h4>
+          {addrs.map(addr =>
+            <p key={addr.id}>
+              {(addr.person && addr.person.photo) ?
+               <img src={person.photo} style={{ width: "96px", float: float, margin: "0 0.1em 0.2em 0" }}/> :
+               ""}
+              {addr.person ? addr.person.name : addr.text}
+            </p>
+          )}
+        </div>
+      )
+    } else {
+      return <div/>
     }
   }
 }
