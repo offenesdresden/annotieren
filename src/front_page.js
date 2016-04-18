@@ -1,0 +1,170 @@
+import React from 'react'
+import Route from 'react-route'
+
+import { Card, CardTitle, CardText } from 'react-md/lib/Cards'
+import { List, ListItem } from 'react-md/lib/Lists'
+import { CircularProgress } from 'react-md/lib/Progress'
+import FontIcon from 'react-md/lib/FontIcons'
+
+import PaperAvatar from './paper_avatar'
+import iso8601ToDate from './iso8601_to_date'
+
+
+export default class Main extends React.Component {
+  render() {
+    let cardStyle = {
+      flex: "1 1 30em",
+      overflowX: 'hidden'
+    }
+
+    return (
+      <div className="md-card-list front-page" style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            flexWrap: 'wrap'
+          }}>
+        <Card style={cardStyle}>
+          <CardTitle title="Neueste Anfragen und Vorlagen"/>
+          <CardText>
+            <RecentPapers/>
+          </CardText>
+        </Card>
+
+        <Card style={cardStyle}>
+          <CardTitle title="Zuletzt annotierte Dokumente"/>
+          <CardText>
+            <RecentAnnotatedFiles/>
+          </CardText>
+        </Card>
+
+        <Card style={cardStyle}>
+          <CardTitle title="Gut annotierte Vorgänge"/>
+          <CardText>
+            <MostAnnotatedPapers/>
+          </CardText>
+        </Card>
+
+      </div>
+    )
+  }
+}
+
+class RecentPapers extends React.Component {
+  componentDidMount() {
+    fetch("/api/papers/recent")
+      .then(res => res.json())
+      .then(results => {
+        this.setState({
+          papers: results
+        })
+      })
+  }
+
+  render() {
+    if (this.state && this.state.papers) {
+      return (
+        <List>
+          {this.state.papers.map(paper => <PaperItem key={paper.id} {...paper}/> )}
+        </List>
+      )
+    } else {
+      return (
+        <div style={{ margin: "2em auto" }}>
+          <CircularProgress/>
+        </div>
+      )
+    }
+  }
+}
+
+class RecentAnnotatedFiles extends React.Component {
+  componentDidMount() {
+    fetch("/api/files/recent/annotations")
+      .then(res => res.json())
+      .then(results => {
+        this.setState({
+          files: results
+        })
+      })
+  }
+
+  render() {
+    if (this.state && this.state.files) {
+      return (
+        <List>
+          {this.state.files.map(file => <FileItem key={file.id} {...file}/> )}
+        </List>
+      )
+    } else {
+      return (
+        <div style={{ margin: "2em auto" }}>
+          <CircularProgress/>
+        </div>
+      )
+    }
+  }
+}
+
+class MostAnnotatedPapers extends React.Component {
+  componentDidMount() {
+    fetch("/api/papers/most/annotations")
+      .then(res => res.json())
+      .then(results => {
+        this.setState({
+          papers: results
+        })
+      })
+  }
+
+  render() {
+    if (this.state && this.state.papers) {
+      return (
+        <List>
+          {this.state.papers.map(paper => <PaperItem key={paper.id} {...paper}/> )}
+        </List>
+      )
+    } else {
+      return (
+        <div style={{ margin: "2em auto" }}>
+          <CircularProgress/>
+        </div>
+      )
+    }
+  }
+}
+
+class PaperItem extends React.Component {
+  render() {
+    let paper = this.props
+    let primary = paper.name
+    let secondary = iso8601ToDate(paper.publishedDate)
+    if (paper.paperType) {
+      secondary += `, ${paper.paperType}`
+    }
+
+    return (
+      <ListItem
+          leftIcon={<PaperAvatar paper={paper} style={{ color: 'white' }}/>}
+          primaryText={primary}
+          secondaryText={secondary}
+          onClick={() => Route.go(`/paper/${encodeURIComponent(paper.id)}`)}
+          />
+    )
+  }
+}
+
+class FileItem extends React.Component {
+  render() {
+    let file = this.props
+
+    return (
+      <ListItem
+          primaryText={file.name}
+          leftIcon={<FontIcon>description</FontIcon>}
+          onClick={ev => Route.go(`/file/${encodeURIComponent(this.props.id)}`)}
+          />
+    )
+  }
+}

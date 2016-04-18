@@ -13,6 +13,7 @@ import { CircularProgress } from 'react-md/lib/Progress'
 import { RaisedLinkButton } from './link_button'
 import { actions as searchActions } from './search_store'
 import PaperAvatar from './paper_avatar'
+import iso8601ToDate from './iso8601_to_date'
 
 
 const TYPE_MEETING = "https://oparl.org/schema/1.0/Meeting"
@@ -365,13 +366,4 @@ function findFilesInObject(obj) {
     }
   }
   return results
-}
-
-function iso8601ToDate(iso8601) {
-  let m
-  if (iso8601 && (m = iso8601.match(/(\d{4})-(\d\d)-(\d\d)/))) {
-    return `${m[3]}.${m[2]}.${m[1]}`
-  } else {
-    return "?"
-  }
 }

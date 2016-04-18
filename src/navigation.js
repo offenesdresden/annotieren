@@ -8,7 +8,7 @@ import { actions as accountActions, default as accountStore } from './account_st
 import Login from './login'
 
 
-const TAB_SEARCH = 0
+const TAB_FRONT = 0
 const TAB_LOGIN = 1
 const TAB_LOGOUT = 1
 
@@ -34,7 +34,7 @@ export default React.createClass({
     let tab = null
     switch(this.props.for) {
     case "/":
-      tab = TAB_SEARCH
+      tab = TAB_FRONT
       break
     }
 
@@ -65,7 +65,7 @@ export default React.createClass({
             }}
             >
 
-          <Tab label="Suchen" children={[]}/>
+          <Tab label="Übersicht" children={[]}/>
 
           {!this.state.username ?
            <Tab id='login' label="Login" children={[]}/> :
@@ -92,7 +92,7 @@ export default React.createClass({
     })
 
     switch(value) {
-    case TAB_SEARCH:
+    case TAB_FRONT:
       Route.go("/")
       break
     case TAB_LOGOUT:

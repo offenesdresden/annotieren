@@ -10,6 +10,7 @@ import Navigation from './navigation'
 import Register from './register'
 import Search from './search'
 import SearchResults from './search_results'
+import FrontPage from './front_page'
 import DocView from './doc_view'
 import PaperView from './paper_view'
 
@@ -34,6 +35,7 @@ class Main extends React.Component {
             <Navigation for="/"/>
 
             <Search/>
+            <FrontPage/>
           </Route>
           <Route path="/s/">
             <SearchRoute/>

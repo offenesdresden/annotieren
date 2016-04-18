@@ -8,25 +8,11 @@ export default class PaperAvatar extends React.Component {
     let paper = this.props.paper
     let shortName = paper.shortName || ""
 
+    let suffix = shortName ? `paper-${shortName[0]}` : null
     return (
-      <Avatar title={shortName}
-          style={{ backgroundColor: paperShortNameToColor(shortName) }}
-          {...this.props}
-          >
+      <Avatar title={shortName} suffix={suffix} {...this.props}>
         {shortName[0]}
       </Avatar>
     )
-  }
-}
-  
-function paperShortNameToColor(id) {
-  if (/^V/.test(id)) {
-    return '#707'
-  } else if (/^A/.test(id)) {
-    return '#77f'
-  } else if (id) {
-    return '#7f7'
-  } else {
-    return '#666'
   }
 }

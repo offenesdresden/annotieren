@@ -17,7 +17,7 @@ function oparlType(type) {
 }
 
 const SEARCH_TYPES = ['Meeting', 'Paper', 'File']
-
+const RESULT_SIZE = 10
 
 function toHitsSources(result) {
   return result.hits.hits.map(hit => {
@@ -591,7 +591,7 @@ class API {
           files: {
             terms: {
               field: 'paper.id',
-              size: 20,
+              size: RESULT_SIZE,
               order: { _count: 'desc' }
             }
           }
@@ -599,6 +599,17 @@ class API {
       }
     }).then(result =>
       result.aggregations.files.buckets.map(bucket => bucket.key)
+    ).then(paperIds =>
+      // Get full papers for each id
+      Promise.all(
+        paperIds.map(paperId =>
+          this.elasticsearch.get({
+            index: 'oparl',
+            type: 'Paper',
+            id: paperId
+          }).then(result => result._source)
+        )
+      )
     ).then(body => {
       res.writeHead(200, {
         'Content-Type': 'application/json'
@@ -611,16 +622,17 @@ class API {
     })
   }
 
-  getRecentAnnotated(key, res) {
+  getRecentAnnotatedFiles(res) {
     res.writeHead(200, {
       'Content-Type': 'application/json'
     })
 
-    let src = new ElasticsearchScrollStream(this.elasticsearch, {
+    let elasticsearch = this.elasticsearch
+    let src = new ElasticsearchScrollStream(elasticsearch, {
       index: 'annotations',
       type: 'text',
       scroll: '10s',
-      fields: [key, 'created'],
+      fields: ['fileId', 'created'],
       body: {
         query: {
           match_all: {}
@@ -636,29 +648,38 @@ class API {
     let seen = {}
     let n = 0
     src.pipe(through.obj(function(data, enc, cb) {
-      let value = data[key]
-      if (Array.isArray(value)) {
-        value = value[0]
+      let fileId = data.fileId
+      if (Array.isArray(fileId)) {
+        fileId = fileId[0]
       }
 
-      if (!value) {
+      if (!fileId) {
         // Ignore the irrelevant
         return cb()
       }
 
-      if (seen.hasOwnProperty(value)) {
-        // Ignore duplicate key value
+      if (seen.hasOwnProperty(fileId)) {
+        // Ignore duplicate fileId
         return cb()
       }
-      seen[value] = true
+      seen[fileId] = true
 
-      if (n < 20) {
+      if (n < RESULT_SIZE) {
         n += 1
-        cb(null, {
-          [key]: value,
-          created: Array.isArray(data.created) ? data.created[0] : data.created
-        })
-      } else if (n == 20) {
+        elasticsearch.get({
+          index: 'oparl',
+          type: 'File',
+          id: fileId
+        }).then(
+          result => {
+            let file = result._source
+            delete file.text
+            file.lastAnnotationCreated = data.created
+            cb(null, file)
+          },
+          e => cb(e)
+        )
+      } else if (n == RESULT_SIZE) {
         // Cease reading from ES
         src.unpipe()
         // Push EOF
@@ -777,7 +798,7 @@ module.exports = function(conf) {
     api.getRecent('Paper', res)
   })
   app.get('/files/recent/annotations', (req, res) => {
-    api.getRecentAnnotated('fileId', res)
+    api.getRecentAnnotatedFiles(res)
   })
   app.get('/papers/most/annotations', (req, res) => {
     api.getMostAnnotatedPapers(res)

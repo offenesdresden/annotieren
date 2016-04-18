@@ -82,6 +82,23 @@ html, body {
         line-height: 40px;
     }
 }
+
+.front-page {
+    .md-card-title {
+        justify-content: center;
+    }
+    .md-headline {
+        height: auto;
+    }
+    .md-card-text {
+        padding-top: 0;
+    }
+    .md-tile-primary-text {
+        font-weight: bold;
+        color: #333;
+    }
+}
+
 .annotate-bar {
     .md-toolbar {
         .md-title {
@@ -138,4 +155,14 @@ html, body {
     .md-chip-remove {
         margin: 0 8px 0 0;
     }
+}
+
+.md-avatar-paper-V .md-avatar-content {
+    background-color: #707;
+}
+.md-avatar-paper-A .md-avatar-content {
+    background-color: #33c;
+}
+.md-avatar-paper-m .md-avatar-content {
+    background-color: #373;
 }
