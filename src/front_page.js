@@ -170,7 +170,7 @@ class MostAnnotatingUsers extends React.Component {
       return (
         <List>
           {this.state.users.map(user => (
-            <ListItem disabled={true}
+            <ListItem key={user.name} disabled={true}
                 leftIcon={<FontIcon>{userIcon(user)}</FontIcon>}
                 primaryText={user.name}
                 secondaryText={`${user.annotationsCreated} Annotationen erstellt`}
