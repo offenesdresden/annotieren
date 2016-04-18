@@ -21,7 +21,7 @@ export default class Main extends React.Component {
       <div className="md-card-list front-page" style={{
             display: 'flex',
             flexDirection: 'row',
-            justifyContent: 'center',
+            justifyContent: 'space-between',
             alignItems: 'flex-start',
             flexWrap: 'wrap'
           }}>
