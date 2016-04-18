@@ -2,6 +2,10 @@ let TYPES = [
   { title: "Dokument",
     color: (type, i) => `hsl(30, ${80 + 5 * i}%, ${60 + 15 * i}%)`,
     types: [
+      { id: 'doc.date',
+        title: "Datum",
+        hint: "Zeitpunkt der Herausgabe/Veröffentlichung"
+      },
       { id: 'doc.originator',
         title: "Autor/-in",
         hint: "Von wem kommts?",
@@ -14,21 +18,21 @@ let TYPES = [
       }
     ]
   },
-  { title: "Sitzung",
-    color: (type, i) => `hsl(225, ${50 + 10 * i}%, ${70 + 10 * i}%)`,
-    types: [
-      { id: 'meeting.participant',
-        title: "Teilnehmer/-in",
-        hint: "Wer war da?",
-        metadata: ['person']
-      },
-      { id: 'meeting.absent',
-        title: "Abwesend",
-        hint: "Wer fehlte?",
-        metadata: ['person']
-      }
-    ]
-  },
+  // { title: "Sitzung",
+  //   color: (type, i) => `hsl(225, ${50 + 10 * i}%, ${70 + 10 * i}%)`,
+  //   types: [
+  //     { id: 'meeting.participant',
+  //       title: "Teilnehmer/-in",
+  //       hint: "Wer war da?",
+  //       metadata: ['person']
+  //     },
+  //     { id: 'meeting.absent',
+  //       title: "Abwesend",
+  //       hint: "Wer fehlte?",
+  //       metadata: ['person']
+  //     }
+  //   ]
+  // },
   { title: "Vorlage/Anfrage",
     color: (type, i) => `hsl(120, 60%, ${65 + 15 * i}%)`,
     types: [
