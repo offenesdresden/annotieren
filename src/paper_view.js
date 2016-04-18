@@ -208,6 +208,23 @@ class FileCard extends React.Component {
 
   render() {
     let file = this.state.file || this.props.file
+    let details
+    if (file.mimeType == 'application/pdf') {
+      details = <CardText expandable={true} style={{
+            backgroundColor: "#fafafa"
+          }}>
+        <FileDetails file={file} paper={this.props.paper}/>
+      </CardText>
+    } else {
+      details = <CardText expandable={true} style={{
+            textAlign: 'center',
+            padding: "0 !important"
+          }}>
+        <img style={{ maxWidth: "100%" }}
+            src={file.downloadUrl}
+            />
+      </CardText>
+    }
 
     return (
       <Card style={{ margin: "1em auto", maxWidth: "60em" }}
@@ -217,11 +234,9 @@ class FileCard extends React.Component {
           title={file.name || ""}
           titleStyle={{ fontWeight: 'bold' }}
           subtitle={this.props.role}
-          isExpander={true}
+          isExpander={!!details}
           />
-        <CardText expandable={true} style={{ backgroundColor: "#f7f7f7" }}>
-          <FileDetails file={file} paper={this.props.paper}/>
-        </CardText>
+        {details || <div/>}
         <CardActions>
           <RaisedLinkButton label="Text Annotieren" primary={true}
               href={`/file/${encodeURIComponent(file.id)}`}/>
