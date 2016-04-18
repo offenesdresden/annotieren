@@ -225,7 +225,7 @@ class TypeMetadata extends React.Component {
         chipContent = <FontIcon>event</FontIcon>
         break
       case 'organization':
-        chipContent = <FontIcon>group work</FontIcon>
+        chipContent = <FontIcon>group</FontIcon>
         break
       case 'file':
         chipContent = <FontIcon>description</FontIcon>
