@@ -55,6 +55,12 @@ class Main extends React.Component {
             <PaperRoute/>
           </Route>
         </div>
+
+        <p className="footer">
+          <a href="http://offenesdresden.de/">OffenesDresden.de</a>
+          •
+          <a href="https://github.com/offenesdresden/annotieren">Fork on GitHub</a>
+        </p>
       </div>
     )
   }
