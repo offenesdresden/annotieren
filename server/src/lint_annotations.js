@@ -256,7 +256,7 @@ function fixAnnotationOffset(annotation, text, cb) {
     delete annotation._id
     req.body = annotation
     if (writing) {
-      elasticsearch.index(req, cb)
+      elasticsearch.index(req, err => cb(err))
     } else {
       cb()
     }
@@ -270,5 +270,5 @@ function deleteAnnotation(annotation, cb) {
     index: 'annotations',
     type: 'text',
     id: annotation._id
-  }, cb)
+  }, err => cb(err))
 }
