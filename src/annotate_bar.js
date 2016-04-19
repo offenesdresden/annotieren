@@ -264,6 +264,7 @@ class TypeMetadata extends React.Component {
                   done
                 </IconButton>
               }
+              title={suggestion.name}
               primaryText={suggestion.shortName || suggestion.name}
               secondaryText={suggestion.shortName ? suggestion.name : suggestion.status}
               />

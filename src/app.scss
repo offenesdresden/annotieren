@@ -14,10 +14,10 @@ html, body {
 .footer {
     margin: 2em auto 0;
     text-align: center;
-    color: #ccc;
+    color: #999;
     a {
-        color: #ccc;
-        padding: 0 2em;
+        color: #999;
+        padding: 0 1em;
     }
 }
 
@@ -47,7 +47,6 @@ html, body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 52em;
 }
 
 /* Don't squish avatars */
@@ -179,12 +178,18 @@ html, body {
 }
 
 .paper-view {
+    .md-card-title .titles {
+        max-width: 100%;
+    }
     .addrs {
         h4 {
             margin: 0;
         }
         p {
             margin: 0;
+        }
+        img {
+            margin: 2px;
         }
     }
 }

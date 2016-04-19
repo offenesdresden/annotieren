@@ -497,8 +497,8 @@ class FileDetails extends React.Component {
             flexWrap: 'nowrap',
             borderLeft: `4px solid ${type ? type.color : 'white'}`
           }}>
-            {this.renderAddrs("Von:", 'left', this.state.originators)}
-            {this.renderAddrs("An:", 'right', this.state.recipients)}
+            {this.renderAddrs("Von:", this.state.originators)}
+            {this.renderAddrs("An:", this.state.recipients)}
           </div>
           {parts.map(part =>
                      (part.type == 'vote' ?
@@ -510,8 +510,7 @@ class FileDetails extends React.Component {
     }
   }
 
-  // TODO: must load person for photo
-  renderAddrs(label, float, addrs) {
+  renderAddrs(label, addrs) {
     if (addrs.length > 0) {
       // Uniquify:
       let seen = {}
@@ -528,19 +527,64 @@ class FileDetails extends React.Component {
       return (
         <div style={{ margin: "0 1em 0.5em" }}>
           <h4>{label}</h4>
-          {addrs.map(addr =>
-            <p key={addr.id}>
-              {(addr.person && addr.person.photo) ?
-               <img src={person.photo} style={{ width: "96px", float: float, margin: "0 0.1em 0.2em 0" }}/> :
-               ""}
-              {addr.person ? addr.person.name : addr.text}
-            </p>
-          )}
+          {addrs.map(addr => <Addr key={addr.id} {...addr}/> )}
         </div>
       )
     } else {
       return <div/>
     }
+  }
+}
+
+class Addr extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+    }
+  }
+
+  componentDidMount() {
+    if (this.props.person && this.props.person.id) {
+      fetch(`/api/oparl/person/${this.props.person.id}`)
+        .then(res => res.json())
+        .then(person => {
+          let party = getPersonParty(person)
+          this.setState({ person, party })
+        })
+    }
+  }
+
+  render() {
+    let annotation = this.props
+    let person = this.state.person || this.props.person
+    let party = this.state.party
+    let style = party ? {
+      color: 'white',
+      backgroundColor: `rgb(${party.rgb})`
+    } : {}
+
+    return (
+      <div key={annotation.id} style={style}>
+        {(person && person.photo) ?
+         <img src={person.photo}
+             style={{
+               width: "96px",
+               display: 'inline-block',
+               margin: "0 0.1em 0.2em 0",
+               verticalAlign: 'top'
+             }}/> :
+         ""}
+        <div style={{ display: 'inline-block', verticalAlign: 'top' }}>
+          <p>
+            {person ? person.name : annotation.text}
+          </p>
+          {party &&
+           <p>{party.name}</p>
+          }
+        </div>
+      </div>
+    )
   }
 }
 
