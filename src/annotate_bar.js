@@ -83,7 +83,7 @@ export default React.createClass({
             <li>Anklicken was das für ein Text ist</li>
             <li>Optional mit Bestandsdaten verknüpfen</li>
           </ol>
-          <div style={{ textAlign: 'right', marginTop: "3em" }}>
+          <div style={{ marginTop: "3em" }}>
             <p style={{ fontSize: "90%", color: '#888', margin: "0" }}>
               Noch keinen Account?
             </p>
