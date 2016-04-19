@@ -18,15 +18,14 @@
   * Update to Reactv15
   * Per person summaries
 * Frontend:
-  * paper_view: render all the types
+  * annotate_bar: delete button in top toolbar
   * paper_view: show all refs if file pertains only to this paper
   * create annotations: auto-rm white-space
-  * annotate_bar: fix hint suggestion text
+  * annotate_bar: fix hint suggestion search input overwriting
   * doc_text: progressive loading
   * paper_view: more refs, inline, render refs per paragraph
   * Fix: display of stacked annotations with equal begin offset
   * Cycle thru stack o' annotations by repeated clicking
-  * mediaquery: don't center doc_text in narrow windows
   * doc_view: metadata/context? eg. agendaItems
   * paper view: more info, more pretty, maps
   * Provide raw exports
@@ -35,6 +34,7 @@
   * search: completion
   * paper_view: more like this
 * Backend:
+  * Find stale annotations that were created prior text reordering
   * Cache headers for production
   * journaling
   * annotations aggregations by file for pretty badges
