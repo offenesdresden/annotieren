@@ -4,24 +4,50 @@ var fs = require('fs')
 var through = require('through2')
 var elasticsearch = require('elasticsearch')
 var ElasticsearchScrollStream = require('elasticsearch-scroll-stream')
-var levenshtein = require('levenshtein-edit-distance');
+var levenshtein = require('levenshtein-sse');
 var htmlProcess = require('./html_process')
 var CONF = require('../config.js')
+
+let fileIds = []
+let writing = false
+for(let arg of process.argv.slice(2)) {
+  switch(arg) {
+  case "-h":
+    console.log("Arguments: [flags] [fileIds ...]")
+    console.log("\t-h\tThis help")
+    console.log("\t-w\tWrite fixed offsets")
+    process.exit(0)
+    break
+  case "-w":
+    writing = true
+    break
+  default:
+    fileIds.push(arg)
+  }
+}
+
+let query
+if (fileIds.length == 0) {
+  query = { match_all: {} }
+} else {
+  query = {
+    terms: {
+      fileId: fileIds
+    }
+  }
+}
 
 var elasticsearch = new elasticsearch.Client({
   host: CONF.elasticsearchUrl,
   log: 'info'
 })
 
-
 let src = new ElasticsearchScrollStream(elasticsearch, {
   index: 'annotations',
   type: 'text',
   scroll: '10m',
   body: {
-    query: {
-      match_all: {}
-    },
+    query: query,
     sort: [
       { created: 'asc' }
     ]
@@ -142,48 +168,74 @@ function reorderPageBlocks(page) {
   return page
 }
 
+function dump(s) {
+  let r = JSON.stringify(s)
+  if (r.length > 30) {
+    return `${r.slice(0,15)}...${r.slice(r.length - 15)}`
+  }
+  return r
+}
+
+const MAX_LEN = 100
 
 // Main logic
 function fixAnnotationOffset(annotation, text, cb) {
-  let bestBegin = annotation.begin
+  let bestBegin = annotation.begin, bestEnd = annotation.end
   let bestScore
   for(let i = 0; i < text.length; i++) {
-    let editDistance = levenshtein(annotation.text.substr(0, 100), text.substr(i, Math.min(100, annotation.text.length)))
+    let editDistance = levenshtein(annotation.text.substr(0, MAX_LEN), text.substr(i, Math.min(MAX_LEN, annotation.text.length)))
     let beginDistance = Math.abs(annotation.begin - i)
-    let score = 100 / (1 + 10 * editDistance / annotation.text.length + beginDistance / 100)
+    let score = 100 / (1 + 1000 * editDistance / annotation.text.length + beginDistance / 1000)
 
     if (!bestScore || score > bestScore) {
+      // console.log("bestBegin", { bestBegin, oldBegin: annotation.begin, editDistance, score, l: [annotation.text.substr(0, MAX_LEN), text.substr(i, Math.min(MAX_LEN, annotation.text.length))] })
       bestScore = score
       bestBegin = i
     }
   }
+  let offset = Math.max(0, Math.ceil(annotation.text.length - annotation.text.length / 2))
+  if (offset > 3) {
+    bestScore = undefined
+    for(let i = bestBegin - 30;
+        i < Math.min(text.length - offset, bestBegin + 30);
+        i++) {
+      let editDistance = levenshtein(annotation.text.substr(offset), text.substr(i + offset, Math.min(MAX_LEN, annotation.text.length - offset)))
+      let endDistance = Math.abs(annotation.end - i)
+      let score = 10000 / (1 + 10000 * editDistance / annotation.text.length + endDistance / 10000)
+
+      if (!bestScore || score > bestScore) {
+        // console.log("bestEnd", { bestEnd, oldEnd: annotation.end, editDistance, score, l: [annotation.text.substr(offset), text.substr(i + offset, Math.min(MAX_LEN, annotation.text.length - offset))] })
+        bestScore = score
+        bestEnd = i + annotation.text.length
+      }
+    }
+  } else {
+    bestEnd += bestBegin - annotation.begin
+  }
 
   let delta = bestBegin - annotation.begin
   if (delta !== 0) {
-    // let snipLen = Math.min(30, annotation.text.length)
-    // console.log(`[Score: ${Math.round(bestScore)}] Moving by ${delta}: [${annotation.type}]`, JSON.stringify(annotation.text.substr(0, snipLen)), "from", JSON.stringify(text.substr(annotation.begin, snipLen)), "to", JSON.stringify(text.substr(bestBegin, snipLen)))
-
     // Fix another bug:
-    if (/^\s+/.test(annotation.text)) {
-      while(/\s/.test(annotation.text[0]) && /\S/.test(text[annotation.end + delta])) {
-        delta++
-        bestBegin++
-        annotation.text = text.slice(annotation.begin + delta, annotation.end + delta)
-        console.log("Shift")
-      }
-      while(/\s/.test(annotation.text[0])) {
-        delta++
-        bestBegin++
-        annotation.end--
-        annotation.text = text.slice(annotation.begin + delta, annotation.end + delta)
-        console.log("Unshift")
-      }
-    }
-    let snipLen = Math.min(30, annotation.text.length)
-    console.log(`[Score: ${Math.round(bestScore)}] Moving by ${delta}: [${annotation.type}]`, JSON.stringify(annotation.text.substr(0, snipLen)), "from", JSON.stringify(text.substr(annotation.begin, snipLen)), "to", JSON.stringify(text.substr(annotation.begin + delta, snipLen)))
+    // if (/^\s+/.test(annotation.text)) {
+    //   while(/\s/.test(annotation.text[0]) && /\S/.test(text[annotation.end + delta])) {
+    //     delta++
+    //     bestBegin++
+    //     annotation.text = text.slice(annotation.begin + delta, annotation.end + delta)
+    //     console.log("Shift")
+    //   }
+    //   while(/\s/.test(annotation.text[0])) {
+    //     delta++
+    //     bestBegin++
+    //     annotation.end--
+    //     annotation.text = text.slice(annotation.begin + delta, annotation.end + delta)
+    //     console.log("Unshift")
+    //   }
+    // }
+    console.log("l", annotation.text.length, text.length)
+    console.log(`[Score: ${Math.round(bestScore)}] Moving by ${delta}: [${annotation.type}]`, dump(annotation.text), "from", dump(text.slice(annotation.begin, annotation.end)), `[${annotation.begin}..${annotation.end}]`, "to", dump(text.slice(bestBegin, bestEnd)), `[${bestBegin}..${bestEnd}]`)
 
-    annotation.begin += delta
-    annotation.end += delta
+    annotation.begin = bestBegin
+    annotation.end = bestEnd
     let req = {
       index: 'annotations',
       type: 'text',
@@ -191,9 +243,11 @@ function fixAnnotationOffset(annotation, text, cb) {
     }
     delete annotation._id
     req.body = annotation
-    // elasticsearch.index(req, cb)
-    // console.log("index", req)
-    cb()
+    if (writing) {
+      elasticsearch.index(req, cb)
+    } else {
+      cb()
+    }
   } else {
     cb()
   }
