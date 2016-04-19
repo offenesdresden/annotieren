@@ -180,6 +180,10 @@ const MAX_LEN = 100
 
 // Main logic
 function fixAnnotationOffset(annotation, text, cb) {
+  annotation.text = annotation.text
+    .replace(/^\s+/, "")
+    .replace(/\s+$/, "")
+
   let bestBegin = annotation.begin, bestEnd = annotation.end
   let bestScore
   for(let i = 0; i < text.length; i++) {
@@ -193,7 +197,7 @@ function fixAnnotationOffset(annotation, text, cb) {
       bestBegin = i
     }
   }
-  let offset = Math.max(0, Math.ceil(annotation.text.length - annotation.text.length / 2))
+  let offset = Math.max(0, Math.ceil(annotation.text.length - 20))
   if (offset > 3) {
     bestScore = undefined
     for(let i = bestBegin - 30;
