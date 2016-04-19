@@ -9,14 +9,18 @@ var htmlProcess = require('./html_process')
 var CONF = require('../config.js')
 
 let fileIds = []
-let writing = false
+let deleting = false, writing = false
 for(let arg of process.argv.slice(2)) {
   switch(arg) {
   case "-h":
     console.log("Arguments: [flags] [fileIds ...]")
     console.log("\t-h\tThis help")
     console.log("\t-w\tWrite fixed offsets")
+    console.log("\t-d\tJust delete annotations")
     process.exit(0)
+    break
+  case "-d":
+    deleting = true
     break
   case "-w":
     writing = true
@@ -58,6 +62,10 @@ let src = new ElasticsearchScrollStream(elasticsearch, {
 
 let fileId, fileText
 src.pipe(through.obj(function(annotation, enc, cb) {
+  if (deleting) {
+    return deleteAnnotation(annotation, cb)
+  }
+
   // console.log("annotation", annotation)
   if (annotation.fileId !== fileId) {
     loadFragmentsAsText(annotation.fileId, function(err, text) {
@@ -255,4 +263,12 @@ function fixAnnotationOffset(annotation, text, cb) {
   } else {
     cb()
   }
+}
+
+function deleteAnnotation(annotation, cb) {
+  elasticsearch.delete({
+    index: 'annotations',
+    type: 'text',
+    id: annotation._id
+  }, cb)
 }
