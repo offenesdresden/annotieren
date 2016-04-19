@@ -351,9 +351,9 @@ class FileDetails extends React.Component {
       case 'paper.response':
       case 'paper.proposition':
       case 'paper.reason':
+      case 'paper.comment':
       case 'paper.resolution':
       case 'paper.report':
-      case 'paper.info':
         appendPart(annotation)
         break
 

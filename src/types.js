@@ -70,14 +70,14 @@ let TYPES = [
       { id: 'paper.reason',
         title: "Begründung",
       },
+      { id: 'paper.comment',
+        title: "Stellungnahme",
+      },
       { id: 'paper.resolution',
         title: "Beschluss",
       },
       { id: 'paper.report',
         title: "Beschlusskontrolle",
-      },
-      { id: 'paper.info',
-        title: "Allgemeine Information",
       }
     ]
   },
