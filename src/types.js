@@ -62,7 +62,7 @@ let TYPES = [
     ]
   },
   { title: "Vorlage",
-    color: (type, i) => `hsl(180, ${60 + 10 * i}%, ${60 + 8 * i}%)`,
+    color: (type, i) => `hsl(180, ${40 + 10 * i}%, ${62 + 8 * i}%)`,
     types: [
       { id: 'paper.proposition',
         title: "Beschlussvorschlag",
@@ -72,6 +72,12 @@ let TYPES = [
       },
       { id: 'paper.comment',
         title: "Stellungnahme",
+      },
+      { id: 'paper.amendment',
+        title: "Änderung",
+      },
+      { id: 'paper.supplement',
+        title: "Ergänzung",
       },
       { id: 'paper.resolution',
         title: "Beschluss",
