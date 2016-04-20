@@ -666,7 +666,7 @@ class AnnotationSpeaker extends React.Component {
     }
 
     return !person ? (
-      <span style={spanStyle}>
+      <span style={Object.assign({ fontWeight: 'bold' }, spanStyle)}>
         {this.props.person && this.props.person.label || this.props.text}
       </span>
     ) : (
