@@ -18,6 +18,8 @@
   * Update to Reactv15
   * Per person summaries
 * Frontend:
+  * paper_view: multiple speakers
+  * paper_view: fix http://localhost:3000/paper/8268 http://localhost:3000/file/175634
   * annotate_bar: delete button in top toolbar
   * paper_view: show all refs if file pertains only to this paper
   * create annotations: auto-rm white-space
@@ -33,7 +35,9 @@
   * paper_view optimization: /api/file/241251/annotations/${paper.id}
   * search: completion
   * paper_view: more like this
+  * paper_view vote: pie chart
 * Backend:
+  * Highscore agg not with terms but full ids
   * Find stale annotations that were created prior text reordering
   * Cache headers for production
   * journaling
