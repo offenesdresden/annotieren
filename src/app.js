@@ -41,9 +41,7 @@ class Main extends React.Component {
             <SearchRoute/>
           </Route>
           <Route path="/register">
-            <Navigation title="Account registrieren"/>
-
-            <Register/>
+            <RegisterRoute/>
           </Route>
           <Route path="/file/:id">
             <FileRoute/>
@@ -72,6 +70,20 @@ class FrontRoute extends React.Component {
         <div style={{ marginTop: "64px" }}>
           <Search/>
           <FrontPage/>
+        </div>
+      </div>
+    )
+  }
+}
+
+class RegisterRoute extends React.Component {
+  render() {
+    return (
+      <div>
+        <Navigation title="Account registrieren"/>
+
+        <div style={{ margin: "64px auto" }}>
+          <Register/>
         </div>
       </div>
     )

@@ -9,10 +9,6 @@ import { actions as accountActions, default as accountStore } from './account_st
 import Login from './login'
 
 
-const TAB_FRONT = 0
-const TAB_LOGIN = 1
-const TAB_LOGOUT = 1
-
 export default React.createClass({
   mixins: [
     Reflux.listenTo(accountActions.refreshLogin.completed, 'onRefreshLoginCompleted'),
@@ -23,6 +19,7 @@ export default React.createClass({
 
   getInitialState() {
     return {
+      loginOpen: false
     }
   },
 
@@ -72,9 +69,10 @@ export default React.createClass({
       return (
         <div>
           <FlatButton id='login' label="Login"
+              onClick={() => this.handleLogin()}
               style={{ color: 'white' }}/>
 
-          <Login isOpen={!this.state.loginOpen}
+          <Login isOpen={this.state.loginOpen}
               anchorEl={document.getElementById('login')}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               targetOrigin={{ vertical: 'top', horizontal: 'right' }}
@@ -84,11 +82,19 @@ export default React.createClass({
           </div>
       )
     } else {
-      return <FlatButton label="Logout"
-          onClick={() => this.handleLogout}
-          style={{ color: 'white' }}
-          />
+      return (
+        <div>
+          <FlatButton label="Logout"
+              onClick={() => this.handleLogout()}
+              style={{ color: 'white' }}
+              />
+        </div>
+      )
     }
+  },
+
+  handleLogin() {
+    this.setState({ loginOpen: !this.state.loginOpen })
   },
   
   handleLogout() {
