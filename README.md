@@ -18,12 +18,15 @@
   * Update to Reactv15
   * Per person summaries
 * Frontend:
+  * annotate_bar: fix hint suggestion search input overwriting
   * paper_view: multiple speakers
+    * first re-paragraph
+    * then leave no ref/speaker behind
+  * front_page: recent annotation with secondaryText, eg. user, time
   * paper_view: fix http://localhost:3000/paper/8268 http://localhost:3000/file/175634
   * annotate_bar: delete button in top toolbar
   * paper_view: show all refs if file pertains only to this paper
   * create annotations: auto-rm white-space
-  * annotate_bar: fix hint suggestion search input overwriting
   * doc_text: progressive loading
   * paper_view: more refs, inline, render refs per paragraph
   * Fix: display of stacked annotations with equal begin offset
@@ -36,6 +39,12 @@
   * search: completion
   * paper_view: more like this
   * paper_view vote: pie chart
+  * paper_view: diffing annotation.text
+  * paper_view: suggest meetings with date
+  * doc_view: keyboard control
+  * Progressive Web App
+  * OG/LD metadata in html header
+  * Timeline
 * Backend:
   * Highscore agg not with terms but full ids
   * Find stale annotations that were created prior text reordering
