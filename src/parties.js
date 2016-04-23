@@ -5,7 +5,7 @@ const PARTIES = [{
 }, {
   id: "33",
   name: "Fraktion DIE LINKE.",
-  rgb: "127,0,127"
+  rgb: "150,0,0"
 }, {
   id: "30",
   name: "Fraktion Bündnis 90/Die Grünen",
