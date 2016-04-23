@@ -1,11 +1,11 @@
 import React from 'react'
 import Route from 'react-route'
 
-import Toolbar from 'react-md/lib/Toolbars'
 import { Card, CardTitle, CardActions, CardText } from 'react-md/lib/Cards'
 import { RaisedButton } from 'react-md/lib/Buttons'
 import { CircularProgress } from 'react-md/lib/Progress'
 
+import Navigation from './navigation'
 import { RaisedLinkButton } from './link_button'
 import PaperAvatar from './paper_avatar'
 import { getTypeById } from './types'
@@ -80,14 +80,10 @@ export default class PaperView extends React.Component {
     pushFileCards(paper.auxiliaryFile)
 
     return (
-      <div className="paper-view" style={{ maxWidth: "60em", margin: "0 auto" }}>
-        <Toolbar
-            primary={true}
-            actionLeft={
-              <PaperAvatar paper={paper}/>
-            }
+      <div className="paper-view" style={{ maxWidth: "60em", margin: "64px auto 0" }}>
+        <Navigation
             title={paper.name}
-            actionRight={
+            right={
               <p style={{ margin: "16px 0 0", fontSize: "80%", color: 'white' }}>
                 {iso8601ToDate(paper.publishedDate)}
               </p>

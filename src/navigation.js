@@ -2,7 +2,8 @@ import React from 'react'
 import Reflux from 'reflux'
 import Route from 'react-route'
 
-import { Tabs, Tab } from 'react-md/lib/Tabs'
+import Toolbar from 'react-md/lib/Toolbars'
+import { FlatButton, IconButton } from 'react-md/lib/Buttons'
 
 import { actions as accountActions, default as accountStore } from './account_store'
 import Login from './login'
@@ -22,7 +23,6 @@ export default React.createClass({
 
   getInitialState() {
     return {
-      tab: null
     }
   },
 
@@ -30,19 +30,6 @@ export default React.createClass({
     this.setState({
       username: accountStore.username
     })
-
-    let tab = null
-    switch(this.props.for) {
-    case "/":
-      tab = TAB_FRONT
-      break
-    }
-
-    if (tab) {
-      this.setState({
-        tab: tab
-      })
-    }
   },
 
   onRefreshLoginCompleted(username) {
@@ -55,62 +42,53 @@ export default React.createClass({
 
   render() {
     return (
-      <div style={{ marginBottom: "48px" }}>
-        <Tabs key="t" scrollable={true} primary={true}
+        <Toolbar primary={true}
+            title={this.props.title}
             className="navigation"
-            style={{ flexGrow: 1, justifyContent: 'space-around' }}
-            activeTabIndex={this.state.tab || 0}
-            onChange={value => {
-              if (typeof value === 'number') this.handleTabChange(value)
-            }}
-            >
-
-          <Tab label="Übersicht" children={[]}/>
-
-          {!this.state.username ?
-           <Tab id='login' label="Login" children={[]}/> :
-           <Tab label={`Logout ${this.state.username}`} children={[]}/>
-          }
-        </Tabs>
-
-        <Login isOpen={!this.state.username && this.state.tab === TAB_LOGIN}
-            anchorEl={document.getElementById('login')}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            targetOrigin={{ vertical: 'top', horizontal: 'right' }}
-            style={{ padding: "0.5em 1em" }}
-            onClose={() => this.handleCloseLogin()}
+            actionLeft={this.props.left || this.renderHomeButton()}
+            actionsRight={this.props.right || this.renderLoginButton()}
             />
-      </div>
     )
   },
 
-  handleTabChange(value) {
-    console.log("handleTabChange from", this.state.tab, "to", value)
-    this.setState({
-      prevTab: this.state.tab,
-      tab: value
-    })
-
-    switch(value) {
-    case TAB_FRONT:
-      Route.go("/")
-      break
-    case TAB_LOGOUT:
-      if (this.state.username) {
-        this.handleLogout()
-      } else {
-        /* TAB_LOGIN */
-      }
-      break
-    }
+  renderHomeButton() {
+    return (
+      <IconButton href="/"
+          onClick={() => this.handleClickHome()}>
+        home
+      </IconButton>
+    )
   },
 
-  handleCloseLogin() {
-    console.log("close login")
-    this.setState({
-      prevTab: null,
-      tab: this.state.prevTab
-    })
+  handleClickHome() {
+    // Don't let the browser navigate away itself
+    ev.preventDefault()
+    
+    Route.go("/")
+  },
+
+  renderLoginButton() {
+    if (!this.state.username) {
+      return (
+        <div>
+          <FlatButton id='login' label="Login"
+              style={{ color: 'white' }}/>
+
+          <Login isOpen={!this.state.loginOpen}
+              anchorEl={document.getElementById('login')}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              targetOrigin={{ vertical: 'top', horizontal: 'right' }}
+              style={{ padding: "0.5em 1em" }}
+              onClose={() => this.handleCloseLogin()}
+              />
+          </div>
+      )
+    } else {
+      return <FlatButton label="Logout"
+          onClick={() => this.handleLogout}
+          style={{ color: 'white' }}
+          />
+    }
   },
   
   handleLogout() {
@@ -120,18 +98,16 @@ export default React.createClass({
   onLogoutCompleted() {
     this.setState({
       username: null,
-
-      prevTab: null,
-      tab: this.state.prevTab
     })
   },
 
   onLogoutFailed(e) {
     console.error(e.stack || e)
-
-    this.setState({
-      prevTab: null,
-      tab: this.state.prevTab
-    })
   },
+
+  handleCloseLogin() {
+    this.setState({
+      loginOpen: false
+    })
+  }
 })

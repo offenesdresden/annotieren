@@ -27,6 +27,12 @@ html, body {
     right: 0;
     top: 0;
     z-index: 1000;
+    > * {
+        height: 100% !important;
+        /* line-height: 72px !important; */
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
+    }
 }
 
 .search {

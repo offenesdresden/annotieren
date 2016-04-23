@@ -3,12 +3,12 @@ import Reflux from 'reflux'
 import Route from 'react-route'
 
 import Paper from 'react-md/lib/Papers'
-import Toolbar from 'react-md/lib/Toolbars'
 import { FlatButton } from 'react-md/lib/Buttons'
 import { CircularProgress } from 'react-md/lib/Progress'
 import Snackbar from 'react-md/lib/Snackbars'
 import FontIcon from 'react-md/lib/FontIcons'
 
+import Navigation from './navigation'
 import DocText from './doc_text'
 import AnnotateBar from './annotate_bar'
 import { actions as annotateActions } from './annotate_store'
@@ -236,19 +236,20 @@ export default React.createClass({
       "currentAnnotation:", this.state.currentAnnotation && this.state.currentAnnotation.id)
     return (
       <div>
-        <Paper className="doc_view" zDepth={2}>
-          <Toolbar secondary={true}
-              title={this.state.loading ? "Laden…" : this.state.file.name}
-              actionLeft={<FontIcon>description</FontIcon>}
-              actionsRight={
-                <FlatButton label="PDF"
-                    title="Original-PDF herunterladen"
-                    href={this.state.file.downloadUrl}
-                    />
-              }/>
+        <Navigation
+            title={this.state.loading ? "Laden…" : this.state.file.name}
+            right={
+              <FlatButton
+                  title="Original-PDF herunterladen"
+                  href={this.state.file.downloadUrl}
+                  >
+                <FontIcon>file_download</FontIcon>
+              </FlatButton>
+            }/>
 
+        <Paper className="doc_view" zDepth={2} style={{ marginTop: "64px" }}>
           {this.state.loading ?
-            <div style={{ textAlign: 'center' }}>
+            <div style={{ textAlign: 'center', padding: "4em 0" }}>
               <CircularProgress scale={2}/>
             </div> :
             <DocText

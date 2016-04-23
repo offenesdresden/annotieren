@@ -32,10 +32,7 @@ class Main extends React.Component {
       <div>
         <div>
           <Route path="/">
-            <Navigation for="/"/>
-
-            <Search/>
-            <FrontPage/>
+            <FrontRoute/>
           </Route>
           <Route path="/s/">
             <SearchRoute/>
@@ -44,7 +41,7 @@ class Main extends React.Component {
             <SearchRoute/>
           </Route>
           <Route path="/register">
-            <Navigation/>
+            <Navigation title="Account registrieren"/>
 
             <Register/>
           </Route>
@@ -66,15 +63,32 @@ class Main extends React.Component {
   }
 }
 
+class FrontRoute extends React.Component {
+  render() {
+    return (
+      <div>
+        <Navigation left={""} title="Dresdner Ratsinfo-Daten annotieren"/>
+
+        <div style={{ marginTop: "64px" }}>
+          <Search/>
+          <FrontPage/>
+        </div>
+      </div>
+    )
+  }
+}
+
 class SearchRoute extends React.Component {
   render() {
     let query = this.props.params.query
     return (
       <div>
-        <Navigation/>
+        <Navigation title={`Suche: ${query}`}/>
 
-        <Search query={query}/>
-        <SearchResults query={query}/>
+        <div style={{ marginTop: "64px" }}>
+          <Search query={query}/>
+          <SearchResults query={query}/>
+        </div>
       </div>
     )
   }
@@ -83,26 +97,14 @@ class SearchRoute extends React.Component {
 class FileRoute extends React.Component {
   render() {
     let id = this.props.params.id
-    return (
-      <div>
-        <Navigation/>
-
-        <DocView key={id} id={id}/>
-      </div>
-    )
+    return <DocView key={id} id={id}/>
   }
 }
 
 class PaperRoute extends React.Component {
   render() {
     let id = this.props.params.id
-    return (
-      <div>
-        <Navigation/>
-
-        <PaperView key={id} id={id}/>
-      </div>
-    )
+    return <PaperView key={id} id={id}/>
   }
 }
 

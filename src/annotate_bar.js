@@ -53,7 +53,6 @@ export default React.createClass({
       <Sidebar className="annotate-bar" isOpen={open} align='right' responsive={true} fixed={true}
           header={
               <Toolbar secondary={true} title={title}
-                  style={{ marginTop: "48px" }}
                   />}
           >
         <TypesMenu
@@ -70,7 +69,6 @@ export default React.createClass({
         <Sidebar className="annotate-bar" align='right' responsive={true} fixed={true} isOpen={true}
           header={
               <Toolbar secondary={true} title="Bearbeiten…"
-                  style={{ marginTop: "48px" }}
                   />}
           >
         <aside>
