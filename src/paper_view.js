@@ -604,10 +604,11 @@ class AnnotationPart extends React.Component {
       <div id={this.props.id}
           style={{
             borderLeft: `4px solid ${type ? type.color : 'white'}`,
-            paddingLeft: "8px"
+            paddingLeft: "8px",
+            marginTop: "1em"
           }}>
         {this.props.noHeading ? "" :
-          <h4 style={{ color: '#999', textAlign: 'center', margin: "0", padding: "1em 0" }}>
+          <h4 style={{ color: '#333', textAlign: 'center', margin: "0", padding: "1em 0" }}>
             {title}
           </h4>}
         {this.props.refs ?
