@@ -251,9 +251,10 @@ class FileDetails extends React.Component {
     super(props)
 
     this.state = {
-      parts: [],
+      dates: [],
       originators: [],
-      recipients: []
+      recipients: [],
+      parts: []
     }
   }
 
@@ -322,6 +323,7 @@ class FileDetails extends React.Component {
       parts.push(annotation)
     }
 
+    let dates = []
     let originators = []
     let recipients = []
     let prevSpeaker = null
@@ -335,6 +337,9 @@ class FileDetails extends React.Component {
 
       switch(annotation.type) {
 
+      case 'doc.date':
+        dates.push(annotation)
+        break
       case 'doc.originator':
         originators.push(annotation)
         break
@@ -458,11 +463,11 @@ class FileDetails extends React.Component {
     // Pick marked for removal
     parts = parts.filter(part => !!part.type)
 
-    this.setState({ parts, originators, recipients }, cb)
+    this.setState({ dates, originators, recipients, parts }, cb)
   }
 
   render() {
-    let parts = this.state.parts
+    let { dates, parts } = this.state
 
     if (this.state.loading) {
       return (
@@ -483,9 +488,21 @@ class FileDetails extends React.Component {
         </h4>
       )
     } else {
-      let type = getTypeById('doc.originator')
+      let dateType = getTypeById('doc.date')
+      let originatorType = getTypeById('doc.originator')
       return (
         <article>
+          {dates.length > 0 && (
+            <div className="date" style={{
+                  borderLeft: `4px solid ${dateType ? dateType.color : 'white'}`
+                }}>
+              <div style={{ margin: "0 1em 0.5em", textAlign: 'center' }}>
+                <h4>Datum</h4>
+                {dates.map(date => (<p>{date.text}</p>))}
+              </div>
+            </div>
+          )}
+
           <div className="addrs" style={{
             flex: "1 1 25em",
             display: 'flex',
@@ -493,7 +510,7 @@ class FileDetails extends React.Component {
             justifyContent: 'space-between',
             alignItems: 'center',
             flexWrap: 'nowrap',
-            borderLeft: `4px solid ${type ? type.color : 'white'}`
+            borderLeft: `4px solid ${originatorType ? originatorType.color : 'white'}`
           }}>
             {this.renderAddrs("Von:", this.state.originators)}
             {this.renderAddrs("An:", this.state.recipients)}
@@ -821,7 +838,7 @@ class Vote extends React.Component {
     let yesType = getTypeById('vote.yes')
     return (
         <div style={{ textAlign: 'center', borderLeft: `4px solid ${yesType.color}` }}>
-        <h4 style={{ color: '#999', margin: "0", padding: "1em 0" }}>Abstimmung</h4>
+        <h4 style={{ color: '#333', margin: "0", padding: "1em 0" }}>Abstimmung</h4>
         <p style={{ display: 'inline-block' }}>
           {fractions.map(f => (
             <span key={f.fraction} title={`${f.value}× ${f.fraction}`} style={{

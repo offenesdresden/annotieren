@@ -192,8 +192,9 @@ html, body {
     .md-card-title .titles {
         max-width: 100%;
     }
-    .addrs {
+    .date, .addrs {
         h4 {
+            color: #333;
             margin: 0;
         }
         p {
