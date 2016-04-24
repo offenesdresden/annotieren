@@ -38,12 +38,37 @@ export default React.createClass({
   },
 
   render() {
+    let left = this.renderHomeButton()
+    if (this.props.left) {
+      left = (
+        <div style={{
+              display: 'flex',
+              flexDirection: 'row'
+            }}>
+          {left}
+          {this.props.left}
+        </div>
+      )
+    }
+    let right = this.renderLoginButton()
+    if (this.props.right) {
+      right = (
+        <div style={{
+              display: 'flex',
+              flexDirection: 'row-reverse'
+            }}>
+          {right}
+          {this.props.right}
+        </div>
+      )
+    }
+
     return (
         <Toolbar primary={true}
             title={this.props.title}
             className="navigation"
-            actionLeft={this.props.left || this.renderHomeButton()}
-            actionsRight={this.props.right || this.renderLoginButton()}
+            actionLeft={left}
+            actionsRight={right}
             />
     )
   },
@@ -60,7 +85,7 @@ export default React.createClass({
   handleClickHome() {
     // Don't let the browser navigate away itself
     ev.preventDefault()
-    
+
     Route.go("/")
   },
 
@@ -96,7 +121,7 @@ export default React.createClass({
   handleLogin() {
     this.setState({ loginOpen: !this.state.loginOpen })
   },
-  
+
   handleLogout() {
     accountActions.logout()
   },
