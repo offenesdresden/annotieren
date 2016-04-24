@@ -13,7 +13,6 @@
 # TODO
 
 * Ideas:
-  * Navigation: as toolbar with Home, Current context, Logout
   * location metadata with map
   * Update to Reactv15
   * Per person summaries
@@ -45,6 +44,7 @@
   * Progressive Web App
   * OG/LD metadata in html header
   * Timeline
+  * paper_view: part onClick=go `/file/${fileId}#annotation-${annotationId}`
 * Backend:
   * Highscore agg not with terms but full ids
   * Find stale annotations that were created prior text reordering
@@ -53,8 +53,6 @@
   * annotations aggregations by file for pretty badges
 * Navigation:
   * Suchen (Facets?): no results by default
-  * Neue Dokumente
   * Kürzlich annotierte
-  * Meistannotierte
   * Selten annotierte
 
