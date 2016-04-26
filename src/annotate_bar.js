@@ -192,6 +192,9 @@ class TypeMetadata extends React.Component {
       loading: true
     })
 
+    text = text
+      .replace(/^\s+/, "")
+      .replace(/\s+$/, "")
     fetchMetadataSuggestions(this.props.keyName, text)
       .then(suggestions => {
         this.setState({ loading: false, suggestions })
