@@ -52,12 +52,17 @@ export default React.createClass({
     return (
       <Sidebar className="annotate-bar" isOpen={open} align='right' responsive={true} fixed={true}
           header={
-              <Toolbar secondary={true} title={title}
+              <Toolbar primary={true} title={title}
+                  actionsRight={(annotation && annotation.type !== 'new') && (
+                    <IconButton title="Löschen"
+                        onClick={ev => this.props.onDelete()}
+                        >delete</IconButton>
+                  )}
                   />}
           >
         <TypesMenu
             currentAnnotation={annotation}
-            onType={this.props.onType} onDelete={this.props.onDelete}
+            onType={this.props.onType}
             onMetadata={this.props.onMetadata}
             />
       </Sidebar>
@@ -67,9 +72,7 @@ export default React.createClass({
   renderLoginPrompt() {
     return (
         <Sidebar className="annotate-bar" align='right' responsive={true} fixed={true} isOpen={true}
-          header={
-              <Toolbar secondary={true} title="Bearbeiten…"
-                  />}
+          header={<Toolbar primary={true} title="Bearbeiten…"/>}
           >
         <aside>
           <p style={{ margin: "1em 0.5em" }}>
@@ -81,7 +84,7 @@ export default React.createClass({
             <li>Anklicken was das für ein Text ist</li>
             <li>Optional mit Bestandsdaten verknüpfen</li>
           </ol>
-          <div style={{ marginTop: "3em" }}>
+          <div style={{ margin: "3em 0.5em 0.5em" }}>
             <p style={{ fontSize: "90%", color: '#888', margin: "0" }}>
               Noch keinen Account?
             </p>
@@ -141,17 +144,6 @@ class TypesMenu extends React.Component {
         <List>
           {list}
         </List>
-
-        {(annotation && annotation.type !== 'new') ?
-          <div style={{ textAlign: "center", margin: "1em auto" }}>
-            <RaisedButton label="Löschen" iconBefore={true}
-                style={{ backgroundColor: '#f00', color: "white" }}
-                onClick={ev => this.props.onDelete()}
-                >
-              <FontIcon>delete</FontIcon>
-           </RaisedButton>
-         </div> : ""
-        }
       </div>
     )
   }

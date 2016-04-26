@@ -121,6 +121,10 @@ html, body {
 }
 
 .annotate-bar {
+    .md-sidebar {
+        /* Padding because navigation toolbar is position: fixed */
+        padding: 64px 0 0;
+    }
     .md-toolbar {
         .md-title {
             line-height: 64px;
