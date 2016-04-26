@@ -62,7 +62,7 @@ let TYPES = [
     ]
   },
   { title: "Vorlage",
-    color: (type, i) => `hsl(180, ${40 + 10 * i}%, ${62 + 8 * i}%)`,
+    color: (type, i) => `hsl(180, ${50 + 8 * i}%, ${60 + 6 * i}%)`,
     types: [
       { id: 'paper.proposition',
         title: "Beschlussvorschlag",
