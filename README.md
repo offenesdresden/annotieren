@@ -12,45 +12,40 @@
 
 # TODO
 
-* Ideas:
-  * location metadata with map
-  * Update to Reactv15
-  * Per person summaries
 * Frontend:
-  * paper_view: multiple speakers
-    * first re-paragraph
-    * then leave no ref/speaker behind
   * front_page: recent annotation with secondaryText, eg. user, time
-  * paper_view: fix http://localhost:3000/paper/8268 http://localhost:3000/file/175634
-  * paper_view: show all refs if file pertains only to this paper
-  * create annotations: auto-rm white-space
-  * doc_text: progressive loading
-  * paper_view: more refs, inline, render refs per paragraph
-  * Fix: display of stacked annotations with equal begin offset
-  * Cycle thru stack o' annotations by repeated clicking
-  * doc_view: metadata/context? eg. agendaItems
-  * paper view: more info, more pretty, maps
+  * search: completion
+  * paper_view:
+    * multiple speakers
+      * first re-paragraph
+      * then leave no ref/speaker behind
+    * fix http://localhost:3000/paper/8268 http://localhost:3000/file/175634
+    * Per person summaries in Popups
+    * show all refs if file pertains only to this paper
+    * more refs, inline, render refs per paragraph
+    * more info, more pretty, maps
+    * optimization: /api/file/241251/annotations/${paper.id}
+    * more like this
+    * pie chart
+    * diffing annotation.text
+    * suggest meetings with date
+    * part onClick=go `/file/${fileId}#annotation-${annotationId}`
+    * Timeline
+  * doc_view:
+    * create annotations: auto-rm white-space
+    * Fix: display of stacked annotations with equal begin offset
+    * Cycle thru stack o' annotations by repeated clicking
+    * metadata/context? eg. agendaItems
+    * keyboard control
+  * fetch: declarative, progressive loading, updates pushed by service-worker
   * Provide raw exports
   * Favicon
-  * paper_view optimization: /api/file/241251/annotations/${paper.id}
-  * search: completion
-  * paper_view: more like this
-  * paper_view vote: pie chart
-  * paper_view: diffing annotation.text
-  * paper_view: suggest meetings with date
-  * doc_view: keyboard control
   * Progressive Web App
   * OG/LD metadata in html header
-  * Timeline
-  * paper_view: part onClick=go `/file/${fileId}#annotation-${annotationId}`
+  * Update to Reactv15
 * Backend:
   * Highscore agg not with terms but full ids
-  * Find stale annotations that were created prior text reordering
   * Cache headers for production
-  * journaling
+  * Journaling/RecentChanges
   * annotations aggregations by file for pretty badges
-* Navigation:
-  * Suchen (Facets?): no results by default
-  * Kürzlich annotierte
-  * Selten annotierte
 
