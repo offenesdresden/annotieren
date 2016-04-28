@@ -13,8 +13,12 @@
 # TODO
 
 * Frontend:
+  * Always test with Chrome and Firefox!
   * front_page: recent annotation with secondaryText, eg. user, time
-  * search: completion
+  * search:
+    * complete rework
+    * indicate annotated files
+    * input completion
   * paper_view:
     * multiple speakers
       * first re-paragraph
@@ -37,13 +41,17 @@
     * Cycle thru stack o' annotations by repeated clicking
     * metadata/context? eg. agendaItems
     * keyboard control
+    * annotate_bar: just one metadata suggestion? auto-accept!
+    * annotate_bar: switching of type with same metadata kind is buggy?
   * fetch: declarative, progressive loading, updates pushed by service-worker
   * Provide raw exports
   * Favicon
   * Progressive Web App
   * OG/LD metadata in html header
   * Update to Reactv15
+  * Help/Tutorial: Short screencasts
 * Backend:
+  * Improve search
   * Highscore agg not with terms but full ids
   * Cache headers for production
   * Journaling/RecentChanges
