@@ -224,6 +224,7 @@ class PaperItem extends React.Component {
     return (
       <ListItem
           leftIcon={<PaperAvatar paper={paper} style={{ color: 'white' }}/>}
+          title={primary}
           primaryText={primary}
           secondaryText={secondary}
           onClick={() => Route.go(`/paper/${encodeURIComponent(paper.id)}`)}
