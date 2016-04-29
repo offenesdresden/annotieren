@@ -161,8 +161,32 @@ class MostAnnotatingUsers extends React.Component {
         return 'directions_walk'
       } else if (annotationsCreated < 1000) {
         return 'directions_run'
-      } else {
+      } else if (annotationsCreated < 1500) {
         return 'directions_bike'
+      } else if (annotationsCreated < 2500) {
+        return 'directions_car'
+      } else if (annotationsCreated < 4000) {
+        return 'directions_bus'
+      } else if (annotationsCreated < 6000) {
+        return 'local_shipping'
+      } else if (annotationsCreated < 8000) {
+        return 'subway'
+      } else if (annotationsCreated < 10000) {
+        return 'tram'
+      } else if (annotationsCreated < 15000) {
+        return 'train'
+      } else if (annotationsCreated < 20000) {
+        return 'directions_boat'
+      } else if (annotationsCreated < 30000) {
+        return 'airport_shuttle'
+      } else if (annotationsCreated < 40000) {
+        return 'flight'
+      } else if (annotationsCreated < 50000) {
+        return 'airline_seat_recline_normal'
+      } else if (annotationsCreated < 100000) {
+        return 'airline_seat_recline_extra'
+      } else {
+        return 'flash_on'
       }
     }
 
