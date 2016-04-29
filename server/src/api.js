@@ -16,8 +16,7 @@ function oparlType(type) {
   return `https://oparl.org/schema/1.0/${type}`
 }
 
-const SEARCH_TYPES = ['Meeting', 'Paper', 'File']
-const RESULT_SIZE = 10
+const RESULT_SIZE = 12
 
 function toHitsSources(result) {
   return result.hits.hits.map(hit => {
@@ -244,9 +243,10 @@ class API {
     })
   }
 
-  _search(body, res, mapper) {
+  _search(type, body, res, mapper) {
     this.elasticsearch.search({
       index: 'oparl',
+      type: type,
       body: body
     }).then(result =>
       mapper ? mapper(result) : result
@@ -276,32 +276,55 @@ class API {
     } : {
       match_all: {}
     }
-    this._search({
-      query: {
-        bool: {
-          must: query,
-          filter: {
-            or: SEARCH_TYPES.map(type => {
-              return {
-                type: {
-                  value: type
-                }
-              }
-            })
-          }
+
+    this.elasticsearch.search({
+      index: 'oparl',
+      type: 'Paper',
+      body: {
+        query: query,
+        size: 3 * RESULT_SIZE,
+        sort: [
+          { _score: "desc" },  // ES scoring
+          { publishedDate: "desc" }  // type Paper
+        ]
+      }
+    }).then(toHitsSources)
+    .then(body => {
+      if (body.length > 0) {
+        return body
+      }
+
+      // Alternatively, search files:
+      return this.elasticsearch.search({
+        index: 'oparl',
+        type: 'File',
+        body: {
+          query: query,
+          size: 2 * RESULT_SIZE,
+          sort: [
+            { _score: "desc" },  // ES scoring
+            // { date: "desc" }  // type File
+          ]
         }
-      },
-      sort: [
-        { _score: "desc" },  // ES scoring
-        { publishedDate: "desc" },  // type Paper
-        { start: "desc" }  // type Meeting
-        // { date: "desc" }  // type File
-      ]
-    }, res, toHitsSources)
+      }).then(toHitsSources)
+    }).then(body => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      })
+      res.write(JSON.stringify(body))
+      res.end()
+    }, err => {
+      console.log("ES search:", err.stack)
+      res.writeHead(500, {
+        'Content-Type': 'text/plain'
+      })
+      res.write(err.message.toString())
+      res.end()
+    })
   }
 
   findFileContext(id, res) {
-    this._search({
+    this._search('Paper,Meeting', {
       query: {
         or: [{
           match: {
@@ -334,7 +357,7 @@ class API {
 
   findPaperContext(id, res) {
     // TODO: doesn't work at all
-    this._search({
+    this._search('File,Meeting', {
       query: {
         nested: {
           path: "agendaItem",
