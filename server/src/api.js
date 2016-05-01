@@ -289,9 +289,21 @@ class API {
         ]
       }
     }).then(toHitsSources)
-    .then(body => {
-      if (body.length > 0) {
-        return body
+    .then(papers => {
+      if (papers.length >= RESULT_SIZE) {
+        return papers
+      }
+
+      let filesSeen = {}
+      for(let paper of papers) {
+        if (paper.mainFile) {
+          filesSeen[paper.mainFile] = true
+        }
+        if (paper.auxiliaryFile) {
+          for(let fileId of paper.auxiliaryFile) {
+            filesSeen[fileId] = true
+          }
+        }
       }
 
       // Alternatively, search files:
@@ -306,7 +318,9 @@ class API {
             // { date: "desc" }  // type File
           ]
         }
-      }).then(toHitsSources)
+      })
+        .then(toHitsSources)
+        .then(files => papers.concat(files.filter(file => !filesSeen[file.id])))
     }).then(body => {
       res.writeHead(200, {
         'Content-Type': 'application/json'
