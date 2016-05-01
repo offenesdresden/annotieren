@@ -5,6 +5,7 @@ $md-secondary-color-hue-1: #1c3a9e;
 $md-secondary-color-base: #1c3a9e;
 
 @import "~react-md/src/scss/react-md.scss";
+@import "~leaflet/dist/leaflet.css";
 
 html, body {
     margin: 0;

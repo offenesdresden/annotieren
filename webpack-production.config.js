@@ -60,9 +60,13 @@ var config = {
         }
       },
       {
-        test: /\.scss$/,
+        test: /\.s?css$/,
         //exclude: [nodeModulesPath],
         loader: ExtractTextPlugin.extract('style', 'css!postcss!sass?outputStyle=compressed'),
+      },
+      {
+        test: /\.png$/,
+        loader: 'file-loader?mimetype=image/png'
       }
     ]
   },

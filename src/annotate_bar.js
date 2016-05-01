@@ -14,6 +14,7 @@ import { RaisedLinkButton } from './link_button'
 import PaperAvatar from './paper_avatar'
 import Types from './types'
 import { actions as accountActions, default as accountStore } from './account_store'
+import { actions as geolocationPickerActions } from './geolocation_picker'
 
 
 export default React.createClass({
@@ -164,27 +165,29 @@ const METADATA_LABELS = {
   location: "Ort"
 }
 
-class TypeMetadata extends React.Component {
-  constructor(props) {
-    super(props)
+const TypeMetadata = React.createClass({
+  mixins: [
+    Reflux.listenTo(geolocationPickerActions.ok, 'onGeolocationPicked')
+  ],
 
-    this.state = {
+  getInitialState() {
+    return {
       filterText: "",
       suggestions: []
     }
-  }
+  },
 
   componentDidMount() {
     if (!this.props.value) {
       this.handleFilterTextUpdate(this.props.text)
     }
-  }
+  },
 
   componentWillReceiveProps(nextProps) {
     if (!this.props.filterText && nextProps.text) {
       this.handleFilterTextUpdate(nextProps.text)
     }
-  }
+  },
 
   handleFilterTextUpdate(text) {
     this.setState({
@@ -204,11 +207,17 @@ class TypeMetadata extends React.Component {
 
         this.setState({ loading: false })
       })
-  }
+  },
+
+  onGeolocationPicked(lat, lon) {
+    this.props.onUpdate({
+      lat, lon
+    })
+  },
 
   render() {
     let value = this.props.value
-    if (value && value.id) {
+    if (value && (value.id || (value.lon && value.lat))) {
       let chipContent
       switch(this.props.keyName) {
       case 'person':
@@ -238,11 +247,26 @@ class TypeMetadata extends React.Component {
             style={Object.assign({ textAlign: 'center' }, this.props.style)}
             primaryText={
               <Chip label={getMetadataLabel(value)}
+                  onClick={() => this.handleClickChip()}
                   remove={() => this.handleRemove()}
                   >
                 {chipContent}
               </Chip>}
             />
+      )
+    } else if (this.props.keyName == 'geolocation') {
+      return (
+        <ListItem disabled={true}
+            style={Object.assign({ textAlign: 'center' }, this.props.style)}
+            primaryText={<div>
+              <RaisedButton
+                  label="lokalisieren"
+                  onClick={() => geolocationPickerActions.open(value && value.lat, value && value.lon, this.props.text)}
+                  >
+                <FontIcon>add_location</FontIcon>
+              </RaisedButton>
+            </div>}
+        />
       )
     } else {
       let suggestionItems = []
@@ -278,18 +302,33 @@ class TypeMetadata extends React.Component {
             />
       )
     }
-  }
+  },
 
   handleSelectSuggestion(suggestion) {
     this.props.onUpdate(suggestion)
-  }
+  },
+
+  handleClickChip() {
+    let value = this.props.value
+    if (value && this.props.keyName == 'geolocation') {
+      geolocationPickerActions.open(
+        value && value.lat,
+        value && value.lon,
+        this.props.text
+      )
+    }
+  },
 
   handleRemove() {
     this.props.onUpdate(null)
   }
-}
+})
 
 function getMetadataLabel(metadata) {
+  if (metadata.lat && metadata.lon) {
+    return `${metadata.lat.toString().substr(0, 7)}, ${metadata.lon.toString().substr(0, 7)}`
+  }
+  
   let label = metadata.name
   if (metadata.shortName) label = `${metadata.shortName}: ${label}`
   if (metadata.status) label = `${label} (${metadata.status})`

@@ -153,11 +153,11 @@ let TYPES = [
         title: "Datei",
         metadata: ['file']
       },
-      // { id: 'ref.location',
-      //   title: "Ort",
-      //   rgb: "255,207,207",
-      //   metadata: ['geolocation']
-      // }
+      { id: 'ref.location',
+        title: "Ort",
+        rgb: "255,207,207",
+        metadata: ['geolocation']
+      }
     ]
   },
   // Autor: Gremium, Person
