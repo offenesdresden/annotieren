@@ -89,7 +89,7 @@ export default React.createClass({
             style={{ width: "60vw", height: "50vh", margin: "2em auto" }}>
           <TileLayer
               url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
-              attribution='<a href="http://osm.org/copyright">OpenStreetMap</a>'
+              attribution='<a href="http://osm.org/copyright">OSM</a>'
               />
           <Marker ref='marker'
               position={[this.state.lat, this.state.lon]}

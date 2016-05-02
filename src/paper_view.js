@@ -4,6 +4,7 @@ import Route from 'react-route'
 import { Card, CardTitle, CardActions, CardText } from 'react-md/lib/Cards'
 import { RaisedButton } from 'react-md/lib/Buttons'
 import { CircularProgress } from 'react-md/lib/Progress'
+import { Map, Marker, Popup, TileLayer } from 'react-leaflet'
 
 import Navigation from './navigation'
 import { RaisedLinkButton } from './link_button'
@@ -408,10 +409,16 @@ class FileDetails extends React.Component {
       case 'ref.meeting':
       case 'ref.paper':
       case 'ref.file':
-      case 'ref.location':
         if (prevPart) {
           if (!prevPart.refs) prevPart.refs = []
           prevPart.refs.push(annotation)
+        }
+        break
+
+      case 'ref.location':
+        if (prevPart) {
+          if (!prevPart.locationRefs) prevPart.locationRefs = []
+          prevPart.locationRefs.push(annotation)
         }
         break
       }
@@ -631,6 +638,9 @@ class AnnotationPart extends React.Component {
             {this.props.refs.map(ref => <AnnotationRef key={ref.id} {...ref}/>)}
           </div>) :
          ""}
+        {this.props.locationRefs &&
+         <AnnotationMap refs={this.props.locationRefs}/>
+        }
         <p style={{
               whiteSpace: 'pre-wrap',
               clear: 'left',
@@ -706,6 +716,8 @@ class AnnotationRef extends React.Component {
       return <PersonRef {...this.props}/>
     case 'ref.paper':
       return <PaperRef {...this.props}/>
+    case 'ref.location':
+      return <LocationRef {...this.props}/>
     default:
       return <div/>
     }
@@ -805,6 +817,46 @@ class PaperRef extends React.Component {
           {this.props.text}
         </p>
       </div>
+    )
+  }
+}
+
+class AnnotationMap extends React.Component {
+  render() {
+    // Estimate bounds first
+    let s, w, n, e
+    for(let ref of this.props.refs) {
+      // Fix first:
+      ref.geolocation.lat = Number(ref.geolocation.lat)
+      ref.geolocation.lon = Number(ref.geolocation.lon)
+
+      let { lat, lon } = ref.geolocation
+      let lat1 = lat - 0.01, lat2 = lat + 0.01
+      let lon1 = lon - 0.01, lon2 = lon + 0.01
+      if (!s || lat1 < s) s = lat1
+      if (!w || lon1 < w) w = lon1
+      if (!n || lat2 > n) n = lat2
+      if (!e || lon2 > e) e = lon2
+    }
+
+    return (
+      <Map bounds={[[s, w], [n, e]]} zoom={12}
+          style={{ width: "25em", height: "20em", margin: "0.5em", float: 'right' }}>
+        <TileLayer
+            url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
+            attribution='<a href="http://osm.org/copyright">OSM</a>'
+            />
+
+        {this.props.refs.map(ref => (
+          <Marker key={ref.id} position={[ref.geolocation.lat, ref.geolocation.lon]}>
+            <Popup maxWidth={256}>
+              <p>
+                {ref.text}
+              </p>
+            </Popup>
+          </Marker>
+        ))}
+      </Map>
     )
   }
 }

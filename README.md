@@ -27,7 +27,7 @@
     * Per person summaries in Popups
     * show all refs if file pertains only to this paper
     * more refs, inline, render refs per paragraph
-    * more info, more pretty, maps
+    * more info, more pretty
     * optimization: /api/file/241251/annotations/${paper.id}
     * more like this
     * pie chart
