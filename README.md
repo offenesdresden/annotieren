@@ -14,7 +14,11 @@
 
 * Frontend:
   * Always test with Chrome and Firefox!
-  * front_page: recent annotation with secondaryText, eg. user, time
+  * calendar & meeting_view
+  * front_page:
+    * recent annotation with secondaryText, eg. user, time
+    * "demnächst zur Entscheidung"
+    * statt RecentPapers: "Aktualisierte *Anträge* und Vorlagen": nur noch A*/V*, sort by file.date
   * search:
     * complete rework
     * indicate annotated files
@@ -36,10 +40,12 @@
     * part onClick=go `/file/${fileId}#annotation-${annotationId}`
     * Timeline
   * doc_view:
+    * date: metadata
     * create annotations: auto-rm white-space
     * Fix: display of stacked annotations with equal begin offset
     * Cycle thru stack o' annotations by repeated clicking
     * metadata/context? eg. agendaItems
+      * allow editing tags
     * keyboard control
     * annotate_bar: just one metadata suggestion? auto-accept!
     * annotate_bar: switching of type with same metadata kind is buggy?
@@ -56,4 +62,6 @@
   * Cache headers for production
   * Journaling/RecentChanges
   * annotations aggregations by file for pretty badges
-
+* Scraper:
+  * Scrape titles from http://www.dresden.de/de/rathaus/politik/beigeordnete.php
+  * Add static addendums in es_upload
