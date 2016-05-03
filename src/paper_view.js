@@ -831,8 +831,8 @@ class AnnotationMap extends React.Component {
       ref.geolocation.lon = Number(ref.geolocation.lon)
 
       let { lat, lon } = ref.geolocation
-      let lat1 = lat - 0.01, lat2 = lat + 0.01
-      let lon1 = lon - 0.01, lon2 = lon + 0.01
+      let lat1 = lat - 0.005, lat2 = lat + 0.005
+      let lon1 = lon - 0.005, lon2 = lon + 0.005
       if (!s || lat1 < s) s = lat1
       if (!w || lon1 < w) w = lon1
       if (!n || lat2 > n) n = lat2
