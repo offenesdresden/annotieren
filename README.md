@@ -42,7 +42,6 @@
   * doc_view:
     * date: metadata
     * create annotations: auto-rm white-space
-    * Fix: display of stacked annotations with equal begin offset
     * Cycle thru stack o' annotations by repeated clicking
     * metadata/context? eg. agendaItems
       * allow editing tags

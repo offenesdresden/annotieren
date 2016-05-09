@@ -103,7 +103,7 @@ export default React.createClass({
           if (a.begin !== b.begin) {
             return b.begin - a.begin
           } else {
-            return b.end - a.end
+            return a.end - b.end
           }
         })
       } else {
