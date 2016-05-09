@@ -512,6 +512,35 @@ class API {
     }, err => cb(err))
   }
 
+  getAnnotations(res) {
+    let src = new ElasticsearchScrollStream(this.elasticsearch, {
+      index: 'annotations',
+      type: 'text',
+      scroll: '10s',
+      body: {
+        query: {
+          match_all: {}
+        },
+        sort: ['_doc']
+      }
+    }, ['_id'], {
+      objectMode: true
+    })
+
+    res.writeHead(200, {
+      'Content-Type': 'application/json'
+    })
+    src
+      .pipe(through.obj((annotation, enc, cb) => {
+        // Rename _id to id
+        annotation.id = annotation._id
+        delete annotation._id
+        cb(null, annotation)
+      }))
+      .pipe(toJsonArray())
+      .pipe(res)
+  }
+
   // TODO: use toJsonArray()
   getDocAnnotations(opts, res) {
     let elasticsearch = this.elasticsearch
@@ -915,6 +944,9 @@ module.exports = function(conf) {
   })
   app.get('/file/:id/fragments', (req, res) => {
     api.getDocFragments(req.params.id, res)
+  })
+  app.get('/annotations', (req, res) => {
+    api.getAnnotations(res)
   })
   app.get('/file/:id/annotations', (req, res) => {
     api.getDocAnnotations({
