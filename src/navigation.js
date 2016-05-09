@@ -76,7 +76,7 @@ export default React.createClass({
   renderHomeButton() {
     return (
       <IconButton href="/"
-          onClick={() => this.handleClickHome()}>
+          onClick={ev => this.handleClickHome(ev)}>
         home
       </IconButton>
     )
