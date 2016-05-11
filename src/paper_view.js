@@ -74,7 +74,7 @@ export default class PaperView extends React.Component {
         file.forEach(f => pushFileCards(f, role))
       } else if (typeof file == 'string') {
         let expanded = annotatedFiles.indexOf(file) >= 0
-        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} isInitialExpanded={expanded}/>)
+        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} initiallyExpanded={expanded}/>)
       }
     }
     pushFileCards(paper.mainFile, "Hauptdatei")
@@ -130,7 +130,7 @@ class Meeting extends React.Component {
         file.forEach(f => pushFileCards(f, role))
       } else if (typeof file == 'string') {
         let expanded = annotatedFiles.indexOf(file) >= 0
-        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} isInitialExpanded={expanded}/>)
+        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} initiallyExpanded={expanded}/>)
       }
     }
     pushFileCards(meeting.invitation, "Einladung")
@@ -169,7 +169,7 @@ class AgendaItem extends React.Component {
         file.forEach(f => pushFileCards(f, role))
       } else if (typeof file == 'string' && paper.fileIds.indexOf(file) === -1) {
         let expanded = annotatedFiles.indexOf(file) >= 0
-        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} isInitialExpanded={expanded}/>)
+        fileCards.push(<FileCard key={file} file={{ id: file }} role={role} paper={paper} initiallyExpanded={expanded}/>)
       }
     }
     pushFileCards(item.resolutionFile, "Beschlussfassung")
@@ -225,7 +225,7 @@ class FileCard extends React.Component {
 
     return (
       <Card style={{ margin: "1em auto", maxWidth: "60em" }}
-          isInitialExpanded={this.props.isInitialExpanded}
+          initiallyExpanded={this.props.initiallyExpanded}
           >
         <CardTitle
           title={file.name || ""}
