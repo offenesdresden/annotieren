@@ -127,17 +127,31 @@ class Inline extends React.Component {
     let style = props.style = mergeStyle({}, this.props.style)
 
     let { annotations } = this.props
-    let annotation = annotations && annotations[0]
-    if (annotation) {
-      // console.log("Render with annotation:", this.props)
+    if (annotations && annotations.length > 0) {
+      // console.log("Render with annotations:", this.props)
       // clickable
       style.cursor = 'pointer'
       props.onClick = ev => {
+        // Cycle through annotations
+        let annotation
+        if (this.props.currentAnnotation) {
+          let i
+          for(i = 0; i < annotations.length; i++) {
+            if (annotations[i].id === this.props.currentAnnotation.id) {
+              i++
+              break
+            }
+          }
+
+          annotation = annotations[i % annotations.length]
+        } else {
+          annotation = annotations[0]
+        }
         this.props.onClick(annotation)
       }
 
       // backgroundColor by type
-      let def = getTypeById(annotation.type)
+      let def = getTypeById(annotations[0].type)
       style.backgroundColor = def ? def.color : '#ccc'
 
       // frame currentAnnotation
@@ -146,8 +160,7 @@ class Inline extends React.Component {
         style.borderBottom = "1px dotted #333"
         style.paddingBottom = "-1px"
       }
-    }
-    if (annotations) {
+
       props.title = annotations.map(annotation => getTypeById(annotation.type).title)
         .join("/")
     }

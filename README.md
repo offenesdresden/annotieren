@@ -42,7 +42,6 @@
   * doc_view:
     * date: metadata
     * create annotations: auto-rm white-space
-    * Cycle thru stack o' annotations by repeated clicking
     * metadata/context? eg. agendaItems
       * allow editing tags
     * keyboard control
