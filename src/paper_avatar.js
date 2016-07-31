@@ -10,7 +10,7 @@ export default class PaperAvatar extends React.Component {
 
     let suffix = shortName ? `paper-${shortName[0]}` : null
     return (
-      <Avatar title={shortName} suffix={suffix} {...this.props}>
+      <Avatar title={shortName} suffix={suffix} style={this.props.style || {}}>
         {shortName[0]}
       </Avatar>
     )

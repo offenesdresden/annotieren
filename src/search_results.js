@@ -312,7 +312,7 @@ class FileItem extends React.Component {
 
     return (
       <ListItem
-          primaryText={file.name}
+          primaryText={file.name || ""}
           leftIcon={<FontIcon>description</FontIcon>}
           onClick={ev => Route.go(`/file/${encodeURIComponent(this.props.id)}`)}
           />

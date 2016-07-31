@@ -1,9 +1,8 @@
 import React from 'react'
 import Reflux from 'reflux'
-import Route from 'react-route'
 
 import Paper from 'react-md/lib/Papers'
-import { FlatButton } from 'react-md/lib/Buttons'
+import { IconButton } from 'react-md/lib/Buttons'
 import { CircularProgress } from 'react-md/lib/Progress'
 import Snackbar from 'react-md/lib/Snackbars'
 import FontIcon from 'react-md/lib/FontIcons'
@@ -239,12 +238,12 @@ export default React.createClass({
         <Navigation
             title={this.state.loading ? "Laden…" : this.state.file.name}
             right={
-              <FlatButton
-                  title="Original-PDF herunterladen"
+              <IconButton
+                  tooltipLabel="Original-PDF herunterladen"
                   href={this.state.file.downloadUrl}
                   >
-                <FontIcon>file_download</FontIcon>
-              </FlatButton>
+                file_download
+              </IconButton>
             }/>
 
         <Paper className="doc_view" zDepth={2} style={{ marginTop: "64px" }}>

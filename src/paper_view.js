@@ -229,7 +229,6 @@ class FileCard extends React.Component {
           >
         <CardTitle
           title={file.name || ""}
-          titleStyle={{ fontWeight: 'bold' }}
           subtitle={this.props.role}
           isExpander={!!details}
           />
@@ -505,7 +504,7 @@ class FileDetails extends React.Component {
                 }}>
               <div style={{ margin: "0 1em 0.5em", textAlign: 'center' }}>
                 <h4>Datum</h4>
-                {dates.map(date => (<p>{date.text}</p>))}
+                {dates.map((date, i) => (<p key={i}>{date.text}</p>))}
               </div>
             </div>
           )}

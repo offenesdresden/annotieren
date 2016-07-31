@@ -51,7 +51,7 @@ export default React.createClass({
       annotation.type === 'new' ?
       "Annotieren" : "Ändern"
     return (
-      <Sidebar className="annotate-bar" isOpen={open} align='right' responsive={true} fixed={true}
+      <Sidebar className="annotate-bar" isOpen={open} align='right' responsive={false} fixed={true}
           header={
               <Toolbar primary={true} title={title}
                   actionsRight={(annotation && annotation.type !== 'new') && (
@@ -72,7 +72,7 @@ export default React.createClass({
 
   renderLoginPrompt() {
     return (
-        <Sidebar className="annotate-bar" align='right' responsive={true} fixed={true} isOpen={true}
+        <Sidebar className="annotate-bar" align='right' responsive={false} fixed={true} isOpen={true}
           header={<Toolbar primary={true} title="Bearbeiten…"/>}
           >
         <aside>

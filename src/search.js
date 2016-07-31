@@ -30,7 +30,7 @@ export default class Search extends React.Component {
             value={this.state.query}
             onChange={value => this.handleChange(value)}
             type="search"
-            onEnterKeyDown={ev => this.handleSubmit(ev)}
+            onKeyDown={ev => this.handleKey(ev)}
             style={{ marginRight: "2em", width: "30em" }}
             />
         <RaisedButton label="Suchen" primary={true} onClick={ev => this.handleSubmit(ev)}>
@@ -46,9 +46,11 @@ export default class Search extends React.Component {
     })
   }
 
-  handleSubmit(ev) {
-    ev.preventDefault()
+  handleKey(ev) {
+    if (ev.keyCode == 13) {
+      ev.preventDefault()
     
-    Route.go(`/s/${encodeURI(this.state.query)}`)
+      Route.go(`/s/${encodeURI(this.state.query)}`)
+    }
   }
 }
