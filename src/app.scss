@@ -211,3 +211,17 @@ html, body {
         }
     }
 }
+
+.help {
+    max-width: 672px;
+    margin: 0 auto;
+    padding: 16px 8px;
+
+    h1, h3 {
+        text-align: center;
+    }
+    video {
+        max-width: 640px;
+        margin: 4px auto 12px;
+    }
+}

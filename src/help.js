@@ -7,7 +7,7 @@ import PaperAvatar from './paper_avatar'
 export default class Help extends React.Component {
   render() {
     return (
-      <article>
+      <article className="help">
         <h1>Hilfe</h1>
         
         <h2>Was ist "annotieren"?</h2>
@@ -21,9 +21,10 @@ export default class Help extends React.Component {
 
         <h2>Vorgangsarten</h2>
         <ul>
-          <li><PaperAvatar paper={{ shortName: 'P' }}/> Petitionen</li>
-          <li><PaperAvatar paper={{ shortName: 'A' }}/> Anfragen</li>
           <li><PaperAvatar paper={{ shortName: 'V' }}/> Vorlagen</li>
+          <li><PaperAvatar paper={{ shortName: 'AF' }}/> Anfragen</li>
+          <li><PaperAvatar paper={{ shortName: 'mAF' }}/> mündliche Anfragen</li>
+          <li><PaperAvatar paper={{ shortName: 'P' }}/> Petitionen</li>
         </ul>
         <h2>Erste Schritte</h2>
         <ul>
@@ -56,7 +57,7 @@ export default class Help extends React.Component {
         <p>Wir nutzen Elasticsearch's <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html">Simple Query String</a>. Wildcards (<code>*</code>) sind erlaubt.</p>
 
         <h2>Feedback erwünscht</h2>
-        <p>Anmerkungen, Verbesserungsvorschläge und Fehlermeldungen an: <code>astro@spaceboyz.net</code></p>
+        <p>Anmerkungen, Verbesserungsvorschläge und Fehlermeldungen <a href="mailto:astro@spaceboyz.net">per Mail</a> oder <a href="https://github.com/offenesdresden/annotieren/issues">auf Github.</a></p>
       </article>
     )
   }

@@ -93,6 +93,11 @@ export default React.createClass({
     if (!this.state.username) {
       return (
         <div>
+          <FlatButton label="Hilfe"
+              onClick={() => Route.go('/help')}
+              style={{ color: 'white' }}
+              />
+
           <FlatButton id='login' label="Login"
               onClick={() => this.handleLogin()}
               style={{ color: 'white' }}/>
@@ -104,11 +109,16 @@ export default React.createClass({
               style={{ padding: "0.5em 1em" }}
               onClose={() => this.handleCloseLogin()}
               />
-          </div>
+        </div>
       )
     } else {
       return (
         <div>
+          <FlatButton label="Hilfe"
+              onClick={() => Route.go('/help')}
+              style={{ color: 'white' }}
+              />
+
           <FlatButton label="Logout"
               onClick={() => this.handleLogout()}
               style={{ color: 'white' }}
