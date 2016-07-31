@@ -14,6 +14,7 @@ import FrontPage from './front_page'
 import DocView from './doc_view'
 import PaperView from './paper_view'
 import GeolocationPicker from './geolocation_picker'
+import Help from './help'
 
 
 class Main extends React.Component {
@@ -49,6 +50,9 @@ class Main extends React.Component {
           </Route>
           <Route path="/paper/:id">
             <PaperRoute/>
+          </Route>
+          <Route path="/help">
+            <HelpRoute/>
           </Route>
         </div>
 
@@ -120,6 +124,20 @@ class PaperRoute extends React.Component {
   render() {
     let id = this.props.params.id
     return <PaperView key={id} id={id}/>
+  }
+}
+
+class HelpRoute extends React.Component {
+  render() {
+    return (
+      <div>
+        <Navigation left={""} title="Dresdner Ratsinfo-Daten annotieren"/>
+
+        <div style={{ marginTop: "64px" }}>
+          <Help/>
+        </div>
+      </div>
+    )
   }
 }
 
