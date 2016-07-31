@@ -842,7 +842,7 @@ class AnnotationMap extends React.Component {
       <Map bounds={[[s, w], [n, e]]} zoom={12}
           style={{ width: "25em", height: "20em", margin: "0.5em", float: 'right' }}>
         <TileLayer
-            url='https://otile1-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg'
+            url='https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg'
             attribution='<a href="http://osm.org/copyright">OSM</a>'
             />
 

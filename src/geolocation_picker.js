@@ -88,7 +88,7 @@ export default React.createClass({
         <Map center={[DEFAULT_LAT, DEFAULT_LON]} zoom={11}
             style={{ width: "60vw", height: "50vh", margin: "2em auto" }}>
           <TileLayer
-              url='https://otile1-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg'
+              url='https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg'
               attribution='<a href="http://osm.org/copyright">OSM</a>'
               />
           <Marker ref='marker'
