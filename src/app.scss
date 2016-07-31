@@ -28,7 +28,6 @@ html, body {
     left: 0;
     right: 0;
     top: 0;
-    z-index: 1000;
     > * {
         height: 100% !important;
         /* line-height: 72px !important; */
@@ -90,18 +89,11 @@ html, body {
 }
 
 .md-toolbar {
-    justify-content: space-between;
-    align-items: flex-end;
     .md-icon {
-        line-height: 48px;
         color: white;
     }
     .md-title {
         flex-grow: 1;
-        line-height: 50px;
-    }
-    .md-btn {
-        line-height: 40px;
     }
 }
 
@@ -123,15 +115,7 @@ html, body {
 
 .annotate-bar {
     .md-sidebar {
-        /* Padding because navigation toolbar is position: fixed */
-        padding: 64px 0 0;
-    }
-    .md-toolbar {
-        .md-title {
-            line-height: 64px;
-            height: 64px;
-            padding: 6px 16px;
-        }
+        padding-bottom: 64px;
     }
     .md-list {
         padding: 0 !important;
